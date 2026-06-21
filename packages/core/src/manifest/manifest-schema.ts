@@ -87,6 +87,8 @@ export interface ManifestFile {
   language: string;
   fileCategory: FileCategory;
   sizeLines: number;
+  /** SHA-1 of the raw file bytes — drives incremental change detection. */
+  contentHash: string;
   rebuildLayer: RebuildLayer;
   /** True when symbols were populated by structural extraction (vs. fallback). */
   symbolsExtracted: boolean;

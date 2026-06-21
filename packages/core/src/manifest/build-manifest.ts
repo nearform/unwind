@@ -73,6 +73,7 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
   const langTagged = enumerated.map((f) => ({
     path: f.path,
     sizeLines: f.sizeLines,
+    contentHash: f.contentHash,
     language: detectLanguage(f.path),
   }));
 
@@ -111,6 +112,7 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
       language,
       fileCategory,
       sizeLines: f.sizeLines,
+      contentHash: f.contentHash,
       rebuildLayer,
       symbolsExtracted,
       symbols,

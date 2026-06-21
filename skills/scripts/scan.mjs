@@ -50,7 +50,7 @@ try {
   }
 }
 
-const { buildManifest, validateManifest, TreeSitterPlugin } = core;
+const { buildManifest, validateManifest, TreeSitterPlugin, buildFingerprints } = core;
 
 async function main() {
   const [, , projectRootArg, outputArg] = process.argv;
@@ -107,6 +107,25 @@ async function main() {
   if (!existsSync(outputPath)) {
     throw new Error(`output file missing after write: ${outputPath}`);
   }
+
+  // Write the incremental baseline (fingerprints + commit) next to the manifest.
+  // detect-changes.mjs diffs a fresh scan against this to find what moved.
+  const metaPath = join(dirname(outputPath), "meta.json");
+  writeFileSync(
+    metaPath,
+    JSON.stringify(
+      {
+        version: manifest.version,
+        generatedAt: manifest.generatedAt,
+        gitCommitHash: manifest.gitCommitHash,
+        analyzedFiles: manifest.stats.totalFiles,
+        fingerprints: buildFingerprints(manifest),
+      },
+      null,
+      2,
+    ),
+    "utf-8",
+  );
 
   const s = manifest.stats;
   const layerSummary = Object.entries(s.byLayer)

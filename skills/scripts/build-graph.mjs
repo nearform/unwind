@@ -130,9 +130,24 @@ if (existsSync(progressPath)) {
   }
 }
 
+// --- Optional incremental staleness (from detect-changes.mjs). ---
+let staleIds;
+const changesPath = join(projectRoot, "docs/unwind/.cache/changes.json");
+if (existsSync(changesPath)) {
+  try {
+    const changes = JSON.parse(readFileSync(changesPath, "utf-8"));
+    if (Array.isArray(changes.staleItems) && changes.staleItems.length > 0) {
+      staleIds = changes.staleItems;
+      process.stderr.write(`build-graph: applying ${staleIds.length} stale ids from changes.json\n`);
+    }
+  } catch {
+    process.stderr.write("build-graph: ignoring malformed changes.json\n");
+  }
+}
+
 // --- Build, validate, write. ---
 const graph = buildRebuildGraph(
-  { manifest, coverageByLayer, documented, progress },
+  { manifest, coverageByLayer, documented, progress, staleIds },
   new Date().toISOString(),
 );
 

@@ -62,6 +62,17 @@ export {
   type LineRange,
 } from "./graph/rebuild-graph-schema.js";
 // --- end Increment 4 ---
+// --- Increment 6: incremental fingerprints ---
+export {
+  computeFileFingerprint,
+  buildFingerprints,
+  classifyChanges,
+  hasActionableChanges,
+  type FileFingerprint,
+  type ChangeSet,
+  type ChangeKind,
+} from "./fingerprint/fingerprint.js";
+// --- end Increment 6 ---
 // --- Increment 3: contract detection ---
 export {
   detectContracts,

@@ -81,6 +81,9 @@ synthesizing-findings       → REBUILD-PLAN.md (strategic rebuild approach)
 | `verifying-layer-documentation` | `gaps.md` per layer (work list) |
 | `completing-layer-documentation` | Fills gaps, deletes gaps.md |
 | `synthesizing-findings` | `REBUILD-PLAN.md` |
+| `emitting-rebuild-graph` | `rebuild-graph.json` (graph + coverage) |
+| `unwind-dashboard` | Launches the interactive graph dashboard |
+| `refreshing-analysis` | Incremental update — re-analyzes only changed layers |
 
 ### Layer Specialists
 
@@ -108,8 +111,11 @@ docs/unwind/
 ├── architecture.md
 ├── .cache/                            # deterministic intermediates
 │   ├── scan-manifest.json            # ground truth (inventory + symbols)
+│   ├── meta.json                     # baseline fingerprints + commit (incremental)
+│   ├── changes.json                  # detect-changes output (incremental refresh)
 │   ├── seeds/{layer}.json            # per-layer candidate checklists
 │   └── coverage/{layer}.json         # per-layer coverage reports
+├── rebuild-graph.json                # knowledge graph for the dashboard
 ├── layers/
 │   ├── database/
 │   │   ├── index.md
@@ -142,6 +148,11 @@ Each layer is a folder with `index.md` + section files for incremental writes.
 3. `Use unwind:unwinding-codebase` — seeds specialists, analyzes, verifies coverage
 4. `Use unwind:verifying-layer-documentation` — deterministic coverage diff (re-run any time)
 5. `Use unwind:synthesizing-findings`
+6. `Use unwind:emitting-rebuild-graph` then `unwind:unwind-dashboard` — visualize coverage & contracts
+
+**After code changes:** `Use unwind:refreshing-analysis` — fingerprints detect
+what moved and only the affected layers are re-analyzed; changed contracts are
+flagged `stale` / `needs-recheck` in the graph.
 
 **Note:** Step 4 (verification) is a deterministic `manifest − docs` diff and is
 integrated into `unwinding-codebase`; run it standalone to re-verify existing

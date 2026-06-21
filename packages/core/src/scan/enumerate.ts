@@ -9,6 +9,7 @@
 
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, relative, sep } from "node:path";
 
 function toPosix(p: string): string {
@@ -99,6 +100,8 @@ export interface EnumeratedFile {
   path: string;
   /** Newline count (`wc -l` semantics). */
   sizeLines: number;
+  /** SHA-1 of the raw bytes. */
+  contentHash: string;
 }
 
 /**
@@ -119,26 +122,27 @@ export function enumerateFiles(projectRoot: string): {
   const files: EnumeratedFile[] = [];
   for (const rel of candidates) {
     const absPath = join(projectRoot, rel);
-    let sizeLines: number;
     try {
       const st = statSync(absPath);
       if (!st.isFile()) continue;
-      sizeLines = countLines(absPath);
+      const { sizeLines, contentHash } = readFileMeta(absPath);
+      files.push({ path: rel, sizeLines, contentHash });
     } catch {
       continue;
     }
-    files.push({ path: rel, sizeLines });
   }
 
   files.sort((a, b) => a.path.localeCompare(b.path));
   return { files, usedGit };
 }
 
-function countLines(absPath: string): number {
+/** Read a file once: count newlines (wc -l semantics) and hash the bytes. */
+function readFileMeta(absPath: string): { sizeLines: number; contentHash: string } {
   const buf = readFileSync(absPath);
-  let count = 0;
+  let sizeLines = 0;
   for (let i = 0; i < buf.length; i++) {
-    if (buf[i] === 0x0a) count++;
+    if (buf[i] === 0x0a) sizeLines++;
   }
-  return count;
+  const contentHash = createHash("sha1").update(buf).digest("hex");
+  return { sizeLines, contentHash };
 }

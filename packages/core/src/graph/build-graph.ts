@@ -120,6 +120,12 @@ export interface BuildGraphInputs {
   documented: DocumentedItem[];
   /** Optional human-progress overlay keyed by node id. */
   progress?: ProgressOverlay;
+  /**
+   * Candidate ids whose source changed structurally since they were documented
+   * (from detect-changes.json). Documented nodes in this set are marked
+   * `coverage: "stale"`, and done/verified contracts flip to "needs-recheck".
+   */
+  staleIds?: string[];
 }
 
 function norm(s: string): string {
@@ -132,6 +138,7 @@ export function buildRebuildGraph(
   generatedAt: string,
 ): RebuildGraph {
   const { manifest, coverageByLayer, documented, progress } = inputs;
+  const staleIds = new Set(inputs.staleIds ?? []);
 
   // --- Index documented items for priority + docRef lookup. ---
   const docById = new Map<string, DocumentedItem>();
@@ -168,11 +175,15 @@ export function buildRebuildGraph(
       const docRef = doc ? doc.sourceFile : null;
 
       const isMissing = missingIds.has(c.id);
+      const isStale = staleIds.has(c.id);
       let coverage: CoverageState;
       if (priority === "DON'T") {
         coverage = "excluded";
       } else if (isMissing) {
         coverage = "scanned";
+      } else if (isStale) {
+        // Was documented, but the source changed structurally — flag for review.
+        coverage = "stale";
       } else if (docById.has(c.id)) {
         coverage = "verified"; // covered AND has explicit anchor id
       } else {
@@ -180,8 +191,16 @@ export function buildRebuildGraph(
       }
 
       const overlayStatus = readOverlayStatus(progress, c.id);
-      const rebuildStatus: RebuildStatus =
-        overlayStatus ?? defaultStatus(coverage);
+      let rebuildStatus: RebuildStatus = overlayStatus ?? defaultStatus(coverage);
+      // A done/verified contract whose source changed structurally must be
+      // re-confirmed by a human — never silently keep a stale "done".
+      if (
+        isStale &&
+        contractKind !== null &&
+        (rebuildStatus === "done" || rebuildStatus === "verified")
+      ) {
+        rebuildStatus = "needs-recheck";
+      }
 
       nodes.push({
         id: c.id,

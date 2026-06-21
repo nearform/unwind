@@ -60,7 +60,10 @@ export type RebuildStatus =
   | "not-started"
   | "in-progress"
   | "done"
-  | "verified";
+  | "verified"
+  /** Was done/verified, but the underlying source changed structurally
+   *  (set by incremental detect-changes) — a human must re-confirm. */
+  | "needs-recheck";
 
 /** The fused rebuild metadata attached to every node. */
 export interface RebuildBlock {
@@ -162,6 +165,7 @@ const REBUILD_STATUSES = new Set<RebuildStatus>([
   "in-progress",
   "done",
   "verified",
+  "needs-recheck",
 ]);
 
 /**
