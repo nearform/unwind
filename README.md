@@ -9,6 +9,14 @@ Generate documentation that enables an AI agent to rebuild your system in a diff
 - Business logic accuracy
 - Data model integrity
 
+Unwind is **hybrid**: a deterministic scanner (`@unwind/core`, built on
+tree-sitter) produces the verifiable ground truth — file inventory, structural
+symbols, import graph, and a first-pass layer assignment — and LLM specialists add
+the semantic rebuild documentation. Completeness is then **verified by set
+arithmetic** (`scan − docs`), not asserted. Symbol extraction supports
+TypeScript/JavaScript, Python, Rust, Java, and C#; other languages get file-level
+coverage, and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
+
 ## Quick Start
 
 ### Install
@@ -20,15 +28,20 @@ Restart Claude Code after installation.
 
 ### Use
 ```
-1. Use unwind:start
+1. Use unwind:start              # deterministic scan → architecture.md
 2. Review docs/unwind/architecture.md
-3. Use unwind:unwinding-codebase
+3. Use unwind:unwinding-codebase # seed → analyze → verify coverage → complete
 4. Use unwind:synthesizing-findings
 ```
+
+The first run builds the scanner automatically (`pnpm install && pnpm build` via
+`ensure_unwind_core`). It needs Node + pnpm; without them, Unwind falls back to a
+pure-LLM flow.
 
 **Output:**
 - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach
 - `docs/unwind/layers/*/` - Detailed layer analysis (folder per layer)
+- `docs/unwind/.cache/` - Deterministic artifacts: `scan-manifest.json` (ground truth), `seeds/` (per-layer checklists), `coverage/` (per-layer coverage reports)
 
 ### Example Output
 
@@ -112,11 +125,18 @@ See a complete example from the [RealWorld Go API](https://github.com/cliftonc/g
 
 ## Phases Explained
 
-### Phase 1: Discovery
-Extracts repository info (for GitHub links), detects layers, identifies tech stack.
+### Phase 1: Discovery (scan-first)
+Runs the deterministic scanner to build `scan-manifest.json` — file inventory,
+per-file structural symbols, import graph, repository info (for GitHub links), and
+a first-pass rebuild-layer assignment. `architecture.md` is **derived** from this;
+the Explore subagent only adds narrative and adjudicates files the scanner left
+`unassigned`. Falls back to pure-LLM discovery if the scanner is unavailable.
 
-### Phase 2: Layer Analysis
-Dispatches specialist agents in dependency order:
+### Phase 2: Layer Analysis (seeded)
+`seed-layers.mjs` emits a candidate checklist per layer from the manifest. Each
+specialist is dispatched **with its seed list** and must document every item using
+anchor-id headings (`### name [MUST] <!-- id: ... -->`), then runs in dependency
+order:
 1. Database (no dependencies)
 2. Domain Model (needs database)
 3. Service Layer (needs domain)
@@ -126,8 +146,11 @@ Dispatches specialist agents in dependency order:
 
 Each layer writes to a folder with incremental files to avoid token limits.
 
-### Phase 3: Gap Detection
-Compares documentation against source code. Outputs ONLY what's missing to `gaps.md` - no scores, no "what's correct" text.
+### Phase 3: Gap Detection (deterministic)
+`verify-coverage.mjs` diffs the manifest's candidate set against the documented
+anchor ids — pure set arithmetic, reproducible. Missing items (in source, not in
+docs) are written to `gaps.md`; "extra" documented items are flagged for review.
+This replaces the old subjective LLM comparison.
 
 ### Phase 4: Gap Completion
 Reads `gaps.md` work lists and adds all missing documentation. Deletes `gaps.md` when complete.
@@ -143,7 +166,9 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 | Principle | Description |
 |-----------|-------------|
-| **Completeness** | Document ALL items - exact counts, not "30+" |
+| **Completeness** | Document ALL items - counts come from the scan manifest and are verified |
+| **Manifest seeding** | Specialists receive a candidate checklist; cover every item, exclusions documented not dropped |
+| **Anchor-id headings** | `### name [MUST] <!-- id: ... -->` so coverage is checked mechanically |
 | **Machine-readable** | Actual code, SQL, mermaid - not prose summaries |
 | **Link to source** | Uses repo info for GitHub links, or local paths |
 | **No commentary** | Facts only, no speculation or recommendations |
@@ -186,7 +211,11 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 ```
 docs/unwind/
-├── architecture.md                    # Layer detection, tech stack, repo info
+├── architecture.md                    # Layer detection, tech stack, repo info (derived from scan)
+├── .cache/                            # Deterministic artifacts
+│   ├── scan-manifest.json            # Ground truth: inventory, symbols, import graph
+│   ├── seeds/{layer}.json            # Per-layer candidate checklists
+│   └── coverage/{layer}.json         # Per-layer coverage reports
 ├── layers/
 │   ├── database/
 │   │   ├── index.md                   # Overview, links to sections

@@ -1,0 +1,28 @@
+{
+  "name": "@unwind/dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Rebuild knowledge-graph dashboard for Unwind — visualizes docs/unwind/rebuild-graph.json (coverage, priorities, contracts).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.3.0",
+    "elkjs": "^0.9.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

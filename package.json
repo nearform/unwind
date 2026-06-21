@@ -1,0 +1,18 @@
+{
+  "name": "unwind-workspace",
+  "version": "0.6.2",
+  "private": true,
+  "type": "module",
+  "description": "Unwind reverse-engineering plugin — workspace root",
+  "scripts": {
+    "build": "pnpm --filter @unwind/core build",
+    "test": "pnpm --filter @unwind/core test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "license": "MIT"
+}

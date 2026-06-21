@@ -13,10 +13,31 @@ allowed-tools:
 
 Unwind provides structured skills for reverse engineering codebases. Produces complete, machine-readable documentation with source links.
 
+Unwind is **hybrid**: a deterministic scanner (`@unwind/core`, tree-sitter) builds
+the verifiable ground truth — file inventory, structural symbols, import graph,
+and a first-pass layer assignment — and the LLM specialists add the semantic
+rebuild documentation (business logic, contracts, MUST/SHOULD/DON'T). Completeness
+is then **verified by set arithmetic**, not asserted.
+
+### One-time build
+
+The scanner is built on first use (the skills run `pnpm install && pnpm build`
+automatically via `ensure_unwind_core`). To pre-build manually:
+
+```bash
+pnpm install && pnpm build
+```
+
+Supported languages for symbol extraction: **TypeScript/JavaScript, Python, Rust,
+Java, C#**. Other languages still get full file-level coverage (graceful
+degradation), and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
+
 ## Principles
 
 See `analysis-principles.md`:
-- **Completeness**: Document ALL items (30 tables = 30 documented)
+- **Completeness**: Document ALL items — the count comes from the scan manifest and is verified
+- **Manifest seeding**: Specialists get a candidate checklist; cover every item, exclusions documented not dropped
+- **Anchor-id headings**: `### name [MUST] <!-- id: ... -->` so coverage is checked mechanically
 - **Machine-readable**: Use actual code, SQL, mermaid - not markdown recreation
 - **Link to source**: GitHub links with line numbers where possible
 - **No commentary**: Facts only, no speculation or recommendations
@@ -24,29 +45,27 @@ See `analysis-principles.md`:
 ## Workflow
 
 ```
-start     → architecture.md (+ repo info for linking)
+start     → scan.mjs → scan-manifest.json (ground truth)
+        │            → architecture.md (derived + unassigned adjudicated)
         │
-unwinding-codebase          → dispatches layer specialists
+unwinding-codebase
+        ├── seed-layers.mjs → .cache/seeds/{layer}.json (candidate checklists)
         │
-        ├── analyzing-database-layer     → database/
-        ├── analyzing-domain-model       → domain-model/
-        ├── analyzing-service-layer      → service-layer/
-        ├── analyzing-api-layer          → api/
-        ├── analyzing-messaging-layer    → messaging/ (if present)
-        ├── analyzing-frontend-layer     → frontend/ (if present)
+        ├── analyzing-database-layer     → database/        (seeded)
+        ├── analyzing-domain-model       → domain-model/    (seeded)
+        ├── analyzing-service-layer      → service-layer/   (seeded)
+        ├── analyzing-api-layer          → api/             (seeded)
+        ├── analyzing-messaging-layer    → messaging/       (if present)
+        ├── analyzing-frontend-layer     → frontend/        (if present)
         ├── analyzing-unit-tests         → unit-tests/
         ├── analyzing-integration-tests  → integration-tests/
         └── analyzing-e2e-tests          → e2e-tests/
         │
-verifying-layer-documentation → gap detection (parallel per layer)
+verify-coverage.mjs → DETERMINISTIC diff (manifest − docs)
+        │            → .cache/coverage/{layer}.json + gaps.md (missing items)
         │
-        └── Outputs gaps.md per layer (missing items only)
-        │
-completing-layer-documentation → gap completion (parallel per layer)
-        │
-        ├── Reads gaps.md work list
-        ├── Adds missing documentation
-        └── Deletes gaps.md when done
+completing-layer-documentation → fills gaps.md, deletes it
+        │   (loop verify → complete until 100% coverage)
         │
 synthesizing-findings       → REBUILD-PLAN.md (strategic rebuild approach)
 ```
@@ -87,6 +106,10 @@ synthesizing-findings       → REBUILD-PLAN.md (strategic rebuild approach)
 ```
 docs/unwind/
 ├── architecture.md
+├── .cache/                            # deterministic intermediates
+│   ├── scan-manifest.json            # ground truth (inventory + symbols)
+│   ├── seeds/{layer}.json            # per-layer candidate checklists
+│   └── coverage/{layer}.json         # per-layer coverage reports
 ├── layers/
 │   ├── database/
 │   │   ├── index.md
@@ -114,13 +137,15 @@ Each layer is a folder with `index.md` + section files for incremental writes.
 
 ## Quick Start
 
-1. `Use unwind:start`
+1. `Use unwind:start` — runs the deterministic scan, derives `architecture.md`
 2. Review `docs/unwind/architecture.md`
-3. `Use unwind:unwinding-codebase`
-4. `Use unwind:verifying-layer-documentation` (runs parallel verification)
+3. `Use unwind:unwinding-codebase` — seeds specialists, analyzes, verifies coverage
+4. `Use unwind:verifying-layer-documentation` — deterministic coverage diff (re-run any time)
 5. `Use unwind:synthesizing-findings`
 
-**Note:** Step 4 (verification) is integrated into `unwinding-codebase` but can also be run independently to re-verify existing documentation.
+**Note:** Step 4 (verification) is a deterministic `manifest − docs` diff and is
+integrated into `unwinding-codebase`; run it standalone to re-verify existing
+documentation at any time.
 
 ## Refresh Mode
 

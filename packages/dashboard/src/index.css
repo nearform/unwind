@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@source "./**/*.{ts,tsx}";
+@source "../index.html";
+
+/* Theme forked from the Understand-Anything dashboard (dark luxury), trimmed and
+   extended with rebuild-specific coverage/priority colors. */
+@theme {
+  --color-root: #0a0a0a;
+  --color-surface: #111111;
+  --color-elevated: #1a1a1a;
+  --color-panel: #141414;
+
+  --color-accent: #d4a574;
+  --color-accent-dim: #c9a96e;
+  --color-accent-bright: #e8c49a;
+
+  --color-text-primary: #f5f0eb;
+  --color-text-secondary: #a39787;
+  --color-text-muted: #6b5f53;
+
+  --color-border-subtle: rgba(212, 165, 116, 0.12);
+  --color-border-medium: rgba(212, 165, 116, 0.25);
+
+  /* Node types (graph) */
+  --color-node-file: #4a7c9b;
+  --color-node-function: #5a9e6f;
+  --color-node-class: #8b6fb0;
+  --color-node-table: #6ee7b7;
+  --color-node-endpoint: #fdba74;
+  --color-node-contract: #fcd34d;
+
+  /* Coverage states */
+  --color-cov-scanned: #6b5f53;
+  --color-cov-documented: #4a7c9b;
+  --color-cov-verified: #5a9e6f;
+  --color-cov-excluded: #555;
+  --color-cov-stale: #e05252;
+
+  /* Priorities */
+  --color-prio-must: #e05252;
+  --color-prio-should: #d4a030;
+  --color-prio-dont: #6b5f53;
+
+  --color-edge: rgba(212, 165, 116, 0.3);
+
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-root);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.35);
+}
+
+.react-flow__background {
+  background-color: var(--color-root) !important;
+}
+.react-flow__attribution {
+  display: none;
+}
+
+.node-glow {
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 18px rgba(212, 165, 116, 0.35);
+}

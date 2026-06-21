@@ -1,0 +1,1789 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-06-21T18:04:48.460Z",
+  "project": {
+    "name": "drizzle-cube",
+    "languages": [
+      "bak",
+      "config",
+      "css",
+      "html",
+      "javascript",
+      "json",
+      "jsonc",
+      "markdown",
+      "png",
+      "sql",
+      "svg",
+      "typescript",
+      "unknown",
+      "yaml"
+    ]
+  },
+  "repository": {
+    "linkFormat": "https://github.com/cliftonc/drizzle-cube/blob/perf/profiling-and-memory-harness/{path}#L{start}-L{end}",
+    "url": "https://github.com/cliftonc/drizzle-cube",
+    "branch": "perf/profiling-and-memory-harness"
+  },
+  "layers": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "nodeCount": 45
+    },
+    {
+      "id": "unassigned",
+      "label": "Unassigned",
+      "nodeCount": 15
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/client/adapters/flowModeAdapter.ts:flowModeAdapter.ts",
+      "type": "file",
+      "name": "flowModeAdapter.ts",
+      "filePath": "src/client/adapters/flowModeAdapter.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 305
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/adapters/funnelModeAdapter.ts:funnelModeAdapter.ts",
+      "type": "file",
+      "name": "funnelModeAdapter.ts",
+      "filePath": "src/client/adapters/funnelModeAdapter.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 325
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/adapters/queryModeAdapter.ts:queryModeAdapter.ts",
+      "type": "file",
+      "name": "queryModeAdapter.ts",
+      "filePath": "src/client/adapters/queryModeAdapter.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 372
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/adapters/retentionModeAdapter.ts:retentionModeAdapter.ts",
+      "type": "file",
+      "name": "retentionModeAdapter.ts",
+      "filePath": "src/client/adapters/retentionModeAdapter.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 339
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts.ts:charts.ts",
+      "type": "file",
+      "name": "charts.ts",
+      "filePath": "src/client/charts.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 71
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/chartConfigRegistry.ts:chartConfigRegistry.ts",
+      "type": "file",
+      "name": "chartConfigRegistry.ts",
+      "filePath": "src/client/charts/chartConfigRegistry.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 96
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "type": "file",
+      "name": "chartPlugin.ts",
+      "filePath": "src/client/charts/chartPlugin.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 210
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "type": "file",
+      "name": "chartRegistry.ts",
+      "filePath": "src/client/charts/chartRegistry.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 377
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "file",
+      "name": "lazyChartConfigRegistry.ts",
+      "filePath": "src/client/charts/lazyChartConfigRegistry.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 218
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/client/BatchCoordinator.ts:BatchCoordinator.ts",
+      "type": "file",
+      "name": "BatchCoordinator.ts",
+      "filePath": "src/client/client/BatchCoordinator.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 114
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/client/CubeClient.ts:CubeClient.ts",
+      "type": "file",
+      "name": "CubeClient.ts",
+      "filePath": "src/client/client/CubeClient.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 306
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components.ts:components.ts",
+      "type": "file",
+      "name": "components.ts",
+      "filePath": "src/client/components.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 44
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "function:src/client/types.ts:isMultiQueryConfig",
+      "type": "function",
+      "name": "isMultiQueryConfig",
+      "filePath": "src/client/types.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 499,
+        "end": 507
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "function:src/client/types.ts:isServerFunnelQuery",
+      "type": "function",
+      "name": "isServerFunnelQuery",
+      "filePath": "src/client/types.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 663,
+        "end": 670
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/types.ts:types.ts",
+      "type": "file",
+      "name": "types.ts",
+      "filePath": "src/client/types.ts",
+      "layer": "unassigned",
+      "lineRange": {
+        "start": 1,
+        "end": 839
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/chartComponentRegistry.tsx:chartComponentRegistry.tsx",
+      "type": "file",
+      "name": "chartComponentRegistry.tsx",
+      "filePath": "src/client/charts/chartComponentRegistry.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 135
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "type": "file",
+      "name": "ChartLoader.tsx",
+      "filePath": "src/client/charts/ChartLoader.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 213
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AgenticNotebook/index.tsx:index.tsx",
+      "type": "file",
+      "name": "index.tsx",
+      "filePath": "src/client/components/AgenticNotebook/index.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 394
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AgenticNotebook/NotebookCanvas.tsx:NotebookCanvas.tsx",
+      "type": "file",
+      "name": "NotebookCanvas.tsx",
+      "filePath": "src/client/components/AgenticNotebook/NotebookCanvas.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 148
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AgenticNotebook/NotebookPortletBlock.tsx:NotebookPortletBlock.tsx",
+      "type": "file",
+      "name": "NotebookPortletBlock.tsx",
+      "filePath": "src/client/components/AgenticNotebook/NotebookPortletBlock.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 136
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "type": "file",
+      "name": "AnalysisChartConfigPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 435
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "file",
+      "name": "AnalysisDisplayConfigPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 84
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisFilterGroup.tsx:AnalysisFilterGroup.tsx",
+      "type": "file",
+      "name": "AnalysisFilterGroup.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisFilterGroup.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 243
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx:AnalysisFilterItem.tsx",
+      "type": "file",
+      "name": "AnalysisFilterItem.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 153
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "type": "file",
+      "name": "AnalysisFilterSection.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 264
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisModeErrorBoundary.tsx:AnalysisModeErrorBoundary.tsx",
+      "type": "file",
+      "name": "AnalysisModeErrorBoundary.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisModeErrorBoundary.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 148
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx:AnalysisQueryPanel.tsx",
+      "type": "file",
+      "name": "AnalysisQueryPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 169
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "type": "file",
+      "name": "AnalysisQueryPanelParts.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 674
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "type": "file",
+      "name": "AnalysisResultsPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 1566
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/AnalysisTypeSelector.tsx:AnalysisTypeSelector.tsx",
+      "type": "file",
+      "name": "AnalysisTypeSelector.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/AnalysisTypeSelector.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 132
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/DisplayOptionControl.tsx:DisplayOptionControl.tsx",
+      "type": "file",
+      "name": "DisplayOptionControl.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/DisplayOptionControl.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 280
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx:ExecutionPlanPanel.tsx",
+      "type": "file",
+      "name": "ExecutionPlanPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 201
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanelParts.tsx:ExecutionPlanPanelParts.tsx",
+      "type": "file",
+      "name": "ExecutionPlanPanelParts.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/ExecutionPlanPanelParts.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 196
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/ExplainAIPanel.tsx:ExplainAIPanel.tsx",
+      "type": "file",
+      "name": "ExplainAIPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/ExplainAIPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 344
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FilterConfigModal.tsx:FilterConfigModal.tsx",
+      "type": "file",
+      "name": "FilterConfigModal.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FilterConfigModal.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 515
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FilterValueInput.tsx:FilterValueInput.tsx",
+      "type": "file",
+      "name": "FilterValueInput.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FilterValueInput.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 392
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FlowConfigPanel.tsx:FlowConfigPanel.tsx",
+      "type": "file",
+      "name": "FlowConfigPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FlowConfigPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 511
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FlowDepthControls.tsx:FlowDepthControls.tsx",
+      "type": "file",
+      "name": "FlowDepthControls.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FlowDepthControls.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 98
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "type": "file",
+      "name": "FlowModeContent.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FlowModeContent.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 242
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FlowVisualizationPicker.tsx:FlowVisualizationPicker.tsx",
+      "type": "file",
+      "name": "FlowVisualizationPicker.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FlowVisualizationPicker.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 66
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FunnelBindingKeySelector.tsx:FunnelBindingKeySelector.tsx",
+      "type": "file",
+      "name": "FunnelBindingKeySelector.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FunnelBindingKeySelector.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 254
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FunnelConfigPanel.tsx:FunnelConfigPanel.tsx",
+      "type": "file",
+      "name": "FunnelConfigPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FunnelConfigPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 458
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "type": "file",
+      "name": "FunnelModeContent.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FunnelModeContent.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 167
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FunnelStepCard.tsx:FunnelStepCard.tsx",
+      "type": "file",
+      "name": "FunnelStepCard.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FunnelStepCard.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 343
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/FunnelStepList.tsx:FunnelStepList.tsx",
+      "type": "file",
+      "name": "FunnelStepList.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/FunnelStepList.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 169
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/LegacyBooleanOptions.tsx:LegacyBooleanOptions.tsx",
+      "type": "file",
+      "name": "LegacyBooleanOptions.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/LegacyBooleanOptions.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 65
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/RetentionConfigPanel.tsx:RetentionConfigPanel.tsx",
+      "type": "file",
+      "name": "RetentionConfigPanel.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/RetentionConfigPanel.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 641
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "type": "file",
+      "name": "RetentionModeContent.tsx",
+      "filePath": "src/client/components/AnalysisBuilder/RetentionModeContent.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 403
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "file",
+      "name": "types.ts",
+      "filePath": "src/client/components/AnalysisBuilder/types.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 949
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/utils/axisConfigUtils.ts:axisConfigUtils.ts",
+      "type": "file",
+      "name": "axisConfigUtils.ts",
+      "filePath": "src/client/components/AnalysisBuilder/utils/axisConfigUtils.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 143
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/utils/executionPlanMarkdown.ts:executionPlanMarkdown.ts",
+      "type": "file",
+      "name": "executionPlanMarkdown.ts",
+      "filePath": "src/client/components/AnalysisBuilder/utils/executionPlanMarkdown.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 190
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/utils/filterUtils.ts:filterUtils.ts",
+      "type": "file",
+      "name": "filterUtils.ts",
+      "filePath": "src/client/components/AnalysisBuilder/utils/filterUtils.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 47
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/utils/queryUtils.ts:queryUtils.ts",
+      "type": "file",
+      "name": "queryUtils.ts",
+      "filePath": "src/client/components/AnalysisBuilder/utils/queryUtils.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 89
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalysisBuilder/utils/storageUtils.ts:storageUtils.ts",
+      "type": "file",
+      "name": "storageUtils.ts",
+      "filePath": "src/client/components/AnalysisBuilder/utils/storageUtils.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 105
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalyticsDashboard.tsx:AnalyticsDashboard.tsx",
+      "type": "file",
+      "name": "AnalyticsDashboard.tsx",
+      "filePath": "src/client/components/AnalyticsDashboard.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 117
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "type": "file",
+      "name": "AnalyticsPortlet.tsx",
+      "filePath": "src/client/components/AnalyticsPortlet.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 239
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/analyticsPortlet/parsePortletQuery.ts:parsePortletQuery.ts",
+      "type": "file",
+      "name": "parsePortletQuery.ts",
+      "filePath": "src/client/components/analyticsPortlet/parsePortletQuery.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 208
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/analyticsPortlet/PortletChart.tsx:PortletChart.tsx",
+      "type": "file",
+      "name": "PortletChart.tsx",
+      "filePath": "src/client/components/analyticsPortlet/PortletChart.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 154
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/analyticsPortlet/PortletChartView.tsx:PortletChartView.tsx",
+      "type": "file",
+      "name": "PortletChartView.tsx",
+      "filePath": "src/client/components/analyticsPortlet/PortletChartView.tsx",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 129
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    },
+    {
+      "id": "file:src/client/components/analyticsPortlet/portletRenderState.ts:portletRenderState.ts",
+      "type": "file",
+      "name": "portletRenderState.ts",
+      "filePath": "src/client/components/analyticsPortlet/portletRenderState.ts",
+      "layer": "frontend",
+      "lineRange": {
+        "start": 1,
+        "end": 81
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "scanned",
+        "docRef": null,
+        "rebuildStatus": "not-started"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/client/types.ts:types.ts",
+      "target": "function:src/client/types.ts:isMultiQueryConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/client/types.ts:types.ts",
+      "target": "function:src/client/types.ts:isServerFunnelQuery",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/client/adapters/flowModeAdapter.ts:flowModeAdapter.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/adapters/funnelModeAdapter.ts:funnelModeAdapter.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/adapters/queryModeAdapter.ts:queryModeAdapter.ts",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/adapters/queryModeAdapter.ts:queryModeAdapter.ts",
+      "target": "file:src/client/components/AnalysisBuilder/utils/filterUtils.ts:filterUtils.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/adapters/queryModeAdapter.ts:queryModeAdapter.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/adapters/retentionModeAdapter.ts:retentionModeAdapter.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts.ts:charts.ts",
+      "target": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts.ts:charts.ts",
+      "target": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts.ts:charts.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartComponentRegistry.tsx:chartComponentRegistry.tsx",
+      "target": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartComponentRegistry.tsx:chartComponentRegistry.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartConfigRegistry.ts:chartConfigRegistry.ts",
+      "target": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartConfigRegistry.ts:chartConfigRegistry.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "target": "file:src/client/charts/chartComponentRegistry.tsx:chartComponentRegistry.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "target": "file:src/client/charts/chartComponentRegistry.tsx:chartComponentRegistry.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "target": "file:src/client/charts/chartConfigRegistry.ts:chartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "target": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "target": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartPlugin.ts:chartPlugin.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "target": "file:src/client/charts/chartRegistry.ts:chartRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/client/BatchCoordinator.ts:BatchCoordinator.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/client/CubeClient.ts:CubeClient.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components.ts:components.ts",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components.ts:components.ts",
+      "target": "file:src/client/components/AnalyticsDashboard.tsx:AnalyticsDashboard.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components.ts:components.ts",
+      "target": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components.ts:components.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/index.tsx:index.tsx",
+      "target": "file:src/client/components/AgenticNotebook/NotebookCanvas.tsx:NotebookCanvas.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/index.tsx:index.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/NotebookCanvas.tsx:NotebookCanvas.tsx",
+      "target": "file:src/client/components/AgenticNotebook/NotebookPortletBlock.tsx:NotebookPortletBlock.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/NotebookCanvas.tsx:NotebookCanvas.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/NotebookPortletBlock.tsx:NotebookPortletBlock.tsx",
+      "target": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AgenticNotebook/NotebookPortletBlock.tsx:NotebookPortletBlock.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "target": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/utils/axisConfigUtils.ts:axisConfigUtils.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "target": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/DisplayOptionControl.tsx:DisplayOptionControl.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/LegacyBooleanOptions.tsx:LegacyBooleanOptions.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterGroup.tsx:AnalysisFilterGroup.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx:AnalysisFilterItem.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterGroup.tsx:AnalysisFilterGroup.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx:AnalysisFilterItem.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FilterConfigModal.tsx:FilterConfigModal.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx:AnalysisFilterItem.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterGroup.tsx:AnalysisFilterGroup.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterItem.tsx:AnalysisFilterItem.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisModeErrorBoundary.tsx:AnalysisModeErrorBoundary.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx:AnalysisQueryPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx:AnalysisQueryPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisTypeSelector.tsx:AnalysisTypeSelector.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx:AnalysisQueryPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanel.tsx:AnalysisQueryPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisChartConfigPanel.tsx:AnalysisChartConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FunnelBindingKeySelector.tsx:FunnelBindingKeySelector.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisQueryPanelParts.tsx:AnalysisQueryPanelParts.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "target": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx:ExecutionPlanPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/utils/executionPlanMarkdown.ts:executionPlanMarkdown.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisResultsPanel.tsx:AnalysisResultsPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/AnalysisTypeSelector.tsx:AnalysisTypeSelector.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/DisplayOptionControl.tsx:DisplayOptionControl.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx:ExecutionPlanPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanelParts.tsx:ExecutionPlanPanelParts.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx:ExecutionPlanPanel.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/ExplainAIPanel.tsx:ExplainAIPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanel.tsx:ExecutionPlanPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/ExecutionPlanPanelParts.tsx:ExecutionPlanPanelParts.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/ExplainAIPanel.tsx:ExplainAIPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FilterConfigModal.tsx:FilterConfigModal.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FilterValueInput.tsx:FilterValueInput.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FilterConfigModal.tsx:FilterConfigModal.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FilterValueInput.tsx:FilterValueInput.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowConfigPanel.tsx:FlowConfigPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowDepthControls.tsx:FlowDepthControls.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FlowConfigPanel.tsx:FlowConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FlowDepthControls.tsx:FlowDepthControls.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FlowVisualizationPicker.tsx:FlowVisualizationPicker.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowModeContent.tsx:FlowModeContent.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FlowVisualizationPicker.tsx:FlowVisualizationPicker.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelBindingKeySelector.tsx:FunnelBindingKeySelector.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelConfigPanel.tsx:FunnelConfigPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FunnelConfigPanel.tsx:FunnelConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FunnelStepList.tsx:FunnelStepList.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelModeContent.tsx:FunnelModeContent.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelStepCard.tsx:FunnelStepCard.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelStepCard.tsx:FunnelStepCard.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelStepList.tsx:FunnelStepList.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/FunnelStepCard.tsx:FunnelStepCard.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/FunnelStepList.tsx:FunnelStepList.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/LegacyBooleanOptions.tsx:LegacyBooleanOptions.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionConfigPanel.tsx:RetentionConfigPanel.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisDisplayConfigPanel.tsx:AnalysisDisplayConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/AnalysisFilterSection.tsx:AnalysisFilterSection.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/RetentionConfigPanel.tsx:RetentionConfigPanel.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/RetentionModeContent.tsx:RetentionModeContent.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/axisConfigUtils.ts:axisConfigUtils.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/executionPlanMarkdown.ts:executionPlanMarkdown.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/filterUtils.ts:filterUtils.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/queryUtils.ts:queryUtils.ts",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/queryUtils.ts:queryUtils.ts",
+      "target": "file:src/client/components/AnalysisBuilder/utils/filterUtils.ts:filterUtils.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/queryUtils.ts:queryUtils.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/storageUtils.ts:storageUtils.ts",
+      "target": "file:src/client/components/AnalysisBuilder/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalysisBuilder/utils/storageUtils.ts:storageUtils.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsDashboard.tsx:AnalyticsDashboard.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "target": "file:src/client/charts/lazyChartConfigRegistry.ts:lazyChartConfigRegistry.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "target": "file:src/client/components/analyticsPortlet/PortletChartView.tsx:PortletChartView.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "target": "file:src/client/components/analyticsPortlet/parsePortletQuery.ts:parsePortletQuery.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "target": "file:src/client/components/analyticsPortlet/portletRenderState.ts:portletRenderState.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/AnalyticsPortlet.tsx:AnalyticsPortlet.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/parsePortletQuery.ts:parsePortletQuery.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/PortletChart.tsx:PortletChart.tsx",
+      "target": "file:src/client/charts/ChartLoader.tsx:ChartLoader.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/PortletChart.tsx:PortletChart.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/PortletChartView.tsx:PortletChartView.tsx",
+      "target": "file:src/client/components/analyticsPortlet/PortletChart.tsx:PortletChart.tsx",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/PortletChartView.tsx:PortletChartView.tsx",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/client/components/analyticsPortlet/portletRenderState.ts:portletRenderState.ts",
+      "target": "file:src/client/types.ts:types.ts",
+      "type": "imports"
+    }
+  ],
+  "stats": {
+    "nodeCount": 60,
+    "edgeCount": 129,
+    "layerCount": 2,
+    "byNodeType": {
+      "file": 58,
+      "function": 2
+    },
+    "byEdgeType": {
+      "contains": 2,
+      "imports": 127
+    },
+    "byCoverage": {
+      "scanned": 60
+    },
+    "byPriority": {
+      "none": 60
+    },
+    "coveragePct": 0
+  }
+}

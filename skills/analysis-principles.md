@@ -2,9 +2,22 @@
 
 All Unwind analysis skills follow these principles.
 
+> **Deterministic ground truth.** When `@unwind/core` is available, a scan
+> produces `docs/unwind/.cache/scan-manifest.json` — the verifiable inventory of
+> files and structural symbols. Layer specialists are *seeded* from it
+> (principle 16) and completeness is *checked* against it (principle 17). These
+> principles describe the ideal output; the manifest makes "complete" provable
+> rather than asserted. If the core is unavailable, the same principles apply but
+> are enforced by the LLM (see **Graceful Degradation** at the end).
+
 ## 1. Completeness
 
 Document **everything**. If there are 30 tables, document all 30. If there are 50 services, document all 50.
+
+The count is not a guess: it comes from the scan manifest (`stats.byLayer`,
+`layerIndex[layer]`, and per-file `symbols`). Each layer specialist receives a
+**seed list** of candidate items (principle 16) and must cover every one. The
+deterministic verifier (principle 17) then proves nothing was missed.
 
 All documentation uses folder structure (see principle 6) to handle completeness without hitting size limits.
 
@@ -242,7 +255,7 @@ The system has 42 tables:
 [... all 42 listed]
 ```
 
-**Why this matters:** An AI rebuild agent cannot verify completeness against "30+" but can verify against "42".
+**Why this matters:** An AI rebuild agent cannot verify completeness against "30+" but can verify against "42". With the scan manifest, "42" is the deterministic count from `stats`/`layerIndex` — and the coverage verifier (principle 17) proves all 42 are documented.
 
 ## 11. Complex Field Schemas
 
@@ -368,3 +381,53 @@ Adds status column to users...
 ```
 
 **Why:** Migration history is for version control, not rebuild. AI rebuild agents need the final schema, not the journey.
+
+## 16. Manifest Seeding [MANDATORY when scan available]
+
+Layer specialists do not start from a blank page. Each is dispatched with its
+**seed list** — `docs/unwind/.cache/seeds/{layer}.json`, the deterministic set of
+candidate items (id, kind, name, file, line range, source link) the scanner found
+for that layer.
+
+**Rules:**
+- **Cover every seeded item.** The seed is a checklist; documenting all of it is
+  the floor, not the ceiling.
+- **Never silently drop an item.** To omit a seeded item from the rebuild,
+  document it under an `## Excluded` section with a one-line reason. Dropping it
+  silently will surface as a coverage gap (principle 17).
+- **You may add items.** The scanner can miss things (dynamically-registered
+  routes, reflection, generated code). Add them with the same heading format.
+
+## 17. Anchor-ID Headings [MANDATORY when scan available]
+
+Every documented item heading carries a stable anchor id matching its manifest
+candidate id, so completeness can be verified mechanically (set arithmetic, not
+LLM judgement).
+
+**Format** — the `[MUST]/[SHOULD]/[DON'T]` tag (principle 9) plus an id comment:
+
+```markdown
+### users [MUST] <!-- id: table:src/db/schema.ts:users -->
+### GetUserByEmail [MUST] <!-- id: function:src/repo/users.ts:GetUserByEmail -->
+### GET /users [MUST] <!-- id: endpoint:src/api/users.ts:GET /users -->
+```
+
+The `id` is the item's `id` from the seed list, copied verbatim. The verifier
+(`verify-coverage.mjs`) matches documented items to candidates by id first, then
+falls back to a fuzzy name match — so anchor ids are strongly preferred (they
+make coverage exact and reproducible). Item headings are `###` or deeper; `#`/`##`
+are layer/section titles and are not treated as items.
+
+## Graceful Degradation
+
+The deterministic engine (`@unwind/core`) is an **enhancement, not a hard
+dependency**. If Node/pnpm or the built core are unavailable:
+- `start` falls back to pure-LLM Explore discovery.
+- `unwinding-codebase` dispatches specialists without seed lists.
+- `verifying-layer-documentation` falls back to a subjective doc-vs-source
+  comparison.
+- Principles 16-17 cannot be enforced mechanically; the LLM applies completeness
+  (principles 1, 10) by judgement instead.
+
+When running in fallback mode, **say so** — the output is still valid Unwind
+documentation, but completeness is asserted rather than proven.

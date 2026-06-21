@@ -6,6 +6,10 @@ allowed-tools:
   - Grep
   - Glob
   - Bash(git:*, mkdir:*, ls:*)
+  - Bash(node:*)
+  - Bash(pnpm:*)
+  - Bash(source:*)
+  - Read(docs/unwind/.cache/**)
   - Write(docs/unwind/**)
   - Edit(docs/unwind/**)
 ---
@@ -14,9 +18,20 @@ allowed-tools:
 
 ## Overview
 
-Dispatch a subagent to systematically explore a codebase and identify its architectural layers, technology choices, and structure. The subagent produces a machine-parseable architecture document that drives downstream layer-by-layer analysis.
+Run a **deterministic scan** of the codebase, then dispatch a subagent to add
+narrative observations and adjudicate anything the scanner could not classify.
+The scanner (`@unwind/core`) produces a machine-readable `scan-manifest.json` —
+the ground truth for the file inventory, per-file structural symbols, the
+import graph, and a first-pass rebuild-layer assignment. The architecture
+document is **derived from** this manifest, so layer counts and entry points are
+verifiable rather than guessed.
 
-**Output:** `docs/unwind/architecture.md`
+**Output:** `docs/unwind/architecture.md` (derived) + `docs/unwind/.cache/scan-manifest.json` (ground truth)
+
+> **Graceful fallback:** if Node/pnpm or `@unwind/core` are unavailable, the
+> deterministic scan is skipped and discovery falls back to the legacy pure-LLM
+> Explore flow (Step 1-LEGACY below). The skill always functions; the scan is an
+> enhancement, not a hard dependency.
 
 ## When to Use
 
@@ -27,9 +42,56 @@ Dispatch a subagent to systematically explore a codebase and identify its archit
 
 ## The Process
 
-### Step 1: Gather Repository Information
+### Step 0: Run the Deterministic Scan
 
-**Run these commands FIRST** to get git info for source linking:
+Build (first run only) and run the scanner. The helper resolves the plugin root
+and lazily builds `@unwind/core`:
+
+```bash
+source "$(dirname "$0")/../scripts/_resolve-plugin-root.sh"
+ensure_unwind_core || { echo "core unavailable — using legacy discovery"; }
+node "$UNWIND_PLUGIN_ROOT/skills/scripts/scan.mjs" "$(pwd)"
+```
+
+- On success: writes `docs/unwind/.cache/scan-manifest.json`. Proceed to Step 1.
+- On non-zero exit (no Node/pnpm, or build failed): skip to **Step 1-LEGACY**.
+
+The manifest already contains everything the old Step-1 git parsing produced,
+plus far more:
+
+| architecture.md field | Manifest source |
+|-----------------------|-----------------|
+| `repository` block (type/url/branch/link_format) | `manifest.repository` (note: manifest uses `linkFormat`; emit it as `link_format` in YAML) |
+| Project name / language / framework | `manifest.project` |
+| Per-layer `status` + `entry_points` | `manifest.stats.byLayer` (status) + `manifest.layerIndex[layer].files` (entry points) |
+| Exact file/symbol counts | `manifest.stats`, `manifest.files[].symbols` |
+
+### Step 1: Derive architecture.md from the Manifest (+ adjudicate)
+
+Read `docs/unwind/.cache/scan-manifest.json`. Then dispatch an **Explore**
+subagent whose job is now narrower (the inventory is already known):
+
+1. **Adjudicate the `unassigned` bucket.** `manifest.layerIndex.unassigned.files`
+   lists files the scanner could not confidently place. Inspect them and assign
+   each to a real layer (or confirm it's genuinely cross-cutting/non-layer).
+2. **Add narrative observations** per layer (technology, patterns, notable
+   aspects) — the facts the scan can't infer.
+3. **Confirm/correct layer boundaries** the scanner proposed.
+
+Pass the subagent the manifest's `repository`, `project`, `stats.byLayer`, and
+the `unassigned` file list. It returns the architecture document content (same
+format as the **Architecture Document Format** below); the main agent writes it.
+
+> Map the scanner's layers to architecture.md layer keys: `database`→`database`,
+> `domain`→`domain_model`, `service`→`service_layer`, `api`→`api`,
+> `messaging`→`messaging`, `frontend`→`frontend`. Tests and infrastructure are
+> recorded under their own sections. A layer with a non-zero count in
+> `stats.byLayer` is `status: detected`.
+
+### Step 1-LEGACY: Pure-LLM Discovery (fallback only)
+
+Used **only** when the deterministic scan was unavailable in Step 0. Gather repo
+info and dispatch the Explore subagent to discover layers from scratch:
 
 ```bash
 git remote get-url origin 2>/dev/null
@@ -50,36 +112,17 @@ repository:
   link_format: https://github.com/owner/repo/blob/main/{path}#L{start}-L{end}
 ```
 
+Then dispatch an **Explore** subagent (see **Subagent Prompt** below) to discover
+layers and return the architecture document content.
+
 ### Step 2: Check for Existing Documentation
 
-Check if `docs/unwind/architecture.md` exists:
-
-```
-Glob: docs/unwind/architecture.md
-```
+Check if `docs/unwind/architecture.md` exists (`Glob: docs/unwind/architecture.md`):
 
 - If exists: Pass to subagent as "previous analysis" for refresh mode
 - If not: Fresh discovery
 
-### Step 3: Dispatch Discovery Subagent
-
-Dispatch an **Explore** subagent for fast codebase analysis. Note: Explore cannot write files, so you will write the output in Step 4.
-
-**Include the repository info from Step 1 in the prompt:**
-
-```
-Task(subagent_type="Explore")
-  description: "Discover codebase architecture"
-  prompt: |
-    [See Subagent Prompt below]
-
-    ## Repository Information (already gathered)
-    [paste the repository yaml block from Step 1]
-```
-
-The Explore agent should return the complete architecture document content as its output.
-
-### Step 4: Write the Architecture Document
+### Step 3: Write the Architecture Document
 
 When the Explore subagent completes with the document content:
 

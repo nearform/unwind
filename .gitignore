@@ -10,9 +10,21 @@ Thumbs.db
 .vscode/
 *.sublime-*
 
-# Node (if any tooling is added)
+# Node
 node_modules/
 npm-debug.log
+
+# @unwind/core build output — rebuilt lazily on first use via ensure_unwind_core.
+# (pnpm-lock.yaml IS committed so installs are reproducible.)
+packages/*/dist/
+*.tsbuildinfo
+
+# We standardize on pnpm; ignore stray npm lockfiles.
+package-lock.json
+
+# Per-target deterministic scan cache (written into analyzed repos, but ignore
+# here in case Unwind is ever run against itself).
+docs/unwind/.cache/
 
 # Python (if any tooling is added)
 __pycache__/
