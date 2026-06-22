@@ -11,6 +11,19 @@ import type {
 import { ALL_COVERAGE, ALL_NODE_TYPES, ALL_PRIORITIES, ALL_REBUILD_STATUS } from "./types";
 
 export type ViewMode = "graph" | "overview" | "priorities" | "contracts";
+export type Theme = "dark" | "light";
+
+const THEME_KEY = "unwind-dashboard-theme";
+
+function initialTheme(): Theme {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    /* localStorage unavailable */
+  }
+  return "dark"; // default
+}
 
 export interface Filters {
   nodeTypes: Set<NodeType>;
@@ -39,6 +52,7 @@ interface DashboardState {
   nodesById: Map<string, RebuildNode>;
   loadError: string | null;
   viewMode: ViewMode;
+  theme: Theme;
   selectedNodeId: string | null;
   searchQuery: string;
   filters: Filters;
@@ -49,6 +63,7 @@ interface DashboardState {
   setGraph: (g: RebuildGraph) => void;
   setLoadError: (e: string | null) => void;
   setViewMode: (m: ViewMode) => void;
+  toggleTheme: () => void;
   selectNode: (id: string | null) => void;
   setSearchQuery: (q: string) => void;
   toggleFilterPanel: () => void;
@@ -65,6 +80,7 @@ export const useStore = create<DashboardState>((set, get) => ({
   nodesById: new Map(),
   loadError: null,
   viewMode: "graph",
+  theme: initialTheme(),
   selectedNodeId: null,
   searchQuery: "",
   filters: defaultFilters(),
@@ -85,6 +101,16 @@ export const useStore = create<DashboardState>((set, get) => ({
   },
   setLoadError: (e) => set({ loadError: e }),
   setViewMode: (m) => set({ viewMode: m }),
+  toggleTheme: () =>
+    set((s) => {
+      const theme: Theme = s.theme === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch {
+        /* ignore */
+      }
+      return { theme };
+    }),
   selectNode: (id) => set({ selectedNodeId: id }),
   setSearchQuery: (q) => set({ searchQuery: q }),
   toggleFilterPanel: () => set((s) => ({ filterPanelOpen: !s.filterPanelOpen })),

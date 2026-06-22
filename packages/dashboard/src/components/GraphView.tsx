@@ -28,6 +28,7 @@ function GraphInner() {
   const selectNode = useStore((s) => s.selectNode);
   const focusRequest = useStore((s) => s.focusRequest);
   const clearFocusRequest = useStore((s) => s.clearFocusRequest);
+  const theme = useStore((s) => s.theme);
 
   const [layouted, setLayouted] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -162,15 +163,15 @@ function GraphInner() {
         fitViewOptions={{ padding: 0.15, minZoom: 0.02 }}
         minZoom={0.02}
         maxZoom={2}
-        colorMode="light"
+        colorMode={theme}
       >
-        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="rgba(0,14,56,0.08)" />
+        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="var(--color-graph-dots)" />
         <Controls showInteractive={false} />
         <MiniMap
           pannable
           zoomable
-          nodeColor="#c9d3dc"
-          maskColor="rgba(225,230,234,0.55)"
+          nodeColor="var(--color-minimap-node)"
+          maskColor="var(--color-graph-mask)"
           className="!bg-surface !border !border-border-subtle !rounded-lg"
         />
       </ReactFlow>

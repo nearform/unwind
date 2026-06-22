@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#000e38"/>
-  <!-- Nearform-style bright-green "N" monogram -->
-  <path d="M18 46 V18 h6.2 l15.6 18.4 V18 H46 v28 h-6.2 L24.2 27.6 V46 Z" fill="#00e6a4"/>
-</svg>

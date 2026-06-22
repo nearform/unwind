@@ -25,8 +25,15 @@ export default function App() {
   const setLoadError = useStore((s) => s.setLoadError);
   const viewMode = useStore((s) => s.viewMode);
   const setViewMode = useStore((s) => s.setViewMode);
+  const theme = useStore((s) => s.theme);
+  const toggleTheme = useStore((s) => s.toggleTheme);
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const [codeNodeId, setCodeNodeId] = useState<string | null>(null);
+
+  // Reflect the theme onto <html> so the CSS variables switch.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   useEffect(() => {
     fetch("/rebuild-graph.json")
@@ -52,7 +59,11 @@ export default function App() {
     <div className="h-screen w-screen flex flex-col bg-root text-text-primary">
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-3 bg-surface border-b border-border-subtle shrink-0">
-        <div className="flex items-baseline gap-2 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Official Nearform mark (navy N) on a white chip so it reads on any header theme. */}
+          <span className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-border-subtle">
+            <img src="/nearform.svg" alt="Nearform" className="w-5 h-5" />
+          </span>
           <h1 className="text-base font-semibold tracking-wide text-accent">Unwind</h1>
           <span className="text-sm text-text-secondary truncate">
             {graph?.project.name ?? "Rebuild Graph"}
@@ -84,6 +95,25 @@ export default function App() {
             <span className="text-accent">{graph.stats.coveragePct}% covered</span>
           </div>
         )}
+        <button
+          onClick={toggleTheme}
+          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          aria-label="Toggle color theme"
+          className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-elevated border border-border-subtle text-text-secondary hover:text-accent hover:border-accent/50 transition-colors"
+        >
+          {theme === "dark" ? (
+            // sun
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4" />
+              <path strokeLinecap="round" d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+          ) : (
+            // moon
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />
+            </svg>
+          )}
+        </button>
         {viewMode === "graph" && <FilterPanel />}
       </header>
 

@@ -2,51 +2,133 @@
 @source "./**/*.{ts,tsx}";
 @source "../index.html";
 
-/* Nearform light theme. Brand palette from ~/work/ainative-comps:
-   bright green #00e6a4, accent green #07a06f, deep navy #000e38, bg #f4f6f8.
-   Tailwind v4 generates the bg-/text-/border- utilities from these tokens, so
-   re-theming is mostly a token swap. */
+/* Theme tokens are indirections onto per-mode CSS variables (--c-*), so the
+   bg-/text-/border- utilities resolve live when [data-theme] flips on <html>.
+   Dark is the default; light is high-contrast for projector/daylight use. */
 @theme {
-  --color-root: #f4f6f8;      /* page / graph canvas */
-  --color-surface: #ffffff;   /* header, sidebar, panels, cards */
-  --color-elevated: #ffffff;  /* nodes, inputs (white on grey canvas) */
-  --color-panel: #ffffff;
+  --color-root: var(--c-root);
+  --color-surface: var(--c-surface);
+  --color-elevated: var(--c-elevated);
+  --color-panel: var(--c-panel);
 
-  --color-accent: #07a06f;        /* on-brand green: links, focus, selected */
-  --color-accent-dim: #0b8f66;
-  --color-accent-bright: #00e6a4; /* bright Nearform green */
+  --color-accent: var(--c-accent);
+  --color-accent-dim: var(--c-accent-dim);
+  --color-accent-bright: var(--c-accent-bright);
 
-  --color-text-primary: #1b2330;   /* near-navy ink */
-  --color-text-secondary: #475467;
-  --color-text-muted: #8a94a6;
+  --color-text-primary: var(--c-text-primary);
+  --color-text-secondary: var(--c-text-secondary);
+  --color-text-muted: var(--c-text-muted);
 
-  --color-border-subtle: #e6eaee;
-  --color-border-medium: #cdd5dd;
+  --color-border-subtle: var(--c-border-subtle);
+  --color-border-medium: var(--c-border-medium);
 
-  /* Node types (graph) — tuned for contrast on a light canvas */
-  --color-node-file: #2f6f97;
-  --color-node-function: #2f9e6f;
-  --color-node-class: #7c5cc4;
-  --color-node-table: #0e9aa7;
-  --color-node-endpoint: #e07b1a;
-  --color-node-contract: #b78103;
+  --color-node-file: var(--c-node-file);
+  --color-node-function: var(--c-node-function);
+  --color-node-class: var(--c-node-class);
+  --color-node-table: var(--c-node-table);
+  --color-node-endpoint: var(--c-node-endpoint);
+  --color-node-contract: var(--c-node-contract);
 
-  /* Coverage states */
-  --color-cov-scanned: #94a3b8;
-  --color-cov-documented: #2f6f97;
-  --color-cov-verified: #07a06f;
-  --color-cov-excluded: #b0b8c2;
-  --color-cov-stale: #e05252;
+  --color-cov-scanned: var(--c-cov-scanned);
+  --color-cov-documented: var(--c-cov-documented);
+  --color-cov-verified: var(--c-cov-verified);
+  --color-cov-excluded: var(--c-cov-excluded);
+  --color-cov-stale: var(--c-cov-stale);
 
-  /* Priorities */
-  --color-prio-must: #d64545;
-  --color-prio-should: #c08a1e;
-  --color-prio-dont: #94a3b8;
+  --color-prio-must: var(--c-prio-must);
+  --color-prio-should: var(--c-prio-should);
+  --color-prio-dont: var(--c-prio-dont);
 
-  --color-edge: rgba(0, 14, 56, 0.16);
+  --color-edge: var(--c-edge);
+  --color-graph-dots: var(--c-graph-dots);
+  --color-graph-mask: var(--c-graph-mask);
+  --color-minimap-node: var(--c-minimap-node);
 
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---- Dark (default) — Nearform deep navy + bright green ---- */
+:root,
+[data-theme="dark"] {
+  --c-root: #0a1120;
+  --c-surface: #111b2f;
+  --c-elevated: #17233d;
+  --c-panel: #111b2f;
+
+  --c-accent: #00e6a4;
+  --c-accent-dim: #07a06f;
+  --c-accent-bright: #5cffcf;
+
+  --c-text-primary: #eef3fa;
+  --c-text-secondary: #aeb9cc;
+  --c-text-muted: #74819a;
+
+  --c-border-subtle: #243352;
+  --c-border-medium: #36486c;
+
+  --c-node-file: #5aa9e6;
+  --c-node-function: #34d399;
+  --c-node-class: #b794f6;
+  --c-node-table: #2dd4bf;
+  --c-node-endpoint: #fbbf73;
+  --c-node-contract: #fbd34d;
+
+  --c-cov-scanned: #74819a;
+  --c-cov-documented: #5aa9e6;
+  --c-cov-verified: #34d399;
+  --c-cov-excluded: #4b5772;
+  --c-cov-stale: #f87171;
+
+  --c-prio-must: #f87171;
+  --c-prio-should: #fbbf24;
+  --c-prio-dont: #74819a;
+
+  --c-edge: rgba(120, 165, 220, 0.28);
+  --c-graph-dots: rgba(150, 185, 230, 0.12);
+  --c-graph-mask: rgba(10, 17, 32, 0.66);
+  --c-minimap-node: #33466b;
+}
+
+/* ---- Light — high contrast for daylight ---- */
+[data-theme="light"] {
+  --c-root: #eaeef3;
+  --c-surface: #ffffff;
+  --c-elevated: #ffffff;
+  --c-panel: #ffffff;
+
+  --c-accent: #07976a;
+  --c-accent-dim: #0b8f66;
+  --c-accent-bright: #00b385;
+
+  --c-text-primary: #0c1726;     /* deep navy ink for strong contrast */
+  --c-text-secondary: #34435c;
+  --c-text-muted: #586781;
+
+  --c-border-subtle: #cdd5df;
+  --c-border-medium: #aab6c4;
+
+  --c-node-file: #1f6fb2;
+  --c-node-function: #0a8f5f;
+  --c-node-class: #6d3fc4;
+  --c-node-table: #0e8a99;
+  --c-node-endpoint: #cf6a10;
+  --c-node-contract: #936300;
+
+  --c-cov-scanned: #64748b;
+  --c-cov-documented: #1f6fb2;
+  --c-cov-verified: #0a8f5f;
+  --c-cov-excluded: #8a97a8;
+  --c-cov-stale: #d33b3b;
+
+  --c-prio-must: #cf2e2e;
+  --c-prio-should: #a9740f;
+  --c-prio-dont: #64748b;
+
+  --c-edge: rgba(13, 24, 40, 0.22);
+  --c-graph-dots: rgba(13, 24, 40, 0.10);
+  --c-graph-mask: rgba(220, 226, 233, 0.55);
+  --c-minimap-node: #b7c1cd;
 }
 
 body {
@@ -65,11 +147,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 14, 56, 0.18);
+  background: var(--color-border-medium);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(7, 160, 111, 0.5);
+  background: var(--color-accent-dim);
 }
 
 .react-flow__background {
@@ -79,7 +161,7 @@ body {
   display: none;
 }
 
-/* Selected node ring in Nearform green. */
+/* Selected node ring in the accent green. */
 .node-glow {
-  box-shadow: 0 0 0 2px var(--color-accent), 0 0 16px rgba(0, 230, 164, 0.45);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 16px color-mix(in srgb, var(--color-accent) 45%, transparent);
 }
