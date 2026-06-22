@@ -2,8 +2,6 @@
 
 Skills library for reverse engineering codebases. Produces complete, machine-readable documentation and phased rebuild plans to reliably re-build the service or application in a new technology or modernised framework.
 
-> **🔎 Live demo:** [**unwind.cliftonc.nl**](https://unwind.cliftonc.nl) — the interactive rebuild-graph dashboard for a real project ([drizzle-cube](https://github.com/cliftonc/drizzle-cube)): 2,427 nodes across layers, coverage meters, MUST/SHOULD/DON'T priorities, and a filterable contract inventory.
-
 ## Purpose
 
 Generate documentation that enables an AI agent to rebuild your system in a different language or framework while maintaining:
@@ -30,11 +28,17 @@ Restart Claude Code after installation.
 
 ### Use
 ```
-1. Use unwind:start              # deterministic scan → architecture.md
-2. Review docs/unwind/architecture.md
-3. Use unwind:unwinding-codebase # seed → analyze → verify coverage → complete
-4. Use unwind:synthesizing-findings
+1. Use unwind:start              # deterministic scan → architecture.md (+ scan-manifest.json)
+2. Use unwind:unwind-dashboard   # visualize it — works straight after the scan
+3. Review docs/unwind/architecture.md
+4. Use unwind:unwinding-codebase # seed → analyze → verify coverage → complete
+5. Use unwind:synthesizing-findings   # → REBUILD-PLAN.md
+6. Use unwind:unwind-dashboard   # re-open to explore coverage, priorities & contracts
 ```
+
+You can run **`unwind:unwind-dashboard` any time after step 1** — right after the
+scan it shows the structural graph (everything `scanned`); after analysis it fills
+in coverage and the MUST/SHOULD/DON'T priorities.
 
 The first run builds the scanner automatically (`pnpm install && pnpm build` via
 `ensure_unwind_core`). It needs Node + pnpm; without them, Unwind falls back to a
@@ -43,14 +47,8 @@ pure-LLM flow.
 **Output:**
 - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach
 - `docs/unwind/layers/*/` - Detailed layer analysis (folder per layer)
+- `docs/unwind/rebuild-graph.json` - Knowledge graph for the dashboard
 - `docs/unwind/.cache/` - Deterministic artifacts: `scan-manifest.json` (ground truth), `seeds/` (per-layer checklists), `coverage/` (per-layer coverage reports)
-
-### Example Output
-
-See a complete example from the [RealWorld Go API](https://github.com/cliftonc/golang-gin-realworld-example-app):
-- [REBUILD-PLAN.md](https://github.com/cliftonc/golang-gin-realworld-example-app/blob/main/docs/unwind/REBUILD-PLAN.md)
-- [architecture.md](https://github.com/cliftonc/golang-gin-realworld-example-app/blob/main/docs/unwind/architecture.md)
-- [Layer documentation](https://github.com/cliftonc/golang-gin-realworld-example-app/tree/main/docs/unwind/layers)
 
 ---
 
@@ -92,8 +90,7 @@ Unwind falls back to a pure-LLM flow.
 
 ## Visualize the graph
 
-**See it live:** [unwind.cliftonc.nl](https://unwind.cliftonc.nl) is the dashboard
-running against a real project ([drizzle-cube](https://github.com/cliftonc/drizzle-cube)).
+Live demo: [unwind.cliftonc.nl](https://unwind.cliftonc.nl)
 
 After a run, explore your own result interactively:
 

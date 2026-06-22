@@ -18,17 +18,19 @@ visualizes the dependency-ordered layers, per-node coverage, MUST/SHOULD/DON'T
 priorities, and the contract inventory (tables, endpoints, …) — the rebuild
 mission view, not a learning tour.
 
-**Reads:** `docs/unwind/rebuild-graph.json` (produced by `emitting-rebuild-graph`).
+**Reads:** `docs/unwind/rebuild-graph.json` — auto-generated from the scan manifest
+if it doesn't exist yet, so the dashboard can be opened **any time after
+`unwind:start`**.
 
-> **Graceful fallback:** if Node/pnpm or `@unwind/core` are unavailable, or no
-> `rebuild-graph.json` exists, this skill reports what's missing and stops cleanly.
-> Generate the graph first with `unwind:emitting-rebuild-graph`.
+> **Graceful fallback:** if Node/pnpm or `@unwind/core` are unavailable, this skill
+> reports what's missing and stops cleanly. If there's no scan yet, run
+> `unwind:start` first.
 
 ## When to Use
 
-- After scanning + emitting the rebuild graph, to review coverage and gaps visually.
-- To browse the contract inventory and jump to source.
-- To track rebuild progress across layers.
+- **Right after `unwind:start`** — visualize the scanned structure (everything `scanned`).
+- After analysis — review per-layer coverage, MUST/SHOULD/DON'T, and gaps visually.
+- To browse the contract inventory and jump to source, or track rebuild progress.
 
 ## Process
 
@@ -38,9 +40,18 @@ mission view, not a learning tour.
 source "$(dirname "$0")/../scripts/_resolve-plugin-root.sh"
 ensure_unwind_core || { echo "core unavailable — cannot run dashboard"; exit 0; }
 
+# The dashboard needs docs/unwind/rebuild-graph.json. Build it on demand so the
+# dashboard can be opened any time after unwind:start:
+#   - straight after the scan (manifest only) → graph of the scanned structure
+#   - after analysis → graph also carries coverage + MUST/SHOULD/DON'T priorities
 if [ ! -f "$(pwd)/docs/unwind/rebuild-graph.json" ]; then
-  echo "No rebuild-graph.json — run unwind:emitting-rebuild-graph first." >&2
-  exit 0
+  if [ -f "$(pwd)/docs/unwind/.cache/scan-manifest.json" ]; then
+    echo "No rebuild-graph.json yet — generating it from the scan…" >&2
+    node "$UNWIND_PLUGIN_ROOT/skills/scripts/build-graph.mjs" "$(pwd)"
+  else
+    echo "No scan found — run unwind:start first." >&2
+    exit 0
+  fi
 fi
 ```
 
