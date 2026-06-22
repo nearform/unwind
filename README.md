@@ -61,102 +61,63 @@ See a complete example from the [RealWorld Go API](https://github.com/cliftonc/g
 
 ---
 
-## Workflow
+## How it works
+
+Unwind interleaves **deterministic scripts** (which own the verifiable facts) with
+**LLM sub-agents** (which add semantic judgment). The deterministic layer is what
+makes "did we document everything?" a *checkable* question instead of a hopeful one.
+
+![Unwind pipeline](docs/pipeline.svg)
+
+### Step by step
+
+| # | Step | Kind | What it does |
+|---|------|------|--------------|
+| 1 | `scan.mjs` | **deterministic** | Walks `git ls-files`, runs tree-sitter to extract symbols (functions, classes, **tables, endpoints**), resolves the import graph, and assigns every file a rebuild layer → **`scan-manifest.json`**, the ground truth. |
+| 2 | `seed-layers.mjs` | **deterministic** | Turns the manifest into a per-layer **candidate checklist** (`seeds/{layer}.json`) — the exact set of items each specialist must cover. |
+| 3 | layer specialists | LLM | Sub-agents document each layer (database → domain → service → api/messaging → frontend → tests), seeded with their checklist, writing tagged docs with `### name [MUST] <!-- id: ... -->` anchor headings. |
+| 4 | `verify-coverage.mjs` | **deterministic** | The key move: **`manifest − docs`** by set arithmetic. Anything in the scan but not in the docs is a gap — reported with names and line numbers in `gaps.md`. Reproducible byte-for-byte. |
+| 5 | `completing-layer-documentation` | LLM | Fills the `gaps.md` work list. Loops 4 ⇄ 5 until coverage is 100% (or items are explicitly excluded). |
+| 6 | `synthesizing-findings` | LLM | Produces the strategic **`REBUILD-PLAN.md`** (re-use decisions, phasing, validation). |
+| 7 | `build-graph.mjs` | **deterministic** | Joins manifest + coverage + docs into **`rebuild-graph.json`** — nodes carry MUST/SHOULD/DON'T, coverage state, and rebuild status — and powers the dashboard. |
+| ↻ | `detect-changes.mjs` | **deterministic** | After code changes, structural fingerprints find exactly what moved so only the **affected layers** are re-analyzed; changed contracts are flagged `stale` / `needs-recheck`. |
+
+**Why it matters:** completeness ("all 42 tables") used to be the LLM's word for it.
+Now the scanner finds the 42, the specialist documents them, and step 4 *proves*
+none are missing. Languages with tree-sitter symbol extraction: TypeScript/JavaScript,
+Python, Rust, Java, C#. Other languages get file-level coverage; with no Node/pnpm,
+Unwind falls back to a pure-LLM flow.
+
+## Visualize the graph
+
+After a run, explore the result interactively:
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              UNWIND WORKFLOW                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  PHASE 1: DISCOVERY                                                          │
-│  ┌──────────────────────────┐                                               │
-│  │         start            │ ──► architecture.md                           │
-│  └────────────┬─────────────┘     (layers, entry points, repo info)         │
-│               │                                                              │
-│               ▼                                                              │
-│  PHASE 2: LAYER ANALYSIS                                                     │
-│  ┌──────────────────────────┐                                               │
-│  │   unwinding-codebase     │ ──► Dispatches layer specialists              │
-│  └────────────┬─────────────┘                                               │
-│               │                                                              │
-│       ┌───────┴───────┬───────────┬───────────┬───────────┐                │
-│       ▼               ▼           ▼           ▼           ▼                │
-│  ┌─────────┐    ┌──────────┐ ┌─────────┐ ┌─────────┐ ┌──────────┐         │
-│  │database/│    │ domain-  │ │service- │ │  api/   │ │frontend/ │         │
-│  │         │    │ model/   │ │ layer/  │ │         │ │          │         │
-│  └────┬────┘    └────┬─────┘ └────┬────┘ └────┬────┘ └────┬─────┘         │
-│       │              │            │           │           │                 │
-│       └──────────────┴────────────┴───────────┴───────────┘                │
-│                              │                                              │
-│                              ▼                                              │
-│  PHASE 3: GAP DETECTION                                                      │
-│  ┌───────────────────────────────────────────────────────────┐             │
-│  │           verifying-layer-documentation                    │             │
-│  │   (Parallel agents compare docs to source)                 │             │
-│  └─────────────────────────────┬─────────────────────────────┘             │
-│                                │                                            │
-│                                ▼                                            │
-│                         ┌──────────┐                                        │
-│                         │ gaps.md  │  (per layer - work list only)          │
-│                         └────┬─────┘                                        │
-│                              │                                              │
-│                              ▼                                              │
-│  PHASE 4: GAP COMPLETION                                                     │
-│  ┌───────────────────────────────────────────────────────────┐             │
-│  │           completing-layer-documentation                   │             │
-│  │   (Parallel agents fix all gaps, delete gaps.md)          │             │
-│  └─────────────────────────────┬─────────────────────────────┘             │
-│                                │                                            │
-│                                ▼                                            │
-│  PHASE 5: SYNTHESIS                                                          │
-│  ┌──────────────────────────────────────────────────────────┐              │
-│  │              synthesizing-findings                        │              │
-│  │   (Generates strategic REBUILD-PLAN.md)                  │              │
-│  └──────────────────────────────────────────────────────────┘              │
-│                                │                                            │
-│                                ▼                                            │
-│                    ┌──────────────────────┐                                │
-│                    │   REBUILD-PLAN.md    │                                │
-│                    │  (Strategic rebuild) │                                │
-│                    └──────────────────────┘                                │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+Use unwind:emitting-rebuild-graph   # build docs/unwind/rebuild-graph.json
+Use unwind:unwind-dashboard         # launch the React + React Flow dashboard
 ```
 
-## Phases Explained
+The dashboard (`http://127.0.0.1:5174`) shows the dependency-ordered layers, a
+per-layer **coverage meter**, the **MUST/SHOULD/DON'T** breakdown, and a filterable
+**contract inventory** (every table, endpoint, …) with source links and rebuild
+status. To point it at any project directly:
 
-### Phase 1: Discovery (scan-first)
-Runs the deterministic scanner to build `scan-manifest.json` — file inventory,
-per-file structural symbols, import graph, repository info (for GitHub links), and
-a first-pass rebuild-layer assignment. `architecture.md` is **derived** from this;
-the Explore subagent only adds narrative and adjudicates files the scanner left
-`unassigned`. Falls back to pure-LLM discovery if the scanner is unavailable.
+```
+UNWIND_GRAPH_DIR="/path/to/project" pnpm --filter @unwind/dashboard dev
+```
 
-### Phase 2: Layer Analysis (seeded)
-`seed-layers.mjs` emits a candidate checklist per layer from the manifest. Each
-specialist is dispatched **with its seed list** and must document every item using
-anchor-id headings (`### name [MUST] <!-- id: ... -->`), then runs in dependency
-order:
-1. Database (no dependencies)
-2. Domain Model (needs database)
-3. Service Layer (needs domain)
-4. API + Messaging (parallel, need services)
-5. Frontend (needs API)
-6. Tests (parallel, no layer dependencies)
+## Keeping it fresh (incremental)
 
-Each layer writes to a folder with incremental files to avoid token limits.
+```
+Use unwind:refreshing-analysis      # after code changes
+```
 
-### Phase 3: Gap Detection (deterministic)
-`verify-coverage.mjs` diffs the manifest's candidate set against the documented
-anchor ids — pure set arithmetic, reproducible. Missing items (in source, not in
-docs) are written to `gaps.md`; "extra" documented items are flagged for review.
-This replaces the old subjective LLM comparison.
-
-### Phase 4: Gap Completion
-Reads `gaps.md` work lists and adds all missing documentation. Deletes `gaps.md` when complete.
-
-### Phase 5: Synthesis
-Aggregates all layer documentation into final deliverables.
+`scan.mjs` records a fingerprint baseline (`meta.json`). `detect-changes.mjs` diffs
+a fresh scan against it and classifies every file as `structural` (signature moved),
+`cosmetic` (body/comments only — docs stay valid), `added`, `removed`, or
+`unchanged`. Only the layers in `affectedLayers` are re-analyzed, and documented
+items whose source changed structurally are marked `stale` in the graph — so the
+unwind spec stays accurate across a long migration instead of going out of date.
 
 ---
 
@@ -182,11 +143,14 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 | Skill | Purpose | Output |
 |-------|---------|--------|
-| `start` | Initial codebase exploration | `architecture.md` |
-| `unwinding-codebase` | Orchestrates all phases | Dispatches specialists |
-| `verifying-layer-documentation` | Detects gaps in docs | `gaps.md` per layer |
+| `start` | Deterministic scan + discovery | `architecture.md` (+ `scan-manifest.json`) |
+| `unwinding-codebase` | Orchestrates seed → analyze → verify → complete | Dispatches specialists |
+| `verifying-layer-documentation` | Deterministic `manifest − docs` diff | `gaps.md` per layer |
 | `completing-layer-documentation` | Fixes all gaps | Updated layer files |
 | `synthesizing-findings` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
+| `emitting-rebuild-graph` | Joins manifest + coverage + docs | `rebuild-graph.json` |
+| `unwind-dashboard` | Launches the interactive graph UI | dashboard at `:5174` |
+| `refreshing-analysis` | Incremental update (only changed layers) | refreshed docs + graph |
 
 ### Layer Specialists
 
@@ -212,8 +176,11 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 ```
 docs/unwind/
 ├── architecture.md                    # Layer detection, tech stack, repo info (derived from scan)
+├── rebuild-graph.json                 # Knowledge graph for the dashboard
 ├── .cache/                            # Deterministic artifacts
-│   ├── scan-manifest.json            # Ground truth: inventory, symbols, import graph
+│   ├── scan-manifest.json            # Ground truth: inventory, symbols, contracts, import graph
+│   ├── meta.json                     # Fingerprint baseline (incremental refresh)
+│   ├── changes.json                  # detect-changes output (incremental refresh)
 │   ├── seeds/{layer}.json            # Per-layer candidate checklists
 │   └── coverage/{layer}.json         # Per-layer coverage reports
 ├── layers/
