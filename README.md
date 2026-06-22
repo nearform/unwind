@@ -22,7 +22,8 @@ coverage, and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
 ### Install
 
 ```
-/plugin install https://github.com/cliftonc/unwind
+/plugin marketplace add cliftonc/unwind
+/plugin install unwind@cliftonc
 ```
 Restart Claude Code after installation.
 
@@ -55,8 +56,9 @@ pure-LLM flow.
 ### Updating
 
 ```
+/plugin marketplace update cliftonc
 /plugin uninstall unwind
-/plugin install https://github.com/cliftonc/unwind
+/plugin install unwind@cliftonc
 ```
 
 ---

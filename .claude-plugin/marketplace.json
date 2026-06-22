@@ -1,6 +1,6 @@
 {
-  "name": "unwind-dev",
-  "description": "Development marketplace for Unwind reverse engineering skills",
+  "name": "cliftonc",
+  "description": "Marketplace for the Unwind reverse engineering skills plugin",
   "owner": {
     "name": "clifton",
     "email": "clifton@guidemode.dev"
@@ -9,7 +9,7 @@
     {
       "name": "unwind",
       "description": "Skills library for reverse engineering: codebase analysis, service mapping, API discovery, and documentation generation",
-      "version": "0.1.0",
+      "version": "0.6.2",
       "source": "./"
     }
   ]
