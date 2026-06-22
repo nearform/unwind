@@ -67,6 +67,8 @@ export function detectSqlTables(content: string): SymbolDefinition[] {
       kind: "table",
       name,
       fields,
+      origin: "sql",
+      source: "sql",
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, close),
     });
@@ -183,10 +185,15 @@ export function detectPrismaModels(content: string): SymbolDefinition[] {
       kind === "table"
         ? prismaModelFields(body)
         : prismaEnumValues(body);
+    // @@map("physical_name") overrides the table name in the database.
+    const mapM = kind === "table" ? body.match(/@@map\(\s*['"]([^'"]+)['"]\s*\)/) : null;
     defs.push({
       kind,
       name,
       fields,
+      origin: "code",
+      source: "prisma",
+      ...(mapM ? { physicalName: mapM[1] } : {}),
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, close),
     });
@@ -273,6 +280,9 @@ export function detectDrizzleFromTree(root: TSNode): SymbolDefinition[] {
       kind: "table",
       name,
       fields,
+      origin: "code",
+      source: "drizzle",
+      ...(tableName ? { physicalName: tableName } : {}),
       startLine: node.startPosition.row + 1,
       endLine: node.endPosition.row + 1,
     });
@@ -320,7 +330,8 @@ export function detectDrizzleFromText(content: string): SymbolDefinition[] {
     /(?:export\s+)?const\s+(\w+)\s*=\s*(pgTable|mysqlTable|sqliteTable|pgView|mysqlView|sqliteView)\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*\{/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(content)) !== null) {
-    const name = m[3] || m[1];
+    const stringArg = m[3];
+    const name = stringArg || m[1];
     const open = m.index + m[0].length - 1;
     const close = matchBrace(content, open);
     const body = close > 0 ? content.slice(open + 1, close) : "";
@@ -329,6 +340,9 @@ export function detectDrizzleFromText(content: string): SymbolDefinition[] {
       kind: "table",
       name,
       fields,
+      origin: "code",
+      source: "drizzle",
+      ...(stringArg ? { physicalName: stringArg } : {}),
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, close > 0 ? close : m.index),
     });
@@ -388,12 +402,253 @@ export function detectJpaEntities(content: string): SymbolDefinition[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(content)) !== null) {
     const name = m[1];
+    // @Table(name = "physical_name") overrides the table name when present.
+    const tableM = m[0].match(/@Table\s*\([^)]*name\s*=\s*["']([^"']+)["']/);
     defs.push({
       kind: "table",
       name,
       fields: [],
+      origin: "code",
+      source: "jpa",
+      ...(tableM ? { physicalName: tableM[1] } : {}),
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, m.index + m[0].length),
+    });
+  }
+  return defs;
+}
+
+// ---------------------------------------------------------------------------
+// TypeORM — class annotated @Entity (TypeScript/JavaScript)
+// ---------------------------------------------------------------------------
+
+const TYPEORM_COL_DECORATORS =
+  "Column|PrimaryColumn|PrimaryGeneratedColumn|CreateDateColumn|UpdateDateColumn|DeleteDateColumn|VersionColumn|ObjectIdColumn|ManyToOne|OneToMany|ManyToMany|OneToOne|JoinColumn";
+
+export function detectTypeOrmEntities(content: string): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+  // @Entity, @Entity('name'), or @Entity({ name: 'name' }) immediately before a class.
+  const re =
+    /@Entity\s*(?:\(\s*(?:['"`]([^'"`]+)['"`]|\{[^}]*?name\s*:\s*['"`]([^'"`]+)['"`][^}]*?\})?\s*\))?[ \t]*(?:\r?\n(?:\s*@[^\n]*\r?\n)*)?\s*(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const physical = m[1] || m[2];
+    const name = m[3];
+    if (!name) continue;
+    const brace = content.indexOf("{", m.index + m[0].length - name.length);
+    const fields =
+      brace >= 0 ? typeOrmFields(content.slice(brace + 1, matchBrace(content, brace))) : [];
+    defs.push({
+      kind: "table",
+      name,
+      fields,
+      origin: "code",
+      source: "typeorm",
+      ...(physical ? { physicalName: physical } : {}),
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, m.index + m[0].length),
+    });
+  }
+  return defs;
+}
+
+function typeOrmFields(body: string): string[] {
+  const fields: string[] = [];
+  const re = new RegExp(
+    `@(?:${TYPEORM_COL_DECORATORS})\\b\\s*(?:\\([\\s\\S]*?\\))?\\s*(?:\\r?\\n\\s*)?(\\w+)`,
+    "g",
+  );
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body)) !== null) {
+    if (!fields.includes(m[1])) fields.push(m[1]);
+  }
+  return fields;
+}
+
+// ---------------------------------------------------------------------------
+// SQLAlchemy — declarative `class X(Base)` + imperative `Table("x", ...)` (Python)
+// ---------------------------------------------------------------------------
+
+export function detectSqlAlchemyModels(content: string): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+
+  // Declarative: class Foo(Base): / class Foo(db.Model): with __tablename__.
+  const classRe = /^[ \t]*class\s+(\w+)\s*\(([^)]*)\)\s*:/gm;
+  let m: RegExpExecArray | null;
+  while ((m = classRe.exec(content)) !== null) {
+    const bases = m[2];
+    if (!/\b(Base|db\.Model|DeclarativeBase|Model)\b/.test(bases)) continue;
+    const name = m[1];
+    const body = pythonBlockBody(content, classRe.lastIndex);
+    const tableM = body.match(/__tablename__\s*=\s*['"]([^'"]+)['"]/);
+    const fields = sqlAlchemyFields(body);
+    defs.push({
+      kind: "table",
+      name,
+      fields,
+      origin: "code",
+      source: "sqlalchemy",
+      ...(tableM ? { physicalName: tableM[1] } : {}),
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, classRe.lastIndex),
+    });
+  }
+
+  // Imperative: foo = Table("name", metadata, Column(...), ...)
+  const tableRe = /\b(\w+)\s*=\s*Table\s*\(\s*['"]([^'"]+)['"]/g;
+  while ((m = tableRe.exec(content)) !== null) {
+    defs.push({
+      kind: "table",
+      name: m[1],
+      fields: [],
+      origin: "code",
+      source: "sqlalchemy",
+      physicalName: m[2],
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, m.index),
+    });
+  }
+
+  return defs;
+}
+
+/** Lines of a Python suite (indented block) following a `:` at `fromIndex`. */
+function pythonBlockBody(content: string, fromIndex: number): string {
+  const lines = content.slice(fromIndex).split("\n");
+  const out: string[] = [];
+  let baseIndent: number | null = null;
+  for (const line of lines) {
+    if (line.trim() === "") {
+      out.push(line);
+      continue;
+    }
+    const indent = line.length - line.trimStart().length;
+    if (baseIndent === null) {
+      baseIndent = indent;
+    } else if (indent < baseIndent) {
+      break;
+    }
+    out.push(line);
+  }
+  return out.join("\n");
+}
+
+function sqlAlchemyFields(body: string): string[] {
+  const fields: string[] = [];
+  // name = Column(...)  /  name: Mapped[...] = mapped_column(...)
+  const re = /^[ \t]*(\w+)\s*(?::[^=\n]+)?=\s*(?:Column|mapped_column|relationship)\s*\(/gm;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body)) !== null) {
+    if (m[1] !== "__tablename__" && !fields.includes(m[1])) fields.push(m[1]);
+  }
+  return fields;
+}
+
+// ---------------------------------------------------------------------------
+// Mongoose — new Schema({...}) (TypeScript/JavaScript)
+// ---------------------------------------------------------------------------
+
+export function detectMongooseModels(content: string): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+  // const X = new mongoose.Schema({ ... })  /  new Schema<T>({ ... })
+  const re =
+    /(?:(?:export\s+)?const\s+(\w+)\s*=\s*)?new\s+(?:mongoose\.)?Schema(?:<[^>]*>)?\s*\(\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(content)) !== null) {
+    const open = m.index + m[0].length - 1;
+    const close = matchBrace(content, open);
+    if (close < 0) continue;
+    const fields = jsObjectTopLevelKeys(content.slice(open + 1, close));
+    // Prefer the assigned const name; strip a trailing "Schema" for the entity name.
+    const constName = m[1];
+    const name = constName ? constName.replace(/Schema$/, "") || constName : "Schema";
+    defs.push({
+      kind: "table",
+      name,
+      fields,
+      origin: "code",
+      source: "mongoose",
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, close),
+    });
+  }
+  return defs;
+}
+
+// ---------------------------------------------------------------------------
+// Sequelize — sequelize.define('x', {...}) + class X extends Model (TS/JS)
+// ---------------------------------------------------------------------------
+
+export function detectSequelizeModels(content: string): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+
+  // x.define('name', { ... })  (sequelize.define / db.define)
+  const defineRe = /\b\w+\.define\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = defineRe.exec(content)) !== null) {
+    const open = m.index + m[0].length - 1;
+    const close = matchBrace(content, open);
+    const fields = close > 0 ? jsObjectTopLevelKeys(content.slice(open + 1, close)) : [];
+    defs.push({
+      kind: "table",
+      name: m[1],
+      fields,
+      origin: "code",
+      source: "sequelize",
+      physicalName: m[1],
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, close > 0 ? close : m.index),
+    });
+  }
+
+  // class Name extends Model { ... }  with optional Name.init({ ... })
+  const classRe = /\bclass\s+(\w+)\s+extends\s+Model\b/g;
+  while ((m = classRe.exec(content)) !== null) {
+    const name = m[1];
+    const initRe = new RegExp(`\\b${name}\\.init\\s*\\(\\s*\\{`);
+    const initM = initRe.exec(content);
+    let fields: string[] = [];
+    if (initM) {
+      const open = initM.index + initM[0].length - 1;
+      const close = matchBrace(content, open);
+      if (close > 0) fields = jsObjectTopLevelKeys(content.slice(open + 1, close));
+    }
+    defs.push({
+      kind: "table",
+      name,
+      fields,
+      origin: "code",
+      source: "sequelize",
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, m.index + m[0].length),
+    });
+  }
+
+  return defs;
+}
+
+// ---------------------------------------------------------------------------
+// Entity Framework Core — DbSet<T> on a DbContext (C#)
+// ---------------------------------------------------------------------------
+
+export function detectEfCoreEntities(content: string): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+  // public DbSet<Foo> Foos { get; set; }  — the generic type is the entity.
+  const re = /\bDbSet\s*<\s*([A-Za-z_]\w*)\s*>/g;
+  let m: RegExpExecArray | null;
+  const seen = new Set<string>();
+  while ((m = re.exec(content)) !== null) {
+    const name = m[1];
+    if (seen.has(name)) continue;
+    seen.add(name);
+    defs.push({
+      kind: "table",
+      name,
+      fields: [],
+      origin: "code",
+      source: "efcore",
+      startLine: lineAt(content, m.index),
+      endLine: lineAt(content, m.index),
     });
   }
   return defs;
@@ -540,6 +795,8 @@ const SQL_EXTS = new Set([".sql"]);
 const PRISMA_EXTS = new Set([".prisma"]);
 const TS_JS_EXTS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]);
 const JAVA_EXTS = new Set([".java"]);
+const PYTHON_EXTS = new Set([".py", ".pyi"]);
+const CSHARP_EXTS = new Set([".cs"]);
 
 /**
  * Detect all contracts for a file. `root` is the tree-sitter root node when the
@@ -580,8 +837,12 @@ export function detectContracts(
     } else {
       result.definitions.push(...safe(() => detectDrizzleFromText(content)));
     }
+    // Other TS/JS ORMs are all text/regex-based (no AST needed).
+    result.definitions.push(...safe(() => detectTypeOrmEntities(content)));
+    result.definitions.push(...safe(() => detectMongooseModels(content)));
+    result.definitions.push(...safe(() => detectSequelizeModels(content)));
     result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
-    return result;
+    return dedupeDefinitions(result);
   }
 
   if (JAVA_EXTS.has(ext)) {
@@ -590,7 +851,35 @@ export function detectContracts(
     return result;
   }
 
-  // Other languages (Python, C#, Go, ...) — endpoints only (decorator/router).
+  if (PYTHON_EXTS.has(ext)) {
+    result.definitions.push(...safe(() => detectSqlAlchemyModels(content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    return dedupeDefinitions(result);
+  }
+
+  if (CSHARP_EXTS.has(ext)) {
+    result.definitions.push(...safe(() => detectEfCoreEntities(content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    return dedupeDefinitions(result);
+  }
+
+  // Other languages (Go, Ruby, ...) — endpoints only (decorator/router).
   result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+  return result;
+}
+
+/**
+ * Two ORM detectors can surface the same logical table in one file (e.g. a
+ * Sequelize `class X extends Model` plus a `X.init(...)`). Dedupe by (kind,name),
+ * keeping the first occurrence so candidate ids never collide downstream.
+ */
+function dedupeDefinitions(result: DetectedContracts): DetectedContracts {
+  const seen = new Set<string>();
+  result.definitions = result.definitions.filter((d) => {
+    const k = `${d.kind}:${d.name}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
   return result;
 }

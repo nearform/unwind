@@ -50,10 +50,22 @@ export interface SymbolExport {
 /** A structural definition: DB table, ORM entity, GraphQL type, etc. */
 export interface SymbolDefinition {
   name: string;
-  kind: string; // table | entity | type | enum | ...
+  kind: string; // table | entity | type | enum | db-ddl | ...
   fields: string[];
   startLine: number;
   endLine: number;
+  /**
+   * Where the definition came from. `code` = a code-side ORM model (the canonical
+   * data model); `sql` = raw SQL DDL (a physical contract). Optional/additive:
+   * absent on definitions that predate origin tagging. Reconciliation
+   * (reconcile-data-model.ts) uses this to make the code model canonical and demote
+   * matching SQL DDL to `kind: "db-ddl"`.
+   */
+  origin?: "code" | "sql";
+  /** The specific detector/framework, e.g. drizzle | prisma | typeorm | sqlalchemy | mongoose | sequelize | jpa | efcore | sql. */
+  source?: string;
+  /** ORM-declared physical table name when it differs from `name` (Prisma @@map, @Entity('users'), Drizzle string arg). */
+  physicalName?: string;
 }
 
 export interface SymbolEndpoint {
@@ -102,6 +114,20 @@ export interface LayerIndexEntry {
   symbolIds: string[];
 }
 
+/**
+ * A reconciled data-model link: a raw SQL DDL definition (`sqlId`, a `db-ddl`
+ * candidate) is the physical contract of a canonical code-side table (`codeId`).
+ * Produced by reconcile-data-model.ts; consumed by build-graph to emit
+ * `contract_of` edges so SQL DDL renders attached to its entity rather than as a
+ * floating duplicate table.
+ */
+export interface DataModelLink {
+  /** Canonical code-side table candidate id, e.g. "table:src/db/schema.ts:users". */
+  codeId: string;
+  /** SQL DDL candidate id (demoted), e.g. "db-ddl:drizzle/0001_init.sql:users". */
+  sqlId: string;
+}
+
 export interface ManifestStats {
   totalFiles: number;
   byLanguage: Record<string, number>;
@@ -124,6 +150,12 @@ export interface ScanManifest {
   /** Internal import edges: file -> resolved internal file paths. */
   importMap: Record<string, string[]>;
   layerIndex: Record<string, LayerIndexEntry>;
+  /**
+   * Reconciled links from SQL DDL contracts to their canonical code-side tables.
+   * Optional/additive — absent when no code-vs-SQL match was found (e.g. SQL-first
+   * projects with no ORM, where SQL tables stay canonical `table` candidates).
+   */
+  dataModelLinks?: DataModelLink[];
   stats: ManifestStats;
 }
 

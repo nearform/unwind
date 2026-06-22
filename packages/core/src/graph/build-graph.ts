@@ -64,6 +64,9 @@ function nodeTypeForCandidate(kind: string): NodeType {
     case "table":
     case "entity":
       return "table";
+    case "db-ddl":
+      // Reconciled SQL DDL — a physical contract of a canonical code-side table.
+      return "contract";
     default:
       // GraphQL types, enums, etc. are documentable contracts.
       return "contract";
@@ -86,6 +89,8 @@ function contractKindForCandidate(kind: string): ContractKind {
     case "metric":
     case "calculation":
       return "formula";
+    case "db-ddl":
+      return "db-table";
     default:
       return null;
   }
@@ -279,6 +284,14 @@ export function buildRebuildGraph(
         edges.push({ source: targetId, target: testFileId, type: "tested_by" });
       }
     }
+  }
+
+  // contract_of: reconciled SQL DDL -> its canonical code-side table.
+  // The link set is computed deterministically at scan time (reconcile-data-model.ts)
+  // and persisted on the manifest, so the SQL DDL renders attached to its entity
+  // rather than as a floating duplicate table.
+  for (const link of manifest.dataModelLinks ?? []) {
+    edges.push({ source: link.sqlId, target: link.codeId, type: "contract_of" });
   }
 
   // De-dupe edges (imports can repeat).

@@ -81,9 +81,18 @@ export {
   detectDrizzleFromTree,
   detectDrizzleFromText,
   detectJpaEntities,
+  detectTypeOrmEntities,
+  detectSqlAlchemyModels,
+  detectMongooseModels,
+  detectSequelizeModels,
+  detectEfCoreEntities,
   detectEndpoints,
   type DetectedContracts,
 } from "./layers/contract-detectors.js";
+export {
+  reconcileDataModel,
+  type ReconcileResult,
+} from "./layers/reconcile-data-model.js";
 export {
   MANIFEST_VERSION,
   emptySymbols,
@@ -92,6 +101,8 @@ export {
   type ScanManifest,
   type ManifestFile,
   type FileSymbols,
+  type SymbolDefinition,
   type RepositoryInfo,
   type LayerIndexEntry,
+  type DataModelLink,
 } from "./manifest/manifest-schema.js";

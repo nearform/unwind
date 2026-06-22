@@ -39,6 +39,14 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
 const linkFormat = manifest.repository?.linkFormat ?? "{path}:{start}-{end}";
 const byLayer = candidatesByLayer(manifest);
 
+// Reconciled SQL DDL (db-ddl) is a physical contract of a canonical code-side
+// table, not an independent checklist item. Map sqlId -> codeId so the seed can
+// flag it `required: false` and point the specialist at its entity. Keeping it in
+// the seed (rather than dropping it) tells the specialist the entity has DDL to
+// attach; coverage already excludes db-ddl from the required count.
+const contractOf = new Map();
+for (const link of manifest.dataModelLinks ?? []) contractOf.set(link.sqlId, link.codeId);
+
 const seedsDir = join(projectRoot, "docs/unwind/.cache/seeds");
 mkdirSync(seedsDir, { recursive: true });
 
@@ -52,6 +60,10 @@ for (const [layer, candidates] of Object.entries(byLayer)) {
     startLine: c.startLine,
     endLine: c.endLine,
     link: sourceLink(linkFormat, c.file, c.startLine, c.endLine),
+    // db-ddl items are contracts attached to a code-side entity, not required docs.
+    ...(c.kind === "db-ddl"
+      ? { required: false, role: "contract", contractOf: contractOf.get(c.id) ?? null }
+      : {}),
   }));
   const outPath = join(seedsDir, `${layer}.json`);
   writeFileSync(outPath, JSON.stringify({ layer, count: seeds.length, items: seeds }, null, 2), "utf-8");

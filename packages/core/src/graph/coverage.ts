@@ -82,6 +82,15 @@ function norm(s: string): string {
 }
 
 /**
+ * Candidate kinds that are physical contracts attached to a canonical item rather
+ * than independent documentation targets. They are excluded from the coverage
+ * denominator: a `db-ddl` (SQL DDL reconciled onto a code-side table) is documented
+ * via its code model, so demanding a separate doc heading would re-introduce the
+ * double-count reconciliation removed.
+ */
+const NON_COVERAGE_KINDS = new Set(["db-ddl"]);
+
+/**
  * Diff the candidate set for a layer against the documented items.
  * Matching: explicit id first, then fuzzy by normalized name.
  */
@@ -106,7 +115,9 @@ export function computeLayerCoverage(
   let matchedById = 0;
   let matchedByFuzzy = 0;
 
-  for (const c of candidates) {
+  const counted = candidates.filter((c) => !NON_COVERAGE_KINDS.has(c.kind));
+
+  for (const c of counted) {
     let match: DocumentedItem | undefined = docById.get(c.id);
     if (match) {
       matchedById++;
@@ -126,7 +137,7 @@ export function computeLayerCoverage(
   }
 
   const extra = documented.filter((d) => !matchedDocs.has(d)).map((d) => `${d.heading} (${d.sourceFile})`);
-  const total = candidates.length;
+  const total = counted.length;
   const coveragePct = total === 0 ? 100 : Math.round((covered / total) * 1000) / 10;
 
   return { layer, total, covered, coveragePct, missing, extra, matchedById, matchedByFuzzy };

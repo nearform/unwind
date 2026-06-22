@@ -21,6 +21,7 @@ import {
   classifyRebuildLayer,
   type RebuildLayer,
 } from "../layers/rebuild-layer-map.js";
+import { reconcileDataModel } from "../layers/reconcile-data-model.js";
 import {
   emptySymbols,
   MANIFEST_VERSION,
@@ -122,10 +123,18 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
     byLanguage[language] = (byLanguage[language] ?? 0) + 1;
     byCategory[fileCategory] = (byCategory[fileCategory] ?? 0) + 1;
     byLayer[rebuildLayer] = (byLayer[rebuildLayer] ?? 0) + 1;
+  }
 
-    const mFile = manifestFiles[manifestFiles.length - 1];
-    const entry = (layerIndex[rebuildLayer] ??= { files: [], symbolIds: [] });
-    entry.files.push(f.path);
+  // Reconcile code-side models with SQL DDL before deriving candidate ids: matching
+  // SQL tables are demoted to `db-ddl` in place, so the layer index (and everything
+  // keyed off it — seeds, coverage, graph) reflects the canonical code model and
+  // never double-counts a migration's CREATE TABLE.
+  const { links: dataModelLinks } = reconcileDataModel(manifestFiles);
+
+  // Per-layer ground-truth index — built after reconciliation so candidate ids are final.
+  for (const mFile of manifestFiles) {
+    const entry = (layerIndex[mFile.rebuildLayer] ??= { files: [], symbolIds: [] });
+    entry.files.push(mFile.path);
     entry.symbolIds.push(...fileCandidates(mFile).map((c) => c.id));
   }
 
@@ -147,6 +156,7 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
     files: manifestFiles,
     importMap,
     layerIndex,
+    ...(dataModelLinks.length > 0 ? { dataModelLinks } : {}),
     stats: {
       totalFiles: manifestFiles.length,
       byLanguage,
