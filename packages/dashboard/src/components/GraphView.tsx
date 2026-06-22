@@ -6,6 +6,7 @@ import {
   BackgroundVariant,
   Controls,
   MiniMap,
+  useReactFlow,
 } from "@xyflow/react";
 import type { Edge, Node } from "@xyflow/react";
 import { useStore, nodePassesFilters } from "../store";
@@ -31,6 +32,7 @@ function GraphInner() {
   const [layouted, setLayouted] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [capped, setCapped] = useState(0);
+  const { fitView } = useReactFlow();
 
   // 1. Filter + (optional) focus to a node's 1-hop neighborhood, build flow data.
   const built = useMemo(() => {
@@ -109,6 +111,19 @@ function GraphInner() {
     };
   }, [built]);
 
+  // Recenter whenever a new layout is rendered (e.g. after a search narrows the
+  // graph). A short settle delay lets React Flow MEASURE the new custom-node set
+  // before fitting — fitting in the same tick (or after one frame) centers on
+  // stale/zero-size bounds, which left the matches tiny in a corner.
+  useEffect(() => {
+    if (layouted.length === 0) return;
+    const t = setTimeout(
+      () => fitView({ padding: 0.2, duration: 320, minZoom: 0.05 }),
+      160,
+    );
+    return () => clearTimeout(t);
+  }, [layouted, fitView]);
+
   // 3. Reflect selection into node data without re-layout.
   const nodes = useMemo(
     () =>
@@ -147,16 +162,16 @@ function GraphInner() {
         fitViewOptions={{ padding: 0.15, minZoom: 0.02 }}
         minZoom={0.02}
         maxZoom={2}
-        colorMode="dark"
+        colorMode="light"
       >
-        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="rgba(212,165,116,0.12)" />
+        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="rgba(0,14,56,0.08)" />
         <Controls showInteractive={false} />
         <MiniMap
           pannable
           zoomable
-          nodeColor="var(--color-elevated)"
-          maskColor="rgba(10,10,10,0.7)"
-          className="!bg-surface"
+          nodeColor="#c9d3dc"
+          maskColor="rgba(225,230,234,0.55)"
+          className="!bg-surface !border !border-border-subtle !rounded-lg"
         />
       </ReactFlow>
     </div>

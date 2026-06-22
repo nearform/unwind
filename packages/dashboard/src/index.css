@@ -2,49 +2,51 @@
 @source "./**/*.{ts,tsx}";
 @source "../index.html";
 
-/* Theme forked from the Understand-Anything dashboard (dark luxury), trimmed and
-   extended with rebuild-specific coverage/priority colors. */
+/* Nearform light theme. Brand palette from ~/work/ainative-comps:
+   bright green #00e6a4, accent green #07a06f, deep navy #000e38, bg #f4f6f8.
+   Tailwind v4 generates the bg-/text-/border- utilities from these tokens, so
+   re-theming is mostly a token swap. */
 @theme {
-  --color-root: #0a0a0a;
-  --color-surface: #111111;
-  --color-elevated: #1a1a1a;
-  --color-panel: #141414;
+  --color-root: #f4f6f8;      /* page / graph canvas */
+  --color-surface: #ffffff;   /* header, sidebar, panels, cards */
+  --color-elevated: #ffffff;  /* nodes, inputs (white on grey canvas) */
+  --color-panel: #ffffff;
 
-  --color-accent: #d4a574;
-  --color-accent-dim: #c9a96e;
-  --color-accent-bright: #e8c49a;
+  --color-accent: #07a06f;        /* on-brand green: links, focus, selected */
+  --color-accent-dim: #0b8f66;
+  --color-accent-bright: #00e6a4; /* bright Nearform green */
 
-  --color-text-primary: #f5f0eb;
-  --color-text-secondary: #a39787;
-  --color-text-muted: #6b5f53;
+  --color-text-primary: #1b2330;   /* near-navy ink */
+  --color-text-secondary: #475467;
+  --color-text-muted: #8a94a6;
 
-  --color-border-subtle: rgba(212, 165, 116, 0.12);
-  --color-border-medium: rgba(212, 165, 116, 0.25);
+  --color-border-subtle: #e6eaee;
+  --color-border-medium: #cdd5dd;
 
-  /* Node types (graph) */
-  --color-node-file: #4a7c9b;
-  --color-node-function: #5a9e6f;
-  --color-node-class: #8b6fb0;
-  --color-node-table: #6ee7b7;
-  --color-node-endpoint: #fdba74;
-  --color-node-contract: #fcd34d;
+  /* Node types (graph) — tuned for contrast on a light canvas */
+  --color-node-file: #2f6f97;
+  --color-node-function: #2f9e6f;
+  --color-node-class: #7c5cc4;
+  --color-node-table: #0e9aa7;
+  --color-node-endpoint: #e07b1a;
+  --color-node-contract: #b78103;
 
   /* Coverage states */
-  --color-cov-scanned: #6b5f53;
-  --color-cov-documented: #4a7c9b;
-  --color-cov-verified: #5a9e6f;
-  --color-cov-excluded: #555;
+  --color-cov-scanned: #94a3b8;
+  --color-cov-documented: #2f6f97;
+  --color-cov-verified: #07a06f;
+  --color-cov-excluded: #b0b8c2;
   --color-cov-stale: #e05252;
 
   /* Priorities */
-  --color-prio-must: #e05252;
-  --color-prio-should: #d4a030;
-  --color-prio-dont: #6b5f53;
+  --color-prio-must: #d64545;
+  --color-prio-should: #c08a1e;
+  --color-prio-dont: #94a3b8;
 
-  --color-edge: rgba(212, 165, 116, 0.3);
+  --color-edge: rgba(0, 14, 56, 0.16);
 
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
@@ -56,18 +58,18 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 165, 116, 0.2);
+  background: rgba(0, 14, 56, 0.18);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 165, 116, 0.35);
+  background: rgba(7, 160, 111, 0.5);
 }
 
 .react-flow__background {
@@ -77,6 +79,7 @@ body {
   display: none;
 }
 
+/* Selected node ring in Nearform green. */
 .node-glow {
-  box-shadow: 0 0 0 2px var(--color-accent), 0 0 18px rgba(212, 165, 116, 0.35);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 16px rgba(0, 230, 164, 0.45);
 }
