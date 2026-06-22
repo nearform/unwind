@@ -26,6 +26,9 @@ package-lock.json
 # here in case Unwind is ever run against itself).
 docs/unwind/.cache/
 
+# Throwaway deploy staging (dashboard build + wrangler config)
+.deploy/
+
 # Python (if any tooling is added)
 __pycache__/
 *.py[cod]

@@ -2,6 +2,8 @@
 
 Skills library for reverse engineering codebases. Produces complete, machine-readable documentation and phased rebuild plans to reliably re-build the service or application in a new technology or modernised framework.
 
+> **🔎 Live demo:** [**unwind.cliftonc.nl**](https://unwind.cliftonc.nl) — the interactive rebuild-graph dashboard for a real project ([drizzle-cube](https://github.com/cliftonc/drizzle-cube)): 2,427 nodes across layers, coverage meters, MUST/SHOULD/DON'T priorities, and a filterable contract inventory.
+
 ## Purpose
 
 Generate documentation that enables an AI agent to rebuild your system in a different language or framework while maintaining:
@@ -90,7 +92,10 @@ Unwind falls back to a pure-LLM flow.
 
 ## Visualize the graph
 
-After a run, explore the result interactively:
+**See it live:** [unwind.cliftonc.nl](https://unwind.cliftonc.nl) is the dashboard
+running against a real project ([drizzle-cube](https://github.com/cliftonc/drizzle-cube)).
+
+After a run, explore your own result interactively:
 
 ```
 Use unwind:emitting-rebuild-graph   # build docs/unwind/rebuild-graph.json
