@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStore } from "./store";
 import type { ViewMode } from "./store";
 import { validateRebuildGraphShape, type RebuildGraph } from "./types";
+import { decodeState, encodeState, writeUrl } from "./urlState";
 import GraphView from "./components/GraphView";
 import SearchBar from "./components/SearchBar";
 import FilterPanel from "./components/FilterPanel";
+import LayerChips from "./components/LayerChips";
 import NodeInfo from "./components/NodeInfo";
 import CodeViewer from "./components/CodeViewer";
 import RebuildOverview from "./components/RebuildOverview";
@@ -28,14 +30,41 @@ export default function App() {
   const theme = useStore((s) => s.theme);
   const toggleTheme = useStore((s) => s.toggleTheme);
   const selectedNodeId = useStore((s) => s.selectedNodeId);
+  const filters = useStore((s) => s.filters);
+  const setFilters = useStore((s) => s.setFilters);
+  const searchQuery = useStore((s) => s.searchQuery);
+  const setSearchQuery = useStore((s) => s.setSearchQuery);
   const [codeNodeId, setCodeNodeId] = useState<string | null>(null);
+  const urlApplied = useRef(false);
+  const fetchStarted = useRef(false);
 
   // Reflect the theme onto <html> so the CSS variables switch.
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
+  // Once the graph is loaded, hydrate filter/search/view state FROM the URL
+  // (layer defaults depend on the graph, so this must run after setGraph).
   useEffect(() => {
+    if (!graph || urlApplied.current) return;
+    urlApplied.current = true;
+    const s = decodeState(window.location.search, graph);
+    if (s.filters) setFilters(s.filters);
+    if (s.searchQuery !== undefined) setSearchQuery(s.searchQuery);
+    if (s.viewMode) setViewMode(s.viewMode);
+  }, [graph, setFilters, setSearchQuery, setViewMode]);
+
+  // After hydration, mirror state changes back into the URL (shareable, sticky).
+  useEffect(() => {
+    if (!graph || !urlApplied.current) return;
+    writeUrl(encodeState(filters, searchQuery, viewMode, graph));
+  }, [graph, filters, searchQuery, viewMode]);
+
+  useEffect(() => {
+    // Guard against React StrictMode's double-invoke in dev: a second setGraph
+    // would reset filters AFTER the URL is hydrated.
+    if (fetchStarted.current) return;
+    fetchStarted.current = true;
     fetch("/rebuild-graph.json")
       .then(async (res) => {
         const data: unknown = await res.json();
@@ -64,10 +93,24 @@ export default function App() {
           <span className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-border-subtle">
             <img src="/nearform.svg" alt="Nearform" className="w-5 h-5" />
           </span>
-          <h1 className="text-base font-semibold tracking-wide text-accent">Unwind</h1>
-          <span className="text-sm text-text-secondary truncate">
-            {graph?.project.name ?? "Rebuild Graph"}
-          </span>
+          <div className="flex items-baseline min-w-0">
+            <h1 className="text-base font-semibold tracking-wide text-accent shrink-0">Unwind</h1>
+            {graph?.repository?.url ? (
+              <a
+                href={graph.repository.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open ${graph.repository.url} in a new tab`}
+                className="text-base font-semibold text-text-secondary hover:text-accent truncate underline-offset-2 hover:underline"
+              >
+                :&nbsp;{graph.project.name}
+              </a>
+            ) : (
+              <span className="text-base font-semibold text-text-secondary truncate">
+                :&nbsp;{graph?.project.name ?? "Rebuild Graph"}
+              </span>
+            )}
+          </div>
         </div>
 
         <nav className="flex items-center bg-elevated rounded-lg p-0.5 ml-2">
@@ -85,6 +128,10 @@ export default function App() {
             </button>
           ))}
         </nav>
+
+        {/* Fast per-layer filters */}
+        <div className="h-5 w-px bg-border-subtle ml-1" />
+        <LayerChips />
 
         <div className="flex-1" />
 

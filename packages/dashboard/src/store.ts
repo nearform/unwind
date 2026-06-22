@@ -144,7 +144,9 @@ export function nodePassesFilters(node: RebuildNode, filters: Filters): boolean 
   const prio = node.rebuild.priority ?? "none";
   if (!filters.priorities.has(prio)) return false;
   if (!filters.rebuildStatus.has(node.rebuild.rebuildStatus)) return false;
-  if (filters.layers.size > 0 && !filters.layers.has(node.layer)) return false;
+  // `filters.layers` always lists the visible layers (initialized to all in
+  // setGraph), so membership is authoritative — toggling a layer off hides it.
+  if (!filters.layers.has(node.layer)) return false;
   if (filters.contractKinds.size > 0) {
     if (!node.rebuild.contractKind) return false;
     if (!filters.contractKinds.has(node.rebuild.contractKind)) return false;
