@@ -164,9 +164,14 @@ export function buildRebuildGraph(
 
   const nodes: RebuildNode[] = [];
   const layerCounts: Record<string, number> = {};
+  const emittedIds = new Set<string>();
 
   for (const [layer, candidates] of Object.entries(byLayer)) {
     for (const c of candidates) {
+      // Never emit two nodes with the same id — validation rejects duplicates,
+      // and identical ids carry identical edges, so the first node wins.
+      if (emittedIds.has(c.id)) continue;
+      emittedIds.add(c.id);
       const type = nodeTypeForCandidate(c.kind);
       const contractKind = contractKindForCandidate(c.kind);
 

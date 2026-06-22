@@ -6,9 +6,12 @@
 # lazily builds @unwind/core on first use. Exits non-zero if the deterministic
 # core is unavailable so the caller can fall back to legacy pure-LLM behavior.
 #
-# Usage:
-#   source "$(dirname "$0")/_resolve-plugin-root.sh"
-#   ensure_unwind_core   # sets UNWIND_PLUGIN_ROOT, builds if needed
+# Usage (from a skill bash block; $0/BASH_SOURCE are unreliable under `bash -c`):
+#   UNWIND_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${UNWIND_PLUGIN_ROOT:-}}"
+#   [ -f "$UNWIND_PLUGIN_ROOT/skills/scripts/_resolve-plugin-root.sh" ] || \
+#     UNWIND_PLUGIN_ROOT="$(ls -dt "$HOME"/.claude/plugins/cache/*/unwind/*/ 2>/dev/null | head -1)"
+#   source "${UNWIND_PLUGIN_ROOT%/}/skills/scripts/_resolve-plugin-root.sh"
+#   ensure_unwind_core   # re-resolves + exports UNWIND_PLUGIN_ROOT, builds if needed
 
 resolve_unwind_plugin_root() {
   # 1. Explicit override (Claude sets CLAUDE_PLUGIN_ROOT for installed plugins).
@@ -36,6 +39,16 @@ resolve_unwind_plugin_root() {
     printf '%s' "$candidate"; return 0
   fi
 
+  # 3. Installed plugin cache (~/.claude/plugins/cache/<owner>/<repo>/<version>/).
+  #    BASH_SOURCE is unreliable under `bash -c` (the Bash tool), so fall back to
+  #    the canonical install location, newest version first.
+  local cached
+  cached="$(ls -dt "$HOME"/.claude/plugins/cache/*/unwind/*/ 2>/dev/null | head -1)"
+  cached="${cached%/}"
+  if [ -n "$cached" ] && [ -f "$cached/packages/core/package.json" ]; then
+    printf '%s' "$cached"; return 0
+  fi
+
   return 1
 }
 
@@ -44,6 +57,7 @@ ensure_unwind_core() {
     echo "unwind: could not locate plugin root (packages/core not found)." >&2
     return 2
   }
+  UNWIND_PLUGIN_ROOT="${UNWIND_PLUGIN_ROOT%/}"
   export UNWIND_PLUGIN_ROOT
 
   if [ -f "$UNWIND_PLUGIN_ROOT/packages/core/dist/index.js" ]; then

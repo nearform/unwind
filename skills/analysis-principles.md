@@ -422,9 +422,9 @@ are layer/section titles and are not treated as items.
 
 The deterministic engine (`@unwind/core`) is an **enhancement, not a hard
 dependency**. If Node/pnpm or the built core are unavailable:
-- `start` falls back to pure-LLM Explore discovery.
-- `unwinding-codebase` dispatches specialists without seed lists.
-- `verifying-layer-documentation` falls back to a subjective doc-vs-source
+- `uw-scan` falls back to pure-LLM Explore discovery.
+- `uw-analyze` dispatches specialists without seed lists.
+- `uw-verify` falls back to a subjective doc-vs-source
   comparison.
 - Principles 16-17 cannot be enforced mechanically; the LLM applies completeness
   (principles 1, 10) by judgement instead.

@@ -29,15 +29,15 @@ Restart Claude Code after installation.
 
 ### Use
 ```
-1. Use unwind:start              # deterministic scan → architecture.md (+ scan-manifest.json)
-2. Use unwind:unwind-dashboard   # visualize it — works straight after the scan
+1. Use unwind:uw-scan              # deterministic scan → architecture.md (+ scan-manifest.json)
+2. Use unwind:uw-dashboard   # visualize it — works straight after the scan
 3. Review docs/unwind/architecture.md
-4. Use unwind:unwinding-codebase # seed → analyze → verify coverage → complete
-5. Use unwind:synthesizing-findings   # → REBUILD-PLAN.md
-6. Use unwind:unwind-dashboard   # re-open to explore coverage, priorities & contracts
+4. Use unwind:uw-analyze # seed → analyze → verify coverage → complete
+5. Use unwind:uw-plan   # → REBUILD-PLAN.md
+6. Use unwind:uw-dashboard   # re-open to explore coverage, priorities & contracts
 ```
 
-You can run **`unwind:unwind-dashboard` any time after step 1** — right after the
+You can run **`unwind:uw-dashboard` any time after step 1** — right after the
 scan it shows the structural graph (everything `scanned`); after analysis it fills
 in coverage and the MUST/SHOULD/DON'T priorities.
 
@@ -79,8 +79,8 @@ makes "did we document everything?" a *checkable* question instead of a hopeful 
 | 2 | `seed-layers.mjs` | **deterministic** | Turns the manifest into a per-layer **candidate checklist** (`seeds/{layer}.json`) — the exact set of items each specialist must cover. |
 | 3 | layer specialists | LLM | Sub-agents document each layer (database → domain → service → api/messaging → frontend → tests), seeded with their checklist, writing tagged docs with `### name [MUST] <!-- id: ... -->` anchor headings. |
 | 4 | `verify-coverage.mjs` | **deterministic** | The key move: **`manifest − docs`** by set arithmetic. Anything in the scan but not in the docs is a gap — reported with names and line numbers in `gaps.md`. Reproducible byte-for-byte. |
-| 5 | `completing-layer-documentation` | LLM | Fills the `gaps.md` work list. Loops 4 ⇄ 5 until coverage is 100% (or items are explicitly excluded). |
-| 6 | `synthesizing-findings` | LLM | Produces the strategic **`REBUILD-PLAN.md`** (re-use decisions, phasing, validation). |
+| 5 | `uw-complete` | LLM | Fills the `gaps.md` work list. Loops 4 ⇄ 5 until coverage is 100% (or items are explicitly excluded). |
+| 6 | `uw-plan` | LLM | Produces the strategic **`REBUILD-PLAN.md`** (re-use decisions, phasing, validation). |
 | 7 | `build-graph.mjs` | **deterministic** | Joins manifest + coverage + docs into **`rebuild-graph.json`** — nodes carry MUST/SHOULD/DON'T, coverage state, and rebuild status — and powers the dashboard. |
 | ↻ | `detect-changes.mjs` | **deterministic** | After code changes, structural fingerprints find exactly what moved so only the **affected layers** are re-analyzed; changed contracts are flagged `stale` / `needs-recheck`. |
 
@@ -97,8 +97,8 @@ Live demo: [unwind.cliftonc.nl](https://unwind.cliftonc.nl)
 After a run, explore your own result interactively:
 
 ```
-Use unwind:emitting-rebuild-graph   # build docs/unwind/rebuild-graph.json
-Use unwind:unwind-dashboard         # launch the React + React Flow dashboard
+Use unwind:uw-graph   # build docs/unwind/rebuild-graph.json
+Use unwind:uw-dashboard         # launch the React + React Flow dashboard
 ```
 
 The dashboard (`http://127.0.0.1:5174`) shows the dependency-ordered layers, a
@@ -113,7 +113,7 @@ UNWIND_GRAPH_DIR="/path/to/project" pnpm --filter @unwind/dashboard dev
 ## Keeping it fresh (incremental)
 
 ```
-Use unwind:refreshing-analysis      # after code changes
+Use unwind:uw-refresh      # after code changes
 ```
 
 `scan.mjs` records a fingerprint baseline (`meta.json`). `detect-changes.mjs` diffs
@@ -147,33 +147,33 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 
 | Skill | Purpose | Output |
 |-------|---------|--------|
-| `start` | Deterministic scan + discovery | `architecture.md` (+ `scan-manifest.json`) |
-| `unwinding-codebase` | Orchestrates seed → analyze → verify → complete | Dispatches specialists |
-| `verifying-layer-documentation` | Deterministic `manifest − docs` diff | `gaps.md` per layer |
-| `completing-layer-documentation` | Fixes all gaps | Updated layer files |
-| `synthesizing-findings` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
-| `emitting-rebuild-graph` | Joins manifest + coverage + docs | `rebuild-graph.json` |
-| `unwind-dashboard` | Launches the interactive graph UI | dashboard at `:5174` |
-| `refreshing-analysis` | Incremental update (only changed layers) | refreshed docs + graph |
+| `uw-scan` | Deterministic scan + discovery | `architecture.md` (+ `scan-manifest.json`) |
+| `uw-analyze` | Orchestrates seed → analyze → verify → complete | Dispatches specialists |
+| `uw-verify` | Deterministic `manifest − docs` diff | `gaps.md` per layer |
+| `uw-complete` | Fixes all gaps | Updated layer files |
+| `uw-plan` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
+| `uw-graph` | Joins manifest + coverage + docs | `rebuild-graph.json` |
+| `uw-dashboard` | Launches the interactive graph UI | dashboard at `:5174` |
+| `uw-refresh` | Incremental update (only changed layers) | refreshed docs + graph |
 
 ### Layer Specialists
 
 | Skill | Analyzes | Key Requirements |
 |-------|----------|------------------|
-| `analyzing-database-layer` | Schema, repositories | All tables, JSONB schemas, indexes |
-| `analyzing-domain-model` | Entities, validation | Constraint tables, permission matrix |
-| `analyzing-service-layer` | Services, calculations | Formulas with source refs, edge cases |
-| `analyzing-api-layer` | Endpoints, auth, contracts | OpenAPI/TSRest specs, route inventory |
-| `analyzing-messaging-layer` | Events, queues | AsyncAPI specs, event schemas |
-| `analyzing-frontend-layer` | Components, state | User flows (WHAT), not implementation (HOW) |
+| `uw-analyze-database` | Schema, repositories | All tables, JSONB schemas, indexes |
+| `uw-analyze-domain` | Entities, validation | Constraint tables, permission matrix |
+| `uw-analyze-service` | Services, calculations | Formulas with source refs, edge cases |
+| `uw-analyze-api` | Endpoints, auth, contracts | OpenAPI/TSRest specs, route inventory |
+| `uw-analyze-messaging` | Events, queues | AsyncAPI specs, event schemas |
+| `uw-analyze-frontend` | Components, state | User flows (WHAT), not implementation (HOW) |
 
 ### Testing Specialists
 
 | Skill | Analyzes |
 |-------|----------|
-| `analyzing-unit-tests` | Unit test coverage and patterns |
-| `analyzing-integration-tests` | Integration test infrastructure |
-| `analyzing-e2e-tests` | E2E tests and page objects |
+| `uw-analyze-unit-tests` | Unit test coverage and patterns |
+| `uw-analyze-integration-tests` | Integration test infrastructure |
+| `uw-analyze-e2e-tests` | E2E tests and page objects |
 
 ## Output Structure
 

@@ -41,7 +41,13 @@ export function fileCandidates(file: ManifestFile): Candidate[] {
   }
   // File-level candidate is always present.
   out.push({ id: symbolId("file", file.path, basename(file.path)), kind: "file", name: basename(file.path), file: file.path, startLine: 1, endLine: file.sizeLines });
-  return out;
+  // Dedupe by id: a single file can hold symbols that collapse to the same
+  // candidate id — two inline `GET /test` apps, an overloaded `new`/`start`, a
+  // temp table reusing a name. The id is the join key, so the pipeline already
+  // treats these as one item; keep the first (earliest) occurrence so seeds,
+  // coverage, and the graph never diverge or emit duplicate ids.
+  const seen = new Set<string>();
+  return out.filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
 }
 
 /** All candidate items grouped by rebuild layer. */

@@ -35,9 +35,9 @@ packages/
 skills/
   scripts/              bundled .mjs the skills invoke (scan, seed-layers, verify-coverage,
                         build-graph, detect-changes) + _core.mjs + _resolve-plugin-root.sh
-  *                     markdown skills (start, unwinding-codebase, analyzing-*, verifying-*,
-                        completing-*, synthesizing-findings, emitting-rebuild-graph,
-                        unwind-dashboard, refreshing-analysis, using-unwind, analysis-principles)
+  *                     markdown skills (uw-scan, uw-analyze, uw-analyze-* layer
+                        specialists, uw-verify, uw-complete, uw-plan, uw-graph,
+                        uw-dashboard, uw-refresh, uw-help, analysis-principles)
 ```
 
 `dist/` and `*.tsbuildinfo` are gitignored — the core is **lazily built on first
@@ -48,9 +48,9 @@ use** (`ensure_unwind_core`). `pnpm-lock.yaml` IS committed. We standardize on p
 `scan.mjs` → **scan-manifest.json** (ground truth) → `seed-layers.mjs` → per-layer
 candidate checklists → LLM layer specialists write tagged docs with anchor-id
 headings → `verify-coverage.mjs` does the deterministic `manifest − docs` diff →
-`gaps.md` → `completing-layer-documentation` fills them (loop to 100%) →
-`synthesizing-findings` → REBUILD-PLAN.md → `build-graph.mjs` → **rebuild-graph.json**
-→ `unwind-dashboard`. `detect-changes.mjs` (fingerprints) drives incremental refresh.
+`gaps.md` → `uw-complete` fills them (loop to 100%) →
+`uw-plan` → REBUILD-PLAN.md → `build-graph.mjs` → **rebuild-graph.json**
+→ `uw-dashboard`. `detect-changes.mjs` (fingerprints) drives incremental refresh.
 
 Artifacts live under the **target** repo's `docs/unwind/`:
 `architecture.md`, `layers/**`, `REBUILD-PLAN.md`, `rebuild-graph.json`, and
