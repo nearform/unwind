@@ -170,6 +170,64 @@ if (!existsSync(outputPath)) {
   throw new Error(`output file missing after write: ${outputPath}`);
 }
 
+// --- Also emit docs-bundle.json: every markdown doc under docs/unwind, bundled
+// so the dashboard's Docs view works in both dev (vite serves it) and the
+// static-assets-only production deploy (the file is copied alongside the graph).
+// The graph itself does NOT enumerate doc files (root files like architecture.md
+// / REBUILD-PLAN.md are referenced by no node), so we walk the tree directly. ---
+const docsRoot = join(projectRoot, "docs/unwind");
+
+/** Recursively collect *.md files under docs/unwind, skipping .cache. */
+function collectDocFiles(dir, relPrefix = "") {
+  const out = [];
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const ent of entries) {
+    if (ent.name.startsWith(".")) continue; // skip .cache and dotfiles
+    const full = join(dir, ent.name);
+    const rel = relPrefix ? `${relPrefix}/${ent.name}` : ent.name;
+    if (ent.isDirectory()) out.push(...collectDocFiles(full, rel));
+    else if (ent.isFile() && ent.name.endsWith(".md")) out.push({ rel, full });
+  }
+  return out;
+}
+
+/** Title from the first markdown H1, else a prettified filename. */
+function docTitle(content, rel) {
+  const m = content.match(/^#\s+(.+?)\s*$/m);
+  if (m) return m[1].trim();
+  const base = rel.split("/").pop().replace(/\.md$/, "");
+  return base.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+const docFiles = collectDocFiles(docsRoot)
+  .map(({ rel, full }) => {
+    const content = readFileSync(full, "utf-8");
+    // Group: top-level files under "Overview"; layer docs under their folder.
+    const group = rel.startsWith("layers/") ? rel.split("/")[1] : "Overview";
+    return { path: rel, title: docTitle(content, rel), group, content };
+  })
+  // Stable order: Overview docs first, then layer docs alphabetically by path.
+  .sort((a, b) => {
+    const ao = a.group === "Overview" ? 0 : 1;
+    const bo = b.group === "Overview" ? 0 : 1;
+    return ao - bo || a.path.localeCompare(b.path);
+  });
+
+const docsBundle = {
+  version: "1",
+  generatedAt: graph.generatedAt,
+  root: "docs/unwind",
+  files: docFiles,
+};
+const docsBundlePath = join(docsRoot, "docs-bundle.json");
+writeFileSync(docsBundlePath, JSON.stringify(docsBundle, null, 2), "utf-8");
+process.stderr.write(`build-graph: wrote ${docsBundlePath} (${docFiles.length} docs)\n`);
+
 // --- Summary. ---
 const s = graph.stats;
 const layerSummary = graph.layers

@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "generatedAt": "2026-06-23T00:00:00.000Z",
+  "root": "docs/unwind",
+  "files": [
+    {
+      "path": "architecture.md",
+      "title": "Architecture",
+      "group": "Overview",
+      "content": "# Architecture\n\n> This is a **sample** docs bundle shipped with the dashboard. Run `build-graph.mjs` against a project to generate the real `docs-bundle.json` from its `docs/unwind/` markdown.\n\nUnwind reverse-engineers a codebase so an AI agent can rebuild it in a different stack, preserving API contracts, business logic, and the data model.\n\nEvery documented item is tagged for rebuild prioritization:\n\n- `[MUST]` — contracts and behavior the rebuild must preserve exactly.\n- `[SHOULD]` — important but with implementation latitude.\n- `[DON'T]` — incidental detail not worth carrying over.\n\n## Layers\n\n| Layer | What it covers |\n| --- | --- |\n| database | Tables, columns, relations |\n| api | Endpoints and contracts |\n| frontend | Pages, components, state |\n"
+    },
+    {
+      "path": "layers/database/schema.md",
+      "title": "Database Layer",
+      "group": "database",
+      "content": "# Database Layer\n\n### users [MUST] <!-- id: table:src/db/schema.ts:users -->\n\nCore identity table. Email is unique; `id` is the foreign-key target for most relations.\n\n### sessions [SHOULD] <!-- id: table:src/db/schema.ts:sessions -->\n\nServer-side session store. The exact column layout can change as long as lookups stay by token.\n"
+    }
+  ]
+}

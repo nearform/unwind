@@ -139,6 +139,25 @@ export default defineConfig({
             }
             return;
           }
+          if (url.pathname === "/docs-bundle.json") {
+            // Sibling of the resolved rebuild-graph.json (build-graph.mjs writes
+            // both into docs/unwind). 404 is fine — the Docs view degrades.
+            const g = findGraphFile();
+            const bundle = g ? path.resolve(path.dirname(g), "docs-bundle.json") : null;
+            if (!bundle || !fs.existsSync(bundle)) {
+              send(res, 404, {
+                error: "No docs-bundle.json found. Run build-graph.mjs first.",
+              });
+              return;
+            }
+            try {
+              res.setHeader("Content-Type", "application/json");
+              res.end(fs.readFileSync(bundle, "utf8"));
+            } catch (err) {
+              send(res, 500, { error: `Failed to read docs bundle: ${String(err)}` });
+            }
+            return;
+          }
           if (url.pathname === "/file-content.json") {
             const r = readSourceFile(url);
             send(res, r.code, r.body);

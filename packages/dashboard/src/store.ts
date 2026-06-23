@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type {
   ContractKind,
   CoverageState,
+  DocsBundle,
   NodeType,
   RebuildGraph,
   RebuildNode,
@@ -10,7 +11,7 @@ import type {
 } from "./types";
 import { ALL_COVERAGE, ALL_NODE_TYPES, ALL_PRIORITIES, ALL_REBUILD_STATUS } from "./types";
 
-export type ViewMode = "graph" | "overview" | "priorities" | "contracts";
+export type ViewMode = "graph" | "overview" | "priorities" | "contracts" | "docs";
 export type Theme = "dark" | "light";
 
 const THEME_KEY = "unwind-dashboard-theme";
@@ -60,6 +61,11 @@ interface DashboardState {
   /** Set when a view (e.g. ContractInventory) wants the graph to focus a node. */
   focusRequest: string | null;
 
+  /** Docs view: lazily-fetched bundle + the path of the open doc. */
+  docsBundle: DocsBundle | null;
+  docsError: string | null;
+  selectedDocPath: string | null;
+
   setGraph: (g: RebuildGraph) => void;
   setLoadError: (e: string | null) => void;
   setViewMode: (m: ViewMode) => void;
@@ -73,6 +79,10 @@ interface DashboardState {
   /** Switch to graph view and focus a node (used by tables). */
   focusGraphNode: (id: string) => void;
   clearFocusRequest: () => void;
+
+  setDocsBundle: (b: DocsBundle) => void;
+  setDocsError: (e: string | null) => void;
+  selectDoc: (path: string | null) => void;
 }
 
 export const useStore = create<DashboardState>((set, get) => ({
@@ -86,6 +96,9 @@ export const useStore = create<DashboardState>((set, get) => ({
   filters: defaultFilters(),
   filterPanelOpen: false,
   focusRequest: null,
+  docsBundle: null,
+  docsError: null,
+  selectedDocPath: null,
 
   setGraph: (g) => {
     const nodesById = new Map<string, RebuildNode>();
@@ -135,6 +148,19 @@ export const useStore = create<DashboardState>((set, get) => ({
   focusGraphNode: (id) =>
     set({ viewMode: "graph", selectedNodeId: id, focusRequest: id }),
   clearFocusRequest: () => set({ focusRequest: null }),
+
+  setDocsBundle: (b) =>
+    set((s) => ({
+      docsBundle: b,
+      docsError: null,
+      // Default to the first doc if none is selected (or the selection is stale).
+      selectedDocPath:
+        s.selectedDocPath && b.files.some((f) => f.path === s.selectedDocPath)
+          ? s.selectedDocPath
+          : (b.files[0]?.path ?? null),
+    })),
+  setDocsError: (e) => set({ docsError: e }),
+  selectDoc: (path) => set({ selectedDocPath: path }),
 }));
 
 /** Does a node pass the current filter set? Shared by graph + tables. */

@@ -1,7 +1,7 @@
 {
   "name": "unwind",
   "description": "Skills library for reverse engineering: codebase analysis, service mapping, API discovery, and documentation generation",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "author": {
     "name": "clifton",
     "email": "clifton@guidemode.dev"

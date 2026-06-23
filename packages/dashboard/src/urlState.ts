@@ -41,6 +41,7 @@ export interface UrlState {
   filters: Partial<Filters>;
   searchQuery?: string;
   viewMode?: ViewMode;
+  selectedDocPath?: string;
 }
 
 /** Serialize current state to a query string (without the leading "?"). */
@@ -49,6 +50,7 @@ export function encodeState(
   searchQuery: string,
   viewMode: ViewMode,
   graph: RebuildGraph,
+  selectedDocPath?: string | null,
 ): string {
   const p = new URLSearchParams();
   const layerIds = graph.layers.map((l) => l.id);
@@ -69,6 +71,8 @@ export function encodeState(
   }
   if (searchQuery.trim()) p.set("q", searchQuery.trim());
   if (viewMode !== "graph") p.set("view", viewMode);
+  // Only meaningful in the docs view; keeps the open doc shareable.
+  if (viewMode === "docs" && selectedDocPath) p.set("doc", selectedDocPath);
 
   return p.toString();
 }
@@ -94,9 +98,16 @@ export function decodeState(search: string, graph: RebuildGraph): UrlState {
   const q = p.get("q");
   if (q) out.searchQuery = q;
   const view = p.get("view");
-  if (view === "overview" || view === "priorities" || view === "contracts") {
+  if (
+    view === "overview" ||
+    view === "priorities" ||
+    view === "contracts" ||
+    view === "docs"
+  ) {
     out.viewMode = view;
   }
+  const doc = p.get("doc");
+  if (doc) out.selectedDocPath = doc;
   return out;
 }
 

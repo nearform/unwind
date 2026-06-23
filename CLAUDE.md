@@ -86,12 +86,13 @@ pnpm --filter @unwind/core build                          # ensure dist/ current
 node skills/scripts/scan.mjs "$DC"                        # fresh manifest (new ids + dataModelLinks)
 node skills/scripts/seed-layers.mjs "$DC"
 node skills/scripts/verify-coverage.mjs "$DC"             # coverage from the existing docs
-node skills/scripts/build-graph.mjs "$DC"                 # → $DC/docs/unwind/rebuild-graph.json
+node skills/scripts/build-graph.mjs "$DC"                 # → rebuild-graph.json + docs-bundle.json
 pnpm --filter @unwind/dashboard build                     # → packages/dashboard/dist
 
 rm -rf .deploy && mkdir -p .deploy/public
-cp -R packages/dashboard/dist/. .deploy/public/           # app + nearform.svg (+ sample graph)
+cp -R packages/dashboard/dist/. .deploy/public/           # app + nearform.svg (+ sample graph/docs)
 cp "$DC/docs/unwind/rebuild-graph.json" .deploy/public/   # overwrite sample with the real graph
+cp "$DC/docs/unwind/docs-bundle.json" .deploy/public/     # overwrite sample with the real docs (Docs view)
 cat > .deploy/wrangler.jsonc <<'JSON'
 {
   "name": "unwind-dashboard",
@@ -103,9 +104,9 @@ JSON
 ( cd .deploy && npx wrangler deploy )                     # needs Cloudflare auth (wrangler login)
 ```
 
-The dashboard fetches `/rebuild-graph.json` and `/nearform.svg` at runtime; Vite
-copies `public/nearform.svg` into `dist/` and bundles a small sample graph that the
-`cp` above overwrites with drizzle-cube's.
+The dashboard fetches `/rebuild-graph.json`, `/docs-bundle.json` (Docs view, lazy)
+and `/nearform.svg` at runtime; Vite copies `public/nearform.svg` into `dist/` and
+bundles small sample graph + docs that the `cp`s above overwrite with drizzle-cube's.
 
 ## Conventions & gotchas
 
@@ -143,5 +144,13 @@ copies `public/nearform.svg` into `dist/` and bundles a small sample graph that 
   double-invoke (a second `setGraph` would clobber hydrated filters).
 - `fitView` must run **after** React Flow measures custom nodes — a short settle
   delay (`GraphView.tsx`), not the same tick, or it centers on empty bounds.
+- The **Docs view** (`DocsViewer`/`MarkdownView`) renders every markdown file under
+  `docs/unwind` from `docs-bundle.json` (emitted by `build-graph.mjs` alongside the
+  graph: root files → "Overview" group, layer docs → their folder). It's
+  `React.lazy`-loaded so react-markdown/remark-gfm stay out of the initial bundle,
+  and fetched lazily on first open. The renderer strips the `<!-- id: … -->` anchor
+  comments and turns trailing `[MUST]`/`[SHOULD]`/`[DON'T]` heading tags into chips;
+  styling is via component overrides on the same theme tokens (no global CSS). The
+  open doc is URL state (`doc=<path>`).
 - Live demo: https://unwind.cliftonc.nl (deployed via a throwaway `.deploy/` folder,
   Workers static-assets-only).

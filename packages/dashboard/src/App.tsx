@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useStore } from "./store";
 import type { ViewMode } from "./store";
-import { validateRebuildGraphShape, type RebuildGraph } from "./types";
+import {
+  validateDocsBundleShape,
+  validateRebuildGraphShape,
+  type DocsBundle,
+  type RebuildGraph,
+} from "./types";
 import { decodeState, encodeState, writeUrl } from "./urlState";
 import GraphView from "./components/GraphView";
 import SearchBar from "./components/SearchBar";
@@ -13,11 +18,16 @@ import RebuildOverview from "./components/RebuildOverview";
 import PriorityBreakdown from "./components/PriorityBreakdown";
 import ContractInventory from "./components/ContractInventory";
 
+// The Docs view pulls in react-markdown + remark-gfm (~60kB gzip); load it only
+// when the tab is actually opened so the initial graph bundle stays lean.
+const DocsViewer = lazy(() => import("./components/DocsViewer"));
+
 const VIEWS: { id: ViewMode; label: string }[] = [
   { id: "graph", label: "Graph" },
   { id: "overview", label: "Coverage" },
   { id: "priorities", label: "Priorities" },
   { id: "contracts", label: "Contracts" },
+  { id: "docs", label: "Docs" },
 ];
 
 export default function App() {
@@ -34,9 +44,14 @@ export default function App() {
   const setFilters = useStore((s) => s.setFilters);
   const searchQuery = useStore((s) => s.searchQuery);
   const setSearchQuery = useStore((s) => s.setSearchQuery);
+  const setDocsBundle = useStore((s) => s.setDocsBundle);
+  const setDocsError = useStore((s) => s.setDocsError);
+  const selectedDocPath = useStore((s) => s.selectedDocPath);
+  const selectDoc = useStore((s) => s.selectDoc);
   const [codeNodeId, setCodeNodeId] = useState<string | null>(null);
   const urlApplied = useRef(false);
   const fetchStarted = useRef(false);
+  const docsFetchStarted = useRef(false);
 
   // Reflect the theme onto <html> so the CSS variables switch.
   useEffect(() => {
@@ -52,13 +67,37 @@ export default function App() {
     if (s.filters) setFilters(s.filters);
     if (s.searchQuery !== undefined) setSearchQuery(s.searchQuery);
     if (s.viewMode) setViewMode(s.viewMode);
-  }, [graph, setFilters, setSearchQuery, setViewMode]);
+    if (s.selectedDocPath) selectDoc(s.selectedDocPath);
+  }, [graph, setFilters, setSearchQuery, setViewMode, selectDoc]);
 
   // After hydration, mirror state changes back into the URL (shareable, sticky).
   useEffect(() => {
     if (!graph || !urlApplied.current) return;
-    writeUrl(encodeState(filters, searchQuery, viewMode, graph));
-  }, [graph, filters, searchQuery, viewMode]);
+    writeUrl(encodeState(filters, searchQuery, viewMode, graph, selectedDocPath));
+  }, [graph, filters, searchQuery, viewMode, selectedDocPath]);
+
+  // Lazily fetch the docs bundle the first time the Docs view is opened.
+  useEffect(() => {
+    if (viewMode !== "docs" || docsFetchStarted.current) return;
+    docsFetchStarted.current = true;
+    fetch("/docs-bundle.json")
+      .then(async (res) => {
+        const data: unknown = await res.json();
+        if (!res.ok) {
+          const msg =
+            data && typeof data === "object" && "error" in data
+              ? String((data as { error: unknown }).error)
+              : "Failed to load docs-bundle.json";
+          throw new Error(msg);
+        }
+        const problem = validateDocsBundleShape(data);
+        if (problem) throw new Error(`Invalid docs bundle: ${problem}`);
+        setDocsBundle(data as DocsBundle);
+      })
+      .catch((err: unknown) => {
+        setDocsError(err instanceof Error ? err.message : String(err));
+      });
+  }, [viewMode, setDocsBundle, setDocsError]);
 
   useEffect(() => {
     // Guard against React StrictMode's double-invoke in dev: a second setGraph
@@ -129,9 +168,13 @@ export default function App() {
           ))}
         </nav>
 
-        {/* Fast per-layer filters */}
-        <div className="h-5 w-px bg-border-subtle ml-1" />
-        <LayerChips />
+        {/* Fast per-layer filters (not meaningful in the Docs view) */}
+        {viewMode !== "docs" && (
+          <>
+            <div className="h-5 w-px bg-border-subtle ml-1" />
+            <LayerChips />
+          </>
+        )}
 
         <div className="flex-1" />
 
@@ -185,6 +228,17 @@ export default function App() {
           {graph && viewMode === "overview" && <RebuildOverview />}
           {graph && viewMode === "priorities" && <PriorityBreakdown />}
           {graph && viewMode === "contracts" && <ContractInventory />}
+          {graph && viewMode === "docs" && (
+            <Suspense
+              fallback={
+                <div className="h-full flex items-center justify-center text-sm text-text-muted">
+                  Loading docs…
+                </div>
+              }
+            >
+              <DocsViewer />
+            </Suspense>
+          )}
         </div>
 
         {/* Sidebar: node info (graph view) */}

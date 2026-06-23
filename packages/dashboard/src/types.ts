@@ -119,6 +119,40 @@ export const ALL_CONTRACT_KINDS: Exclude<ContractKind, null>[] = [
   "formula",
 ];
 
+/**
+ * Docs bundle — every markdown file under the project's docs/unwind, emitted by
+ * build-graph.mjs alongside rebuild-graph.json. Fetched lazily by the Docs view.
+ */
+export interface DocFile {
+  /** Path relative to docs/unwind, e.g. "layers/database/schema.md". */
+  path: string;
+  /** Display title (first H1, else prettified filename). */
+  title: string;
+  /** Sidebar grouping: "Overview" for root files, else the layer folder. */
+  group: string;
+  /** Raw markdown source. */
+  content: string;
+}
+
+export interface DocsBundle {
+  version: string;
+  generatedAt: string;
+  root: string;
+  files: DocFile[];
+}
+
+/** Structural validation for the docs bundle before it's accepted. */
+export function validateDocsBundleShape(b: unknown): string | null {
+  if (!b || typeof b !== "object") return "bundle is not an object";
+  const bundle = b as Partial<DocsBundle>;
+  if (!Array.isArray(bundle.files)) return "files is not an array";
+  for (const f of bundle.files) {
+    if (!f || typeof f.path !== "string") return "a doc is missing path";
+    if (typeof f.content !== "string") return `doc ${f.path} missing content`;
+  }
+  return null;
+}
+
 /** Build a source link from the repository link format. */
 export function sourceLink(
   linkFormat: string,
