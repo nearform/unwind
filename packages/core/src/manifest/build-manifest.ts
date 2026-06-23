@@ -106,6 +106,7 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
       fileCategory,
       hasTableDefinitions: symbols.definitions.some((d) => d.kind === "table" || d.kind === "entity"),
       hasEndpoints: symbols.endpoints.length > 0,
+      hasEntrypoint: symbols.functions.some((fn) => fn.name === "main" || fn.name === "Main"),
     });
 
     manifestFiles.push({
@@ -138,9 +139,15 @@ export function buildManifest(opts: BuildManifestOptions): ScanManifest {
     entry.symbolIds.push(...fileCandidates(mFile).map((c) => c.id));
   }
 
+  // Resolve the AST-extracted import edges (already on each file's symbols) to
+  // internal file paths. No re-parsing: the tree-sitter extractors are the single
+  // source of import facts across every language.
   const importMap = buildImportMap(
-    projectRoot,
-    langTagged.map((f) => ({ path: f.path, language: f.language })),
+    manifestFiles.map((f) => ({
+      path: f.path,
+      language: f.language,
+      symbols: f.symbols,
+    })),
   );
 
   return {

@@ -1,20 +1,30 @@
 /**
- * Lightweight internal import resolution.
+ * Internal import resolution — resolves the AST-extracted import edges (produced
+ * deterministically by the tree-sitter extractors) to internal file paths.
  *
- * Stage-A implementation: regex-based extraction of JS/TS import specifiers and
- * resolution of *relative* imports against the known file set. External packages
- * and non-relative imports are dropped (they can never produce internal edges).
- * Tree-sitter-backed extraction for more languages can replace this later
+ * This consumes `file.symbols.imports` rather than re-parsing source: the
+ * extractors already walk the AST for every supported language, so there is no
+ * separate (and previously JS/TS-only, regex-based) extraction step here. The
+ * job left is purely *resolution* — mapping a language-specific module specifier
+ * to a known internal file:
+ *   - JS/TS    relative specifier (`./x`) -> path, with NodeNext `.js`->`.ts`
+ *   - Java     fully-qualified type (`com.app.model.User`) -> the file declaring it
+ *   - Python   dotted module (`app.models`) / relative (`.models`) -> path
+ * External packages and specifiers that resolve to no known file are dropped
+ * (they can never produce an internal edge). Languages without a resolver here
+ * (Rust, C#) still get file-grain coverage; their edges can be added later
  * without changing the importMap contract (file -> internal file paths).
  */
 
-import { readFileSync } from "node:fs";
-import { join, dirname, posix as posixPath } from "node:path";
+import { dirname, join, posix as posixPath } from "node:path";
+import type { FileSymbols } from "../manifest/manifest-schema.js";
 
-const IMPORT_RE =
-  /(?:import\s[^'"]*?from\s*['"]([^'"]+)['"])|(?:import\s*\(\s*['"]([^'"]+)['"]\s*\))|(?:require\s*\(\s*['"]([^'"]+)['"]\s*\))|(?:export\s[^'"]*?from\s*['"]([^'"]+)['"])/g;
-
-const JS_TS_LANGS = new Set(["typescript", "javascript"]);
+/** Minimal file shape the resolver needs: path, language, and its AST imports. */
+export interface ImportMapFile {
+  path: string;
+  language: string;
+  symbols: Pick<FileSymbols, "imports">;
+}
 
 const CANDIDATE_SUFFIXES = [
   "",
@@ -58,31 +68,144 @@ function resolveRelative(
   return null;
 }
 
+const JAVA_SOURCE_ROOTS = [
+  "src/main/java/",
+  "src/test/java/",
+  "src/main/kotlin/",
+  "src/test/kotlin/",
+];
+
+/** Fully-qualified type name a `.java`/`.kt` file declares (by path convention). */
+function javaFqnForPath(path: string): string | null {
+  const noExt = path.replace(/\.(java|kt)$/, "");
+  if (noExt === path) return null;
+  for (const root of JAVA_SOURCE_ROOTS) {
+    const i = noExt.indexOf(root);
+    if (i >= 0) return noExt.slice(i + root.length).split("/").join(".");
+  }
+  const j = noExt.indexOf("/java/");
+  if (j >= 0) return noExt.slice(j + "/java/".length).split("/").join(".");
+  return noExt.split("/").join(".");
+}
+
+interface JavaIndex {
+  /** Fully-qualified type name -> file path. */
+  byType: Map<string, string>;
+  /** Package name -> file paths declared in it (for wildcard imports). */
+  byPackage: Map<string, string[]>;
+}
+
+function buildJavaIndex(files: ImportMapFile[]): JavaIndex {
+  const byType = new Map<string, string>();
+  const byPackage = new Map<string, string[]>();
+  for (const f of files) {
+    if (f.language !== "java") continue;
+    const fqn = javaFqnForPath(f.path);
+    if (!fqn) continue;
+    byType.set(fqn, f.path);
+    const dot = fqn.lastIndexOf(".");
+    if (dot > 0) {
+      const pkg = fqn.slice(0, dot);
+      const bucket = byPackage.get(pkg);
+      if (bucket) bucket.push(f.path);
+      else byPackage.set(pkg, [f.path]);
+    }
+  }
+  return { byType, byPackage };
+}
+
+function resolveJava(source: string, index: JavaIndex): string[] {
+  const direct = index.byType.get(source);
+  if (direct) return [direct];
+  // `import com.app.model.*` arrives as the package (specifiers === ["*"]).
+  const pkg = index.byPackage.get(source);
+  return pkg ? [...pkg] : [];
+}
+
+/** Dotted module name a `.py` file provides (e.g. `app/models.py` -> `app.models`). */
+function pyModuleForPath(path: string): string | null {
+  let p = path.replace(/\.py$/, "");
+  if (p === path) return null;
+  p = p.replace(/^src\//, "");
+  if (p.endsWith("/__init__")) p = p.slice(0, -"/__init__".length);
+  return p.split("/").join(".");
+}
+
+function buildPythonIndex(files: ImportMapFile[]): Map<string, string> {
+  const byModule = new Map<string, string>();
+  for (const f of files) {
+    if (f.language !== "python") continue;
+    const mod = pyModuleForPath(f.path);
+    if (mod) byModule.set(mod, f.path);
+  }
+  return byModule;
+}
+
+function resolvePython(
+  fromFile: string,
+  source: string,
+  byModule: Map<string, string>,
+): string[] {
+  // Relative import: leading dots count levels up from the current package.
+  if (source.startsWith(".")) {
+    const dots = source.length - source.replace(/^\.+/, "").length;
+    const tail = source.slice(dots).split(".").filter(Boolean);
+    let dir = dirname(fromFile);
+    for (let i = 1; i < dots; i++) dir = dirname(dir);
+    const base = dir === "." ? "" : `${dir}/`;
+    const rel = `${base}${tail.join("/")}`;
+    const mod = pyModuleForPath(`${rel}.py`);
+    const hit = mod ? byModule.get(mod) : undefined;
+    return hit ? [hit] : [];
+  }
+  const direct = byModule.get(source);
+  return direct ? [direct] : [];
+}
+
+interface Resolvers {
+  fileSet: Set<string>;
+  java: JavaIndex;
+  python: Map<string, string>;
+}
+
+function resolveOne(file: ImportMapFile, source: string, r: Resolvers): string[] {
+  switch (file.language) {
+    case "typescript":
+    case "javascript":
+      // Only relative specifiers can be internal; bare specifiers are packages.
+      if (!source.startsWith(".")) return [];
+      return [resolveRelative(file.path, source, r.fileSet)].filter(
+        (x): x is string => x !== null,
+      );
+    case "java":
+      return resolveJava(source, r.java);
+    case "python":
+      return resolvePython(file.path, source, r.python);
+    default:
+      // Rust / C# / others: file-grain coverage only (no resolver yet).
+      return [];
+  }
+}
+
 /**
- * Build the internal import map for the given files. `projectRoot` is used to
- * read file contents; `files` are project-relative POSIX paths with language.
+ * Build the internal import map from the manifest files' AST-extracted imports.
+ * `files` carry their resolved language and `symbols.imports`; the returned map
+ * is file path -> sorted internal file paths it imports.
  */
-export function buildImportMap(
-  projectRoot: string,
-  files: { path: string; language: string }[],
-): Record<string, string[]> {
-  const fileSet = new Set(files.map((f) => f.path));
+export function buildImportMap(files: ImportMapFile[]): Record<string, string[]> {
+  const resolvers: Resolvers = {
+    fileSet: new Set(files.map((f) => f.path)),
+    java: buildJavaIndex(files),
+    python: buildPythonIndex(files),
+  };
   const importMap: Record<string, string[]> = {};
 
   for (const file of files) {
-    if (!JS_TS_LANGS.has(file.language)) continue;
-    let content: string;
-    try {
-      content = readFileSync(join(projectRoot, file.path), "utf-8");
-    } catch {
-      continue;
-    }
     const resolved = new Set<string>();
-    for (const match of content.matchAll(IMPORT_RE)) {
-      const spec = match[1] ?? match[2] ?? match[3] ?? match[4];
-      if (!spec || !spec.startsWith(".")) continue;
-      const target = resolveRelative(file.path, spec, fileSet);
-      if (target && target !== file.path) resolved.add(target);
+    for (const imp of file.symbols.imports ?? []) {
+      for (const target of resolveOne(file, imp.source, resolvers)) {
+        if (target !== file.path) resolved.add(target);
+      }
     }
     if (resolved.size > 0) importMap[file.path] = [...resolved].sort();
   }

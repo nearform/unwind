@@ -47,6 +47,21 @@ export interface SymbolExport {
   isDefault: boolean;
 }
 
+/**
+ * An import/use/require edge exactly as written in source (pre-resolution).
+ * Populated by the tree-sitter extractors (every language). `import-map.ts`
+ * resolves `source` to an internal file path; the language-specific shape of
+ * `source` (relative path for JS/TS, fully-qualified type for Java/C#, dotted
+ * module for Python, `use` path for Rust) is what the resolver dispatches on.
+ */
+export interface SymbolImport {
+  /** Module specifier as written in source. */
+  source: string;
+  /** Imported names, or ["*"] for wildcard/namespace imports. */
+  specifiers: string[];
+  line: number;
+}
+
 /** A structural definition: DB table, ORM entity, GraphQL type, etc. */
 export interface SymbolDefinition {
   name: string;
@@ -80,6 +95,8 @@ export interface FileSymbols {
   functions: SymbolFunction[];
   classes: SymbolClass[];
   exports: SymbolExport[];
+  /** Raw import edges from the AST; resolved to internal files in `importMap`. */
+  imports: SymbolImport[];
   definitions: SymbolDefinition[];
   endpoints: SymbolEndpoint[];
 }
@@ -89,6 +106,7 @@ export function emptySymbols(): FileSymbols {
     functions: [],
     classes: [],
     exports: [],
+    imports: [],
     definitions: [],
     endpoints: [],
   };

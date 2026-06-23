@@ -8,6 +8,7 @@ import {
   type LanguageExtractor,
   type StructuralAnalysis,
   type TSNode,
+  findChildren,
   getStringValue,
 } from "./extractor-utils.js";
 
@@ -80,6 +81,9 @@ export class TypeScriptExtractor implements LanguageExtractor {
       if (!node) continue;
       this.processTopLevelNode(node, functions, classes, imports, exports, exportedNames);
     }
+    // Dynamic import("x") / require("x") live in expression position anywhere in
+    // the file, so collect them with a full-tree walk rather than at top level.
+    this.extractDynamicImports(rootNode, imports);
     return { functions, classes, imports, exports };
   }
 
@@ -106,7 +110,7 @@ export class TypeScriptExtractor implements LanguageExtractor {
         this.extractImport(node, imports);
         break;
       case "export_statement":
-        this.processExportStatement(node, functions, classes, exports, exportedNames);
+        this.processExportStatement(node, functions, classes, exports, exportedNames, imports);
         break;
     }
   }
@@ -200,13 +204,65 @@ export class TypeScriptExtractor implements LanguageExtractor {
     imports.push({ source, specifiers, lineNumber: node.startPosition.row + 1 });
   }
 
+  /**
+   * Walk the whole tree for dynamic `import("x")` and `require("x")` calls and
+   * record their string argument as an import source (specifiers unknown).
+   */
+  private extractDynamicImports(root: TSNode, imports: StructuralAnalysis["imports"]): void {
+    const stack: TSNode[] = [root];
+    while (stack.length > 0) {
+      const node = stack.pop();
+      if (!node) continue;
+      if (node.type === "call_expression") {
+        const fn = node.childForFieldName("function");
+        const isImport = fn?.type === "import";
+        const isRequire = fn?.type === "identifier" && fn.text === "require";
+        if (isImport || isRequire) {
+          const args = node.childForFieldName("arguments");
+          const strNode = args?.children.find((c) => c && c.type === "string");
+          if (strNode) {
+            imports.push({
+              source: getStringValue(strNode),
+              specifiers: [],
+              lineNumber: node.startPosition.row + 1,
+            });
+          }
+        }
+      }
+      for (let i = 0; i < node.childCount; i++) {
+        const child = node.child(i);
+        if (child) stack.push(child);
+      }
+    }
+  }
+
   private processExportStatement(
     node: TSNode,
     functions: StructuralAnalysis["functions"],
     classes: StructuralAnalysis["classes"],
     exports: StructuralAnalysis["exports"],
     exportedNames: Set<string>,
+    imports: StructuralAnalysis["imports"],
   ): void {
+    // Re-export: `export { x } from "./y"` / `export * from "./y"`. The `from`
+    // source is an internal import edge the old regex caught but the AST walk
+    // previously dropped — barrel files (index.ts) depend on this.
+    const sourceNode = node.children.find((c) => c && c.type === "string");
+    if (sourceNode) {
+      const clause = node.children.find((c) => c && c.type === "export_clause");
+      const specifiers = clause
+        ? findChildren(clause, "export_specifier").map((spec) => {
+            const alias = spec.childForFieldName("alias");
+            const name = spec.childForFieldName("name");
+            return alias ? alias.text : name ? name.text : spec.text;
+          })
+        : ["*"];
+      imports.push({
+        source: getStringValue(sourceNode),
+        specifiers,
+        lineNumber: node.startPosition.row + 1,
+      });
+    }
     for (let j = 0; j < node.childCount; j++) {
       const child = node.child(j);
       if (!child) continue;

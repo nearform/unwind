@@ -72,6 +72,7 @@ const CATEGORY_BY_EXT: Readonly<Record<string, FileCategory>> = Object.freeze({
   ".scss": "markup",
   ".sass": "markup",
   ".less": "markup",
+  ".svg": "markup",
 });
 
 const INFRA_FILENAMES = new Set([

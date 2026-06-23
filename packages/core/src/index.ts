@@ -103,6 +103,7 @@ export {
   type ManifestFile,
   type FileSymbols,
   type SymbolDefinition,
+  type SymbolImport,
   type RepositoryInfo,
   type LayerIndexEntry,
   type DataModelLink,

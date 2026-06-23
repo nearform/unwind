@@ -803,10 +803,22 @@ export function detectEfCoreEntities(content: string): SymbolDefinition[] {
 // All regex-based so it works regardless of grammar availability.
 // ---------------------------------------------------------------------------
 
-export function detectEndpoints(filePath: string, content: string): SymbolEndpoint[] {
+export function detectEndpoints(
+  filePath: string,
+  content: string,
+  root: TSNode | null = null,
+  langKey: string | null = null,
+): SymbolEndpoint[] {
   const out: SymbolEndpoint[] = [];
   out.push(...detectRouterEndpoints(content));
-  out.push(...detectDecoratorEndpoints(content));
+  // Decorator/annotation routes come from the AST when a grammar parsed the file
+  // (deterministic — distinguishes a real `@GetMapping` from the same text in a
+  // string or comment); the regex form is the no-grammar fallback only.
+  if (root && langKey) {
+    out.push(...detectDecoratorEndpointsFromTree(root, langKey));
+  } else {
+    out.push(...detectDecoratorEndpoints(content));
+  }
   out.push(...detectFileBasedRoute(filePath, content));
   // Dedupe identical (method,path,startLine).
   const seen = new Set<string>();
@@ -881,6 +893,125 @@ function detectDecoratorEndpoints(content: string): SymbolEndpoint[] {
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, m.index),
     });
+  }
+
+  return out;
+}
+
+// Spring mapping annotation -> HTTP method.
+const SPRING_MAPPING: Readonly<Record<string, string>> = {
+  GetMapping: "GET",
+  PostMapping: "POST",
+  PutMapping: "PUT",
+  DeleteMapping: "DELETE",
+  PatchMapping: "PATCH",
+  RequestMapping: "ANY",
+};
+// NestJS / generic HTTP-verb decorator names (matched case-insensitively).
+const VERB_DECORATORS = new Set(["get", "post", "put", "delete", "patch", "options", "head", "all"]);
+// C# attribute -> HTTP method.
+const CSHARP_HTTP: Readonly<Record<string, string>> = {
+  HttpGet: "GET",
+  HttpPost: "POST",
+  HttpPut: "PUT",
+  HttpDelete: "DELETE",
+  HttpPatch: "PATCH",
+};
+const STRING_NODE_TYPES = new Set([
+  "string_literal",
+  "string",
+  "interpreted_string_literal",
+  "verbatim_string_literal",
+  "raw_string_literal",
+]);
+
+/** Type of the nearest enclosing `*_declaration` ancestor (method vs class), or null. */
+function enclosingDeclType(node: TSNode): string | null {
+  let n: TSNode | null = node.parent;
+  while (n) {
+    if (n.type.endsWith("_declaration")) return n.type;
+    n = n.parent;
+  }
+  return null;
+}
+
+/** First string literal (quotes stripped) in source order under `node`, or "". */
+function firstStringUnder(node: TSNode): string {
+  let found: string | null = null;
+  walk(node, (n) => {
+    if (found !== null) return;
+    if (STRING_NODE_TYPES.has(n.type)) found = getStringValue(n).replace(/^[@$]+/, "");
+  });
+  return found ?? "";
+}
+
+/**
+ * Decorator/annotation HTTP routes from the tree-sitter AST — the deterministic
+ * replacement for the regex `detectDecoratorEndpoints`. Dispatched by language
+ * because the annotation node type differs (Java `annotation`, TS/Python
+ * `decorator`, C# `attribute`) and `attribute` means something unrelated in
+ * Python, so the node-type match must be language-scoped.
+ */
+function detectDecoratorEndpointsFromTree(root: TSNode, langKey: string): SymbolEndpoint[] {
+  const out: SymbolEndpoint[] = [];
+  const push = (method: string, path: string, node: TSNode): void => {
+    out.push({
+      method,
+      path,
+      startLine: node.startPosition.row + 1,
+      endLine: node.startPosition.row + 1,
+    });
+  };
+
+  if (langKey === "java") {
+    walk(root, (node) => {
+      if (node.type !== "annotation" && node.type !== "marker_annotation") return;
+      const name = (node.childForFieldName("name") ?? findChild(node, "identifier"))?.text;
+      if (!name || !(name in SPRING_MAPPING)) return;
+      // Only method-level mappings are endpoints; a class-level @RequestMapping is
+      // a base-path/routing config, not a route in its own right.
+      if (enclosingDeclType(node) !== "method_declaration") return;
+      push(SPRING_MAPPING[name], firstStringUnder(node), node);
+    });
+    return out;
+  }
+
+  if (langKey === "typescript" || langKey === "tsx" || langKey === "javascript") {
+    walk(root, (node) => {
+      if (node.type !== "decorator") return;
+      const call = findChild(node, "call_expression");
+      const callee = call ? call.childForFieldName("function") : node.child(1);
+      const name = callee?.text;
+      if (!name || !VERB_DECORATORS.has(name.toLowerCase())) return;
+      const method = name.toLowerCase() === "all" ? "ANY" : name.toUpperCase();
+      push(method, call ? firstStringUnder(call) : "", node);
+    });
+    return out;
+  }
+
+  if (langKey === "python") {
+    walk(root, (node) => {
+      if (node.type !== "decorator") return;
+      const call = findChild(node, "call");
+      const fn = call ? call.childForFieldName("function") : null;
+      // @app.get("/x") / @router.post("/x") / @app.route("/x")
+      if (!fn || fn.type !== "attribute") return;
+      const attr = fn.childForFieldName("attribute")?.text?.toLowerCase();
+      if (!attr) return;
+      if (attr === "route") push("ANY", firstStringUnder(call!), node);
+      else if (VERB_DECORATORS.has(attr)) push(attr.toUpperCase(), firstStringUnder(call!), node);
+    });
+    return out;
+  }
+
+  if (langKey === "csharp") {
+    walk(root, (node) => {
+      if (node.type !== "attribute") return;
+      const name = (node.childForFieldName("name") ?? findChild(node, "identifier"))?.text;
+      if (!name || !(name in CSHARP_HTTP)) return;
+      push(CSHARP_HTTP[name], firstStringUnder(node), node);
+    });
+    return out;
   }
 
   return out;
@@ -985,7 +1116,7 @@ export function detectContracts(
     result.definitions.push(...safe(() => detectTypeOrmEntities(content)));
     result.definitions.push(...safe(() => detectMongooseModels(content)));
     result.definitions.push(...safe(() => detectSequelizeModels(content)));
-    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content, root, "typescript")));
     return dedupeDefinitions(result);
   }
 
@@ -995,19 +1126,19 @@ export function detectContracts(
     } else {
       result.definitions.push(...safe(() => detectJpaEntities(content)));
     }
-    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content, root, "java")));
     return result;
   }
 
   if (PYTHON_EXTS.has(ext)) {
     result.definitions.push(...safe(() => detectSqlAlchemyModels(content)));
-    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content, root, "python")));
     return dedupeDefinitions(result);
   }
 
   if (CSHARP_EXTS.has(ext)) {
     result.definitions.push(...safe(() => detectEfCoreEntities(content)));
-    result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
+    result.endpoints.push(...safe(() => detectEndpoints(filePath, content, root, "csharp")));
     return dedupeDefinitions(result);
   }
 

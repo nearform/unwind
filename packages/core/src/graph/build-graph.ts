@@ -164,6 +164,10 @@ export function buildRebuildGraph(
   for (const cov of Object.values(coverageByLayer)) {
     for (const m of cov.missing) missingIds.add(m.id);
   }
+  // A layer is only "covered" if a coverage report actually exists for it.
+  // Absence of a report means never-analyzed, NOT fully-documented — otherwise a
+  // fresh scan with no layer docs would report 100% documented/done.
+  const reportedLayers = new Set(Object.keys(coverageByLayer));
 
   const byLayer = candidatesByLayer(manifest);
 
@@ -184,13 +188,15 @@ export function buildRebuildGraph(
       const priority: RebuildPriority = doc ? doc.tag : null;
       const docRef = doc ? doc.sourceFile : null;
 
-      const isMissing = missingIds.has(c.id);
       const isStale = staleIds.has(c.id);
+      // Covered only when this layer was actually analyzed AND the item isn't
+      // in the layer's missing set. No report for the layer => never covered.
+      const isCovered = reportedLayers.has(layer) && !missingIds.has(c.id);
       let coverage: CoverageState;
       if (priority === "DON'T") {
         coverage = "excluded";
-      } else if (isMissing) {
-        coverage = "scanned";
+      } else if (!isCovered) {
+        coverage = "scanned"; // missing, or layer never analyzed
       } else if (isStale) {
         // Was documented, but the source changed structurally — flag for review.
         coverage = "stale";
@@ -381,7 +387,8 @@ function stemOf(path: string): string {
 
 /**
  * Given a test file path, derive the stem of the source file it likely tests.
- * Handles: foo.test.ts / foo.spec.ts / foo.e2e.ts / foo_test.go / test_foo.py.
+ * Handles: foo.test.ts / foo.spec.ts / foo.e2e.ts / foo_test.go / test_foo.py /
+ * FooTest.java / FooTests.java / FooIT.java (JVM suffix convention).
  * Returns null when no convention matches.
  */
 function testTargetStem(path: string): string | null {
@@ -391,6 +398,10 @@ function testTargetStem(path: string): string | null {
   m = base.match(/^(.+?)_test\.[a-z0-9]+$/i);
   if (m) return m[1].toLowerCase();
   m = base.match(/^test_(.+?)\.[a-z0-9]+$/i);
+  if (m) return m[1].toLowerCase();
+  // JVM: FooTest / FooTests / FooIT / FooITCase. Capitalized suffix avoids
+  // matching ordinary words (e.g. "Latest", "Wait").
+  m = base.match(/^(.+?)(?:Tests?|IT|ITCase)\.[a-z0-9]+$/);
   if (m) return m[1].toLowerCase();
   return null;
 }

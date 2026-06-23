@@ -40,6 +40,8 @@ export interface LayerEvidence {
   hasEndpoints?: boolean;
   /** Whether structural extraction found messaging publish/subscribe sites. */
   hasMessaging?: boolean;
+  /** Whether the file declares a program entrypoint (`main`/`Main`) — a bootstrap. */
+  hasEntrypoint?: boolean;
 }
 
 /** Directory-segment -> layer. A segment match anywhere in the path applies. */
@@ -103,9 +105,20 @@ export function classifyRebuildLayer(
   // 1. Tests win.
   if (isTestPath(posix, evidence.fileCategory)) return "tests";
 
-  // Non-code categories route by category before path heuristics.
-  if (evidence.fileCategory === "infra") return "infrastructure";
-  if (evidence.fileCategory === "data") return "database";
+  // Category-decisive non-code: assets/docs/scripts/infra/data have a fixed home
+  // regardless of where they sit. (`config` is deliberately NOT here — a config
+  // file in a meaningful directory, e.g. a migration snapshot under `db/`, should
+  // keep that context via the directory patterns below.)
+  switch (evidence.fileCategory) {
+    case "data":
+      return "database";
+    case "infra":
+    case "script":
+    case "docs":
+      return "infrastructure";
+    case "markup":
+      return "frontend";
+  }
 
   // 2. Directory patterns.
   for (const [re, layer] of DIR_LAYER) {
@@ -123,7 +136,15 @@ export function classifyRebuildLayer(
   if (evidence.hasMessaging) return "messaging";
   if (FRONTEND_EXTS.test(base)) return "frontend";
 
-  // 5. Unassigned — surfaced for LLM adjudication.
+  // 4b. Config that no directory/filename rule located -> infrastructure
+  // (project/build config), not unassigned.
+  if (evidence.fileCategory === "config") return "infrastructure";
+
+  // 4c. Program entrypoint (`public static void main`, Spring `@SpringBootApplication`
+  // bootstrap, Go/Rust `main`) — infrastructure, not unassigned.
+  if (evidence.hasEntrypoint) return "infrastructure";
+
+  // 5. Unassigned — only genuinely ambiguous *code* reaches here.
   return "unassigned";
 }
 

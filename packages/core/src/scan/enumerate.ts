@@ -42,12 +42,60 @@ const DEFAULT_EXCLUDE_DIRS = new Set([
   ".idea",
   ".vscode",
   "docs/unwind",
+  // Build-tool wrapper/bootstrap dirs — vendored tooling, never project source.
+  ".mvn",
+  ".gradle",
 ]);
+
+/**
+ * Binary / non-source extensions. A binary is never a "198-line code file": these
+ * are filtered before categorization so they can't inflate the manifest, the
+ * unassigned bucket, or the coverage denominator.
+ */
+const BINARY_EXTS = new Set([
+  // JVM / native artifacts
+  ".jar", ".war", ".ear", ".class", ".dll", ".exe", ".so", ".dylib",
+  ".a", ".o", ".obj", ".lib", ".wasm", ".pyc", ".pyo", ".pyd",
+  // images
+  ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp", ".tiff", ".icns",
+  // media
+  ".mp3", ".mp4", ".mov", ".avi", ".wav", ".ogg", ".webm", ".flac", ".m4a",
+  // archives
+  ".zip", ".tar", ".gz", ".tgz", ".bz2", ".xz", ".7z", ".rar",
+  // fonts
+  ".woff", ".woff2", ".ttf", ".otf", ".eot",
+  // documents / databases / keys
+  ".pdf", ".db", ".sqlite", ".sqlite3", ".mdb",
+  ".keystore", ".jks", ".p12", ".pfx", ".der",
+]);
+
+/**
+ * Vendored build-tool wrappers and repo-meta files that are not project source.
+ * Excluded so the analysis reflects real code, not generated bootstrap scaffolding.
+ */
+const EXCLUDE_FILENAMES = new Set([
+  "mvnw",
+  "mvnw.cmd",
+  "gradlew",
+  "gradlew.bat",
+  ".gitignore",
+  ".gitattributes",
+  ".gitmodules",
+  ".DS_Store",
+]);
+
+function extOf(name: string): string {
+  const dot = name.lastIndexOf(".");
+  return dot >= 0 ? name.slice(dot).toLowerCase() : "";
+}
 
 /** True when any path segment is an excluded directory. */
 function isExcludedPath(posixPath: string): boolean {
   if (posixPath.startsWith("docs/unwind/")) return true;
   const segments = posixPath.split("/");
+  const fileName = segments[segments.length - 1];
+  if (EXCLUDE_FILENAMES.has(fileName)) return true;
+  if (BINARY_EXTS.has(extOf(fileName))) return true;
   // Drop the file name; only directory segments matter.
   for (let i = 0; i < segments.length - 1; i++) {
     if (DEFAULT_EXCLUDE_DIRS.has(segments[i])) return true;

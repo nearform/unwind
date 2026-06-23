@@ -202,6 +202,11 @@ export function toFileSymbols(a: StructuralAnalysis): FileSymbols {
     line: e.lineNumber,
     isDefault: e.isDefault === true,
   }));
+  symbols.imports = a.imports.map((imp) => ({
+    source: imp.source,
+    specifiers: imp.specifiers,
+    line: imp.lineNumber,
+  }));
   // definitions / endpoints are populated by contract detection (later stage).
   return symbols;
 }
