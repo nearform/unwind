@@ -71,6 +71,41 @@ node skills/scripts/build-graph.mjs <projectRoot>    # → docs/unwind/rebuild-g
 node skills/scripts/detect-changes.mjs <projectRoot> # incremental: diff vs meta.json baseline
 ```
 
+## Deploy the drizzle-cube example
+
+Recreates the live demo (https://unwind.cliftonc.nl) from a local `drizzle-cube`
+checkout. Regenerates the **deterministic** artifacts from scratch and **reuses the
+existing LLM layer docs** in `drizzle-cube/docs/unwind/layers/` — it does NOT re-run
+the analysis specialists (run those separately if the docs are stale). `.deploy/` is
+throwaway + gitignored, so the recipe recreates `wrangler.jsonc` inline.
+
+```bash
+DC=~/work/dc/drizzle-cube
+pnpm --filter @unwind/core build                          # ensure dist/ current
+node skills/scripts/scan.mjs "$DC"                        # fresh manifest (new ids + dataModelLinks)
+node skills/scripts/seed-layers.mjs "$DC"
+node skills/scripts/verify-coverage.mjs "$DC"             # coverage from the existing docs
+node skills/scripts/build-graph.mjs "$DC"                 # → $DC/docs/unwind/rebuild-graph.json
+pnpm --filter @unwind/dashboard build                     # → packages/dashboard/dist
+
+rm -rf .deploy && mkdir -p .deploy/public
+cp -R packages/dashboard/dist/. .deploy/public/           # app + nearform.svg (+ sample graph)
+cp "$DC/docs/unwind/rebuild-graph.json" .deploy/public/   # overwrite sample with the real graph
+cat > .deploy/wrangler.jsonc <<'JSON'
+{
+  "name": "unwind-dashboard",
+  "compatibility_date": "2026-06-01",
+  "assets": { "directory": "./public", "not_found_handling": "single-page-application" },
+  "routes": [{ "pattern": "unwind.cliftonc.nl", "custom_domain": true }]
+}
+JSON
+( cd .deploy && npx wrangler deploy )                     # needs Cloudflare auth (wrangler login)
+```
+
+The dashboard fetches `/rebuild-graph.json` and `/nearform.svg` at runtime; Vite
+copies `public/nearform.svg` into `dist/` and bundles a small sample graph that the
+`cp` above overwrites with drizzle-cube's.
+
 ## Conventions & gotchas
 
 - **Scripts invoke the core** via `source skills/scripts/_resolve-plugin-root.sh;
