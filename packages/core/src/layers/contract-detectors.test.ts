@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   detectContracts,
   detectSqlTables,
+  detectJpaEntities,
   detectTypeOrmEntities,
   detectSqlAlchemyModels,
   detectMongooseModels,
@@ -96,6 +97,15 @@ test("Sequelize define()", () => {
   const u = defs.find((d) => d.physicalName === "user");
   assert.ok(u);
   assert.deepEqual(u.fields, ["name"]);
+});
+
+test("Java regex fallback detects Spring Data @Document with collection name", () => {
+  const src = `@Document(collection = "tutorials")\npublic class Tutorial {\n  private String title;\n}`;
+  const defs = detectJpaEntities(src);
+  assert.equal(defs.length, 1);
+  assert.equal(defs[0].name, "Tutorial");
+  assert.equal(defs[0].source, "spring-data-mongo");
+  assert.equal(defs[0].physicalName, "tutorials");
 });
 
 test("EF Core DbSet<T> entities", () => {

@@ -108,6 +108,14 @@ copies `public/nearform.svg` into `dist/` and bundles a small sample graph that 
 
 ## Conventions & gotchas
 
+- **Prefer tree-sitter / robust parsers over hand-rolled regex.** Grammars are
+  already loaded for ts/js/python/rust/java/c# — detectors should walk the **AST**
+  (like `detectDrizzleFromTree` / `detectJavaEntitiesFromTree`) and read fields from
+  real nodes, not pattern-match source text. For SQL/ORM schemas prefer a real SQL
+  parser or the ORM's own snapshot JSON (drizzle `meta/*_snapshot.json`, prisma
+  schema). Regex is a **fallback only** for inputs with no grammar/parser. Custom
+  regex parsing is brittle and noisy (see issue #1) — don't add it unless explicitly
+  asked. Keep the no-grammar regex fallback so files still degrade gracefully.
 - **Scripts invoke the core** via `source skills/scripts/_resolve-plugin-root.sh;
   ensure_unwind_core; node "$UNWIND_PLUGIN_ROOT/skills/scripts/<x>.mjs"`. `.mjs`
   scripts resolve `@unwind/core` two ways (`require.resolve` → `dist/index.js`).

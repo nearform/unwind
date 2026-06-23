@@ -17,7 +17,12 @@
 
 import { extname } from "node:path";
 import type { SymbolDefinition, SymbolEndpoint } from "../manifest/manifest-schema.js";
-import type { TSNode } from "../structure/extractor-utils.js";
+import {
+  findChild,
+  findChildren,
+  getStringValue,
+  type TSNode,
+} from "../structure/extractor-utils.js";
 
 export interface DetectedContracts {
   definitions: SymbolDefinition[];
@@ -391,26 +396,121 @@ function splitTopLevelBraces(s: string): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// JPA / Hibernate — class annotated @Entity (Java)
+// Java entities — @Entity (JPA), @Document (Spring Data MongoDB), @Table, @Node.
+// Tree-sitter AST is the primary path (robust); regex is a no-grammar fallback.
 // ---------------------------------------------------------------------------
 
+/** Class-level annotations that mark a persisted entity, and their framework source. */
+const JAVA_ENTITY_ANNOTATIONS: Record<string, string> = {
+  Entity: "jpa",
+  Document: "spring-data-mongo",
+  Table: "spring-data",
+  Node: "spring-data-neo4j",
+};
+
+/** AST-based detection (preferred). Walks class_declaration nodes for entity annotations. */
+export function detectJavaEntitiesFromTree(root: TSNode): SymbolDefinition[] {
+  const defs: SymbolDefinition[] = [];
+  walk(root, (node) => {
+    if (node.type !== "class_declaration") return;
+    const modifiers = findChild(node, "modifiers");
+    if (!modifiers) return;
+
+    const present = new Map<string, TSNode>();
+    for (let i = 0; i < modifiers.childCount; i++) {
+      const child = modifiers.child(i);
+      if (!child) continue;
+      if (child.type !== "annotation" && child.type !== "marker_annotation") continue;
+      const nameNode = child.childForFieldName("name");
+      if (!nameNode) continue;
+      const simple = lastDotComponent(nameNode.text);
+      if (simple in JAVA_ENTITY_ANNOTATIONS) present.set(simple, child);
+    }
+    if (present.size === 0) return;
+
+    const nameNode = node.childForFieldName("name");
+    if (!nameNode) return;
+
+    // Source by precedence; physical name from @Document(collection=) / @Table(name=).
+    let source = "jpa";
+    let physicalName: string | undefined;
+    for (const key of ["Document", "Node", "Entity", "Table"]) {
+      if (present.has(key)) {
+        source = JAVA_ENTITY_ANNOTATIONS[key];
+        break;
+      }
+    }
+    if (present.has("Document")) physicalName = annotationString(present.get("Document")!, "collection");
+    if (!physicalName && present.has("Table")) physicalName = annotationString(present.get("Table")!, "name");
+
+    defs.push({
+      kind: "table",
+      name: nameNode.text,
+      fields: javaEntityFields(node.childForFieldName("body")),
+      origin: "code",
+      source,
+      ...(physicalName ? { physicalName } : {}),
+      startLine: node.startPosition.row + 1,
+      endLine: node.endPosition.row + 1,
+    });
+  });
+  return defs;
+}
+
+/** Last dotted component of an annotation name (jakarta.persistence.Entity -> Entity). */
+function lastDotComponent(text: string): string {
+  const parts = text.split(".");
+  return parts[parts.length - 1];
+}
+
+/** Read a string argument from an annotation: named (key = "x") or first positional. */
+function annotationString(ann: TSNode, key: string): string | undefined {
+  const args = ann.childForFieldName("arguments");
+  if (!args) return undefined;
+  for (const pair of findChildren(args, "element_value_pair")) {
+    const k = pair.childForFieldName("key");
+    const v = pair.childForFieldName("value");
+    if (k && v && k.text === key && v.type === "string_literal") return getStringValue(v);
+  }
+  for (let i = 0; i < args.childCount; i++) {
+    const c = args.child(i);
+    if (c && c.type === "string_literal") return getStringValue(c);
+  }
+  return undefined;
+}
+
+/** Instance field names from a class body (field_declaration -> variable_declarator). */
+function javaEntityFields(body: TSNode | null | undefined): string[] {
+  if (!body) return [];
+  const fields: string[] = [];
+  for (const fd of findChildren(body, "field_declaration")) {
+    for (const decl of findChildren(fd, "variable_declarator")) {
+      const nameNode = decl.childForFieldName("name");
+      if (nameNode) fields.push(nameNode.text);
+    }
+  }
+  return fields;
+}
+
+/** Regex fallback used only when no tree-sitter grammar is available for the file. */
 export function detectJpaEntities(content: string): SymbolDefinition[] {
   const defs: SymbolDefinition[] = [];
-  // @Entity (optionally @Table(name="..")) immediately preceding a class.
+  // @Entity / @Document / @Node (optionally @Table(name="..")) preceding a class.
   const re =
-    /@Entity\b[^\n]*(?:\n(?:\s*@[^\n]*\n)*)?\s*(?:public\s+|final\s+|abstract\s+)*class\s+(\w+)/g;
+    /@(?:Entity|Document|Node)\b[^\n]*(?:\n(?:\s*@[^\n]*\n)*)?\s*(?:public\s+|final\s+|abstract\s+)*class\s+(\w+)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(content)) !== null) {
     const name = m[1];
-    // @Table(name = "physical_name") overrides the table name when present.
+    const collM = m[0].match(/@Document\s*\([^)]*collection\s*=\s*["']([^"']+)["']/);
     const tableM = m[0].match(/@Table\s*\([^)]*name\s*=\s*["']([^"']+)["']/);
+    const physicalName = collM?.[1] ?? tableM?.[1];
     defs.push({
       kind: "table",
       name,
       fields: [],
       origin: "code",
-      source: "jpa",
-      ...(tableM ? { physicalName: tableM[1] } : {}),
+      source: m[0].includes("@Document") ? "spring-data-mongo" : "jpa",
+      ...(physicalName ? { physicalName } : {}),
       startLine: lineAt(content, m.index),
       endLine: lineAt(content, m.index + m[0].length),
     });
@@ -890,7 +990,11 @@ export function detectContracts(
   }
 
   if (JAVA_EXTS.has(ext)) {
-    result.definitions.push(...safe(() => detectJpaEntities(content)));
+    if (root) {
+      result.definitions.push(...safe(() => detectJavaEntitiesFromTree(root)));
+    } else {
+      result.definitions.push(...safe(() => detectJpaEntities(content)));
+    }
     result.endpoints.push(...safe(() => detectEndpoints(filePath, content)));
     return result;
   }

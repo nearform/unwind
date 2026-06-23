@@ -81,6 +81,7 @@ export {
   detectDrizzleFromTree,
   detectDrizzleFromText,
   detectJpaEntities,
+  detectJavaEntitiesFromTree,
   detectTypeOrmEntities,
   detectSqlAlchemyModels,
   detectMongooseModels,
