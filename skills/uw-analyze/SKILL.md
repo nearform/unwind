@@ -42,6 +42,39 @@ allowed-tools:
 
 ## Process
 
+### Step 0 (pre): Existing analysis — restart or update?
+
+**Before doing anything**, check whether a prior analysis exists:
+
+```bash
+ls docs/unwind/layers/*/ 2>/dev/null | head -1   # any layer docs already written?
+```
+
+**If `docs/unwind/layers/` already has content**, do NOT silently re-run. **Use
+AskUserQuestion** to let the user choose:
+
+- **Update (refresh)** *(recommended)* — keep the existing docs and run in **Refresh
+  Mode** (see bottom of this skill): specialists add `## Changes Since Last Review`
+  and reconcile against the current scan. Non-destructive.
+- **Restart from scratch** — **delete the existing analysis** and regenerate every
+  layer fresh.
+
+**Restarting is destructive and hard to reverse**, so require a clear second
+confirmation before deleting. Only after the user explicitly confirms (e.g. answers
+"yes, delete"), remove the prior analysis docs — and nothing else:
+
+```bash
+# DESTRUCTIVE — run ONLY after explicit user confirmation to restart from scratch.
+rm -rf docs/unwind/layers
+rm -rf docs/unwind/.cache/coverage docs/unwind/.cache/seeds
+rm -f  docs/unwind/REBUILD-PLAN.md
+# Keep architecture.md and .cache/scan-manifest.json (ground truth from uw-scan).
+```
+
+Then proceed in fresh mode. **If the user chose Update**, skip the deletion and run
+every step below in Refresh Mode. If there is no existing `docs/unwind/layers/`,
+this is a first run — proceed normally.
+
 ### Step 0: Generate Layer Seeds
 
 If `docs/unwind/.cache/scan-manifest.json` exists, emit per-layer candidate lists:
@@ -242,6 +275,11 @@ Execution:
 
 ## Refresh Mode
 
-If layer folders exist:
+This is the **Update** path from Step 0 (pre) — used when layer docs already exist
+and the user chose to update rather than restart from scratch. It is non-destructive:
+existing docs are kept and reconciled against the current scan.
+
 1. Pass existing index.md and section files as context
 2. Subagents add `## Changes Since Last Review` to index.md
+3. Re-seed + re-verify so coverage reflects the current manifest (new/removed
+   candidates surface as gaps or `## Changes Since Last Review` entries)
