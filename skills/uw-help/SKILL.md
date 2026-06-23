@@ -45,7 +45,9 @@ See `analysis-principles.md`:
 ## Workflow
 
 ```
-start     → scan.mjs → scan-manifest.json (ground truth)
+uw-start  → entry point: orient, check prereqs, drive the pipeline
+        │
+uw-scan   → scan.mjs → scan-manifest.json (ground truth)
         │            → architecture.md (derived + unassigned adjudicated)
         │
 uw-analyze
@@ -76,6 +78,7 @@ uw-plan       → REBUILD-PLAN.md (strategic rebuild approach)
 
 | Skill | Output |
 |-------|--------|
+| `uw-start` | **Entry point** — orients, checks prereqs, drives the pipeline |
 | `uw-scan` | `architecture.md` |
 | `uw-analyze` | Orchestrates layer analysis |
 | `uw-verify` | `gaps.md` per layer (work list) |
@@ -143,12 +146,16 @@ Each layer is a folder with `index.md` + section files for incremental writes.
 
 ## Quick Start
 
+**New here? Just `Use unwind:uw-start`** — it orients you, checks prerequisites, and
+drives the whole pipeline with a checkpoint at each phase. The manual sequence is:
+
 1. `Use unwind:uw-scan` — runs the deterministic scan, derives `architecture.md`
 2. Review `docs/unwind/architecture.md`
 3. `Use unwind:uw-analyze` — seeds specialists, analyzes, verifies coverage
 4. `Use unwind:uw-verify` — deterministic coverage diff (re-run any time)
 5. `Use unwind:uw-plan`
-6. `Use unwind:uw-graph` then `unwind:uw-dashboard` — visualize coverage & contracts
+6. `Use unwind:uw-dashboard` — builds the graph and launches the viewer
+   (`unwind:uw-graph` is an optional raw-artifact export)
 
 **After code changes:** `Use unwind:uw-refresh` — fingerprints detect
 what moved and only the affected layers are re-analyzed; changed contracts are

@@ -28,6 +28,13 @@ coverage, and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
 Restart Claude Code after installation.
 
 ### Use
+
+**New here? Just run the entry point:**
+```
+Use unwind:uw-start   # orients you, checks prereqs, drives the whole pipeline
+```
+
+Or run the phases manually:
 ```
 1. Use unwind:uw-scan              # deterministic scan → architecture.md (+ scan-manifest.json)
 2. Use unwind:uw-dashboard   # visualize it — works straight after the scan

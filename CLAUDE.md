@@ -35,9 +35,10 @@ packages/
 skills/
   scripts/              bundled .mjs the skills invoke (scan, seed-layers, verify-coverage,
                         build-graph, detect-changes) + _core.mjs + _resolve-plugin-root.sh
-  *                     markdown skills (uw-scan, uw-analyze, uw-analyze-* layer
-                        specialists, uw-verify, uw-complete, uw-plan, uw-graph,
-                        uw-dashboard, uw-refresh, uw-help, analysis-principles)
+  *                     markdown skills (uw-start entry point, uw-scan, uw-analyze,
+                        uw-analyze-* layer specialists, uw-verify, uw-complete,
+                        uw-plan, uw-graph, uw-dashboard, uw-refresh, uw-help,
+                        analysis-principles)
 ```
 
 `dist/` and `*.tsbuildinfo` are gitignored — the core is **lazily built on first
