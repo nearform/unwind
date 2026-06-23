@@ -22,10 +22,17 @@ export interface DocumentedItem {
   sourceFile: string;
 }
 
-// Documented items are h3+ (`###`); `#`/`##` are layer/section titles, not items
-// (see analysis-principles.md heading convention).
-const HEADING_RE = /^#{3,6}\s+(.+?)\s*$/;
-const ANCHOR_RE = /<!--\s*id:\s*([^\s]+)\s*-->/;
+// A heading is a documented item when it carries an explicit `<!-- id: ... -->`
+// anchor — the id is the join key, NOT the heading depth, so an anchored item
+// counts at ANY level (agents routinely put a file/class/endpoint at `##` and
+// its nested methods at `###`). Without an anchor we fall back to the original
+// rule — only h3+ headings are items, so layer/section titles (`#`/`##`) aren't
+// miscounted (see analysis-principles.md heading convention).
+const HEADING_RE = /^(#{1,6})\s+(.+?)\s*$/;
+// The id can contain spaces — endpoint ids are `endpoint:<file>:GET /path` — so
+// capture everything up to the closing `-->`, trimming surrounding whitespace,
+// rather than stopping at the first space.
+const ANCHOR_RE = /<!--\s*id:\s*(.+?)\s*-->/;
 const TAG_RE = /\[(MUST|SHOULD|DON'T)\]/;
 
 /** Parse documented items from one markdown file. */
@@ -34,8 +41,11 @@ export function extractDocumentedItems(markdown: string, sourceFile: string): Do
   for (const line of markdown.split("\n")) {
     const h = line.match(HEADING_RE);
     if (!h) continue;
-    const raw = h[1];
+    const level = h[1].length;
+    const raw = h[2];
     const anchor = raw.match(ANCHOR_RE);
+    // Un-anchored shallow heading (`#`/`##`) => a section/layer title, not an item.
+    if (!anchor && level < 3) continue;
     const tagM = raw.match(TAG_RE);
     const name = raw
       .replace(ANCHOR_RE, "")
