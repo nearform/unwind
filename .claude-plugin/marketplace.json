@@ -9,7 +9,7 @@
     {
       "name": "unwind",
       "description": "Skills library for reverse engineering: codebase analysis, service mapping, API discovery, and documentation generation",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "source": "./"
     }
   ]
