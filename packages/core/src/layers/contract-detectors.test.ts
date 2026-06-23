@@ -70,6 +70,27 @@ test("Mongoose schema fields, name strips Schema suffix", () => {
   assert.deepEqual(defs[0].fields, ["name", "email"]);
 });
 
+test("Mongoose without `new`, name resolved from model() call (bezkoder pattern)", () => {
+  const src = `module.exports = mongoose => {
+    var schema = mongoose.Schema({ title: String, description: String, published: Boolean }, { timestamps: true });
+    const Tutorial = mongoose.model("tutorial", schema);
+    return Tutorial;
+  };`;
+  const defs = detectMongooseModels(src);
+  assert.equal(defs.length, 1);
+  assert.equal(defs[0].name, "Tutorial");
+  assert.equal(defs[0].physicalName, "tutorial");
+  assert.deepEqual(defs[0].fields, ["title", "description", "published"]);
+});
+
+test("Mongoose inline model('name', new Schema({...}))", () => {
+  const src = `const Cat = mongoose.model("Cat", new mongoose.Schema({ name: String, age: Number }));`;
+  const defs = detectMongooseModels(src);
+  assert.equal(defs.length, 1);
+  assert.equal(defs[0].name, "Cat");
+  assert.deepEqual(defs[0].fields, ["name", "age"]);
+});
+
 test("Sequelize define()", () => {
   const defs = detectSequelizeModels(`const User = sequelize.define('user', { name: DataTypes.STRING });`);
   const u = defs.find((d) => d.physicalName === "user");

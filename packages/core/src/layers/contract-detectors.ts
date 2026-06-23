@@ -550,29 +550,73 @@ function sqlAlchemyFields(body: string): string[] {
 
 export function detectMongooseModels(content: string): SymbolDefinition[] {
   const defs: SymbolDefinition[] = [];
-  // const X = new mongoose.Schema({ ... })  /  new Schema<T>({ ... })
-  const re =
-    /(?:(?:export\s+)?const\s+(\w+)\s*=\s*)?new\s+(?:mongoose\.)?Schema(?:<[^>]*>)?\s*\(\s*\{/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(content)) !== null) {
-    const open = m.index + m[0].length - 1;
-    const close = matchBrace(content, open);
-    if (close < 0) continue;
-    const fields = jsObjectTopLevelKeys(content.slice(open + 1, close));
-    // Prefer the assigned const name; strip a trailing "Schema" for the entity name.
-    const constName = m[1];
-    const name = constName ? constName.replace(/Schema$/, "") || constName : "Schema";
+  const seen = new Set<string>();
+
+  const push = (name: string, fields: string[], physicalName: string | null, index: number, close: number) => {
+    if (!name || seen.has(name)) return;
+    seen.add(name);
     defs.push({
       kind: "table",
       name,
       fields,
       origin: "code",
       source: "mongoose",
-      startLine: lineAt(content, m.index),
-      endLine: lineAt(content, close),
+      ...(physicalName ? { physicalName } : {}),
+      startLine: lineAt(content, index),
+      endLine: lineAt(content, close < 0 ? index : close),
     });
+  };
+
+  // model("name", schemaIdent) — map the schema variable to its model name. The
+  // model name is the entity; the string is the physical collection seed.
+  const identToModel = new Map<string, string>();
+  const modelRefRe = /\b(?:mongoose\.)?model\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*([A-Za-z_$][\w$]*)\s*\)/g;
+  let mm: RegExpExecArray | null;
+  while ((mm = modelRefRe.exec(content)) !== null) identToModel.set(mm[2], mm[1]);
+
+  // Inline: model("name", new? mongoose.Schema({ ... })) — no intermediate variable.
+  const inlineRe =
+    /\b(?:mongoose\.)?model\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*(?:new\s+)?(?:mongoose\.)?Schema(?:<[^>]*>)?\s*\(\s*\{/g;
+  const inlineSchemaIdx = new Set<number>();
+  while ((mm = inlineRe.exec(content)) !== null) {
+    const open = mm.index + mm[0].length - 1;
+    const close = matchBrace(content, open);
+    if (close < 0) continue;
+    inlineSchemaIdx.add(open);
+    push(entityName(mm[1]), jsObjectTopLevelKeys(content.slice(open + 1, close)), mm[1], mm.index, close);
   }
+
+  // Assigned / standalone: [const|let|var X =] new? mongoose.Schema({ ... }).
+  // `new` is optional — Mongoose allows `mongoose.Schema(...)` without it.
+  const schemaRe =
+    /(?:(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*)?(?:new\s+)?(?:mongoose\.)?Schema(?:<[^>]*>)?\s*\(\s*\{/g;
+  let m: RegExpExecArray | null;
+  while ((m = schemaRe.exec(content)) !== null) {
+    const open = m.index + m[0].length - 1;
+    if (inlineSchemaIdx.has(open)) continue; // already handled as inline model()
+    const close = matchBrace(content, open);
+    if (close < 0) continue;
+    const fields = jsObjectTopLevelKeys(content.slice(open + 1, close));
+    const varName = m[1];
+    let name: string;
+    let physicalName: string | null = null;
+    if (varName && identToModel.has(varName)) {
+      physicalName = identToModel.get(varName)!;
+      name = entityName(physicalName);
+    } else if (varName) {
+      name = varName.replace(/Schema$/, "") || varName;
+    } else {
+      continue; // a bare Schema({...}) with no name and no model() — skip (noise)
+    }
+    push(name, fields, physicalName, m.index, close);
+  }
+
   return defs;
+}
+
+/** Uppercase the first letter so a model string ("tutorial") reads as an entity ("Tutorial"). */
+function entityName(s: string): string {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
 // ---------------------------------------------------------------------------
