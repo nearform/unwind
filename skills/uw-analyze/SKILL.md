@@ -200,11 +200,21 @@ coverage** (or the only remaining "missing" items are justified entries under an
 `## Excluded` section). Because the diff is deterministic, this loop converges
 and is reproducible.
 
-### Step 8: Handoff
+### Step 8: Handoff — continue or pause?
 
-When all layers reach full coverage:
-> Layer analysis complete and verified (deterministic coverage). Run
-> `unwind:uw-plan` to generate the strategic rebuild plan.
+When all layers reach full coverage, the **analyze** phase is done: layer docs are
+written and deterministically verified.
+
+**Use AskUserQuestion** to ask whether to move on:
+- **Continue to planning** *(recommended)* — generate the strategic `REBUILD-PLAN.md`.
+- **Pause here** — stop after analysis.
+
+Act on the choice in the same turn:
+- **Continue** → invoke `unwind:uw-plan`.
+- **Pause** → tell them how to resume: *"Run `unwind:uw-plan` (type `/uw-plan`) when ready."*
+
+> **Pipeline:** scan → **analyze ✓** → plan → graph → dashboard. Each phase is a
+> separate skill; the graph/dashboard are NOT produced by analysis or planning.
 
 ## Execution Example
 

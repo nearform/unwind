@@ -280,11 +280,25 @@ If rebuild plan exists:
 4. Update recommendations if layer findings changed
 5. Validate architecture.md still accurate
 
-## After Completion
+## After Completion — continue or pause?
 
-Announce:
+Announce what was produced:
 > Rebuild strategy complete. See:
 > - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach with re-use decisions
 > - `docs/unwind/architecture.md` - Validated architecture overview
 >
 > The layer documentation contains the detailed specifications. The rebuild plan focuses on HOW to approach the rebuild, not WHAT to build.
+
+The interactive **rebuild graph** (the dashboard's data) is a **separate step** —
+planning does NOT produce `rebuild-graph.json`.
+
+**Use AskUserQuestion** to ask whether to continue:
+- **Build the rebuild graph** *(recommended)* — generate `docs/unwind/rebuild-graph.json`.
+- **Pause here** — stop after the plan.
+
+Act on the choice in the same turn:
+- **Continue** → invoke `unwind:uw-graph`.
+- **Pause** → tell them how to resume: *"Run `unwind:uw-graph` (type `/uw-graph`) to build the graph."*
+
+> **Pipeline:** scan → analyze → **plan ✓** → graph → dashboard. ⚠️ scan→analyze→plan
+> alone do NOT create `rebuild-graph.json` — that's the `uw-graph` phase.

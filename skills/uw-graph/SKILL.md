@@ -21,6 +21,16 @@ carries a `rebuild` block.
 
 **Output:** `docs/unwind/rebuild-graph.json`
 
+> **Two graphs — don't confuse them.** `scan-manifest.json` (built by `uw-scan`) is
+> the **ground truth** — the file/symbol/import graph that drives seeds, the coverage
+> diff, and completeness; the analysis skills read *it*, never this file.
+> `rebuild-graph.json` (this skill's output) is a **refreshable projection** of
+> manifest + coverage + docs that **only the dashboard reads** — nothing upstream
+> reads it back. So it sits at the end of the linear pass (where it's richest), but
+> it does **not** drive analysis and is **not** rigidly last: you can build it right
+> after `uw-scan` for a structural view (everything `scanned`) and re-run it after any
+> phase to refresh. Safe to regenerate anytime.
+
 > **Graceful fallback:** if Node/pnpm or `@unwind/core` are unavailable, or if no
 > `scan-manifest.json` exists yet, the script exits non-zero with a clear message.
 > Run `uw-scan` (scan) first; the graph is an enhancement, never a hard dependency.
@@ -72,10 +82,21 @@ The script:
 
 It prints a summary: node / edge / layer counts and a coverage breakdown.
 
-### Step 2: Report
+### Step 2: Report — continue or pause?
 
-Relay the printed summary and point the user at the artifact. Offer to launch the
-dashboard next with `unwind:uw-dashboard`.
+Relay the printed summary (node / edge / layer counts, coverage breakdown) and point
+the user at `docs/unwind/rebuild-graph.json`.
+
+**Use AskUserQuestion** to ask whether to continue:
+- **Launch the dashboard** *(recommended)* — open the interactive rebuild graph.
+- **Pause here** — stop; the artifact is ready to view later.
+
+Act on the choice in the same turn:
+- **Continue** → invoke `unwind:uw-dashboard`.
+- **Pause** → tell them how to resume: *"Run `unwind:uw-dashboard` (type `/uw-dashboard`) to open the dashboard."*
+
+> **Pipeline:** scan → analyze → plan → **graph ✓** → dashboard. (The graph is a
+> refreshable projection, not a dependency of earlier phases — re-run it anytime.)
 
 ## The `rebuild` block
 

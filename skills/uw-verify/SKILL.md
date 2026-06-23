@@ -85,7 +85,19 @@ write the gaps the LLM finds to `docs/unwind/layers/{layer}/gaps.md` in the same
 format. This is slower and not reproducible — it exists only so the plugin still
 functions without the deterministic engine.
 
-## Next Step
+## Next Step — continue or pause?
 
-After gaps.md files are created, run `uw-complete` to fix all
-gaps. Re-run this skill afterward to confirm 100% coverage.
+The branch depends on the coverage table just printed:
+- **Any layer < 100%** (gaps.md written) → next is `unwind:uw-complete` to fill them.
+- **Every layer 100%** → analysis is done → next is `unwind:uw-plan`.
+
+**Use AskUserQuestion** to confirm:
+- **Continue** *(recommended)* — invoke `unwind:uw-complete` (gaps remain) or
+  `unwind:uw-plan` (100%).
+- **Pause here** — stop and resume later.
+
+Act in the same turn; if they pause, tell them how to resume: *"Run
+`unwind:uw-complete` (type `/uw-complete`) to fill gaps, or `unwind:uw-plan` if
+coverage is already 100%."*
+
+> **Pipeline:** scan → analyze → **verify ✓** → complete → plan → graph → dashboard.

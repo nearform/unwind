@@ -170,8 +170,17 @@ If a layer has many gaps (20+):
 - Don't buffer all changes
 - This prevents token exhaustion
 
-## After Completion
+## After Completion — continue or pause?
 
-When all layers are complete:
-- All gaps.md files should be deleted
-- Run `uw-plan` to generate final documentation
+When all gaps are filled (every `gaps.md` deleted), re-verify to prove the coverage
+loop converged before moving on.
+
+**Use AskUserQuestion** to ask whether to continue:
+- **Re-verify coverage** *(recommended)* — confirm 100%, then proceed to planning.
+- **Pause here** — stop and resume later.
+
+Act in the same turn:
+- **Continue** → invoke `unwind:uw-verify` (and, once 100%, `unwind:uw-plan`).
+- **Pause** → tell them how to resume: *"Run `unwind:uw-verify` (type `/uw-verify`) to re-check coverage."*
+
+> **Pipeline:** scan → analyze → verify → **complete ✓** → plan → graph → dashboard.

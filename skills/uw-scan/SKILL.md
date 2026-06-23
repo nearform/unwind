@@ -171,6 +171,11 @@ Then act on the choice in the same turn — don't just describe it:
   continue with `unwind:uw-analyze`.
 - **Continue** → invoke `unwind:uw-analyze`.
 - **Review** → open `docs/unwind/architecture.md`; afterwards re-offer the same choice.
+
+If they pause, tell them how to resume: *"Run `unwind:uw-analyze` (type `/uw-analyze`) when ready."*
+
+> **Pipeline:** **scan ✓** → analyze → plan → graph → dashboard. Each phase is its own
+> skill and ends by asking whether to continue or pause.
 ```
 
 **Important:** Always give the user the option to review before proceeding. The architecture document drives all subsequent analysis, so accuracy matters.

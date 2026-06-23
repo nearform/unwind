@@ -87,9 +87,14 @@ To produce a static build instead (no live source viewer):
 pnpm --filter @unwind/dashboard build
 ```
 
-### Step 3: Report
+### Step 3: Report — pipeline complete
 
 Tell the user the URL (`http://127.0.0.1:5174`) and summarize the views available.
+
+This is the **end of the pipeline** (scan → analyze → plan → graph → **dashboard ✓**).
+No "next phase" to gate — instead tell the user how to keep it current:
+- After any code or doc change, re-run `unwind:uw-graph` and reload the page.
+- For an incremental re-analysis of what changed, run `unwind:uw-refresh`.
 
 ## Views
 
