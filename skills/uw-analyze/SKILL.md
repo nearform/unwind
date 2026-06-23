@@ -213,8 +213,8 @@ Act on the choice in the same turn:
 - **Continue** → invoke `unwind:uw-plan`.
 - **Pause** → tell them how to resume: *"Run `unwind:uw-plan` (type `/uw-plan`) when ready."*
 
-> **Pipeline:** scan → **analyze ✓** → plan → graph → dashboard. Each phase is a
-> separate skill; the graph/dashboard are NOT produced by analysis or planning.
+> **Pipeline:** scan → **analyze ✓** → plan → dashboard. Each phase is a separate
+> skill; the dashboard builds its graph on demand (`uw-graph` is an optional export).
 
 ## Execution Example
 

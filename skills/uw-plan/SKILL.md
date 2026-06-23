@@ -289,16 +289,18 @@ Announce what was produced:
 >
 > The layer documentation contains the detailed specifications. The rebuild plan focuses on HOW to approach the rebuild, not WHAT to build.
 
-The interactive **rebuild graph** (the dashboard's data) is a **separate step** —
-planning does NOT produce `rebuild-graph.json`.
+Analysis is now complete. The natural next step is to **visualize** it — the
+dashboard builds its data (`rebuild-graph.json`) on demand, so you go straight there.
 
 **Use AskUserQuestion** to ask whether to continue:
-- **Build the rebuild graph** *(recommended)* — generate `docs/unwind/rebuild-graph.json`.
+- **Open the dashboard** *(recommended)* — invoke `unwind:uw-dashboard`; it
+  (re)generates `rebuild-graph.json` from the current scan + docs and launches.
+- **Export the graph artifact only** — invoke `unwind:uw-graph` to write
+  `rebuild-graph.json` without a server (for static deploy / CI / sharing).
 - **Pause here** — stop after the plan.
 
-Act on the choice in the same turn:
-- **Continue** → invoke `unwind:uw-graph`.
-- **Pause** → tell them how to resume: *"Run `unwind:uw-graph` (type `/uw-graph`) to build the graph."*
+Act on the choice in the same turn; if they pause, tell them how to resume: *"Run
+`unwind:uw-dashboard` (type `/uw-dashboard`) to explore the rebuild graph."*
 
-> **Pipeline:** scan → analyze → **plan ✓** → graph → dashboard. ⚠️ scan→analyze→plan
-> alone do NOT create `rebuild-graph.json` — that's the `uw-graph` phase.
+> **Pipeline:** scan → analyze → **plan ✓** → dashboard. `uw-graph` is an optional
+> artifact-export step, not a gate — the dashboard builds the graph itself.

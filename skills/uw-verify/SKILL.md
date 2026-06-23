@@ -100,4 +100,4 @@ Act in the same turn; if they pause, tell them how to resume: *"Run
 `unwind:uw-complete` (type `/uw-complete`) to fill gaps, or `unwind:uw-plan` if
 coverage is already 100%."*
 
-> **Pipeline:** scan → analyze → **verify ✓** → complete → plan → graph → dashboard.
+> **Pipeline:** scan → analyze → **verify ✓** → complete → plan → dashboard.

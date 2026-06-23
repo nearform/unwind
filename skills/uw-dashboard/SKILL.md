@@ -45,18 +45,22 @@ UNWIND_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${UNWIND_PLUGIN_ROOT:-}}"
 source "${UNWIND_PLUGIN_ROOT%/}/skills/scripts/_resolve-plugin-root.sh"
 ensure_unwind_core || { echo "core unavailable — cannot run dashboard"; exit 0; }
 
-# The dashboard needs docs/unwind/rebuild-graph.json. Build it on demand so the
-# dashboard can be opened any time after unwind:uw-scan:
+# The dashboard renders docs/unwind/rebuild-graph.json. This skill is the
+# visualization phase: it (re)builds the graph from the current scan + docs so the
+# view is never stale, then launches. You do NOT need to run unwind:uw-graph first —
+# that skill exists only to export the JSON artifact without a server (static deploy,
+# CI, sharing). Always regenerate here when a manifest exists:
 #   - straight after the scan (manifest only) → graph of the scanned structure
 #   - after analysis → graph also carries coverage + MUST/SHOULD/DON'T priorities
-if [ ! -f "$(pwd)/docs/unwind/rebuild-graph.json" ]; then
-  if [ -f "$(pwd)/docs/unwind/.cache/scan-manifest.json" ]; then
-    echo "No rebuild-graph.json yet — generating it from the scan…" >&2
-    node "$UNWIND_PLUGIN_ROOT/skills/scripts/build-graph.mjs" "$(pwd)"
-  else
-    echo "No scan found — run unwind:uw-scan first." >&2
-    exit 0
-  fi
+#   - re-run anytime after a doc/code change → refreshed coverage + priorities
+# build-graph preserves the human progress overlay (rebuild-progress.json), so a
+# rebuild never clobbers tracked rebuild status.
+if [ -f "$(pwd)/docs/unwind/.cache/scan-manifest.json" ]; then
+  echo "Generating rebuild-graph.json from the current scan + docs…" >&2
+  node "$UNWIND_PLUGIN_ROOT/skills/scripts/build-graph.mjs" "$(pwd)"
+elif [ ! -f "$(pwd)/docs/unwind/rebuild-graph.json" ]; then
+  echo "No scan found — run unwind:uw-scan first." >&2
+  exit 0
 fi
 ```
 
@@ -91,10 +95,12 @@ pnpm --filter @unwind/dashboard build
 
 Tell the user the URL (`http://127.0.0.1:5174`) and summarize the views available.
 
-This is the **end of the pipeline** (scan → analyze → plan → graph → **dashboard ✓**).
+This is the **end of the pipeline** (scan → analyze → plan → **dashboard ✓**).
 No "next phase" to gate — instead tell the user how to keep it current:
-- After any code or doc change, re-run `unwind:uw-graph` and reload the page.
+- After any code or doc change, just re-run `unwind:uw-dashboard` — it rebuilds the
+  graph from the current scan + docs before launching, so the view is never stale.
 - For an incremental re-analysis of what changed, run `unwind:uw-refresh`.
+- Only need the raw `rebuild-graph.json` (deploy / CI / sharing)? Run `unwind:uw-graph`.
 
 ## Views
 

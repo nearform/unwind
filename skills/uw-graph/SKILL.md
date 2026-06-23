@@ -14,10 +14,16 @@ allowed-tools:
 
 # Emitting the Rebuild Graph
 
-**Purpose:** Produce `docs/unwind/rebuild-graph.json` — the joined knowledge-graph
+**Purpose:** Export `docs/unwind/rebuild-graph.json` — the joined knowledge-graph
 artifact that the Unwind dashboard renders. It fuses the deterministic scan, the
 coverage diff, and the layer documentation into a single graph where every node
 carries a `rebuild` block.
+
+> **When do you actually need this skill?** Only to produce the JSON **without
+> launching a server** — a static deploy (e.g. the live demo), CI, sharing, or
+> diffing the artifact. For interactive viewing you don't need it: `unwind:uw-dashboard`
+> regenerates the graph itself before launching. This is an **optional export**, not a
+> required pipeline gate.
 
 **Output:** `docs/unwind/rebuild-graph.json`
 
@@ -82,21 +88,17 @@ The script:
 
 It prints a summary: node / edge / layer counts and a coverage breakdown.
 
-### Step 2: Report — continue or pause?
+### Step 2: Report
 
 Relay the printed summary (node / edge / layer counts, coverage breakdown) and point
-the user at `docs/unwind/rebuild-graph.json`.
+the user at `docs/unwind/rebuild-graph.json`. Since this is the artifact-export path,
+mention the likely reason they ran it (static deploy / CI / sharing).
 
-**Use AskUserQuestion** to ask whether to continue:
-- **Launch the dashboard** *(recommended)* — open the interactive rebuild graph.
-- **Pause here** — stop; the artifact is ready to view later.
+If they actually wanted to *view* the graph, point them at `unwind:uw-dashboard`
+(which would have built it for them) rather than treating this as a required step.
 
-Act on the choice in the same turn:
-- **Continue** → invoke `unwind:uw-dashboard`.
-- **Pause** → tell them how to resume: *"Run `unwind:uw-dashboard` (type `/uw-dashboard`) to open the dashboard."*
-
-> **Pipeline:** scan → analyze → plan → **graph ✓** → dashboard. (The graph is a
-> refreshable projection, not a dependency of earlier phases — re-run it anytime.)
+> **Pipeline:** scan → analyze → plan → dashboard. `uw-graph` is an **optional
+> export** off to the side — the dashboard builds the graph itself.
 
 ## The `rebuild` block
 

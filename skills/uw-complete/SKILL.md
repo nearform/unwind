@@ -183,4 +183,4 @@ Act in the same turn:
 - **Continue** → invoke `unwind:uw-verify` (and, once 100%, `unwind:uw-plan`).
 - **Pause** → tell them how to resume: *"Run `unwind:uw-verify` (type `/uw-verify`) to re-check coverage."*
 
-> **Pipeline:** scan → analyze → verify → **complete ✓** → plan → graph → dashboard.
+> **Pipeline:** scan → analyze → verify → **complete ✓** → plan → dashboard.
