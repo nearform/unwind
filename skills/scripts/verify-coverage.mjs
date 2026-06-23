@@ -28,10 +28,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
-import { loadCore, LAYER_DOC_DIR } from "./_core.mjs";
+import { loadCore } from "./_core.mjs";
 
 const core = await loadCore();
-const { candidatesByLayer, extractDocumentedItems, computeLayerCoverage } = core;
+const {
+  candidatesByLayer,
+  extractDocumentedItems,
+  computeLayerCoverage,
+  docDirsForLayer,
+} = core;
 
 const [, , projectRootArg, manifestArg] = process.argv;
 if (!projectRootArg) {
@@ -76,19 +81,35 @@ const layersRoot = join(projectRoot, "docs/unwind/layers");
 const summary = [];
 
 for (const [layer, candidates] of Object.entries(byLayer)) {
-  const docDir = join(layersRoot, LAYER_DOC_DIR[layer] ?? layer);
-  const documented = readMarkdown(docDir).flatMap((f) =>
-    extractDocumentedItems(f.content, f.path.replace(projectRoot + "/", "")),
-  );
+  // A layer may map to several doc folders (tests -> unit/integration/e2e). Read
+  // markdown across ALL of them and union the documented items so a single
+  // scanner layer documented across multiple specialist folders still resolves.
+  const dirNames = docDirsForLayer(layer);
+  const docDirs = dirNames.map((d) => join(layersRoot, d));
+  const existingDirs = docDirs.filter((d) => existsSync(d));
+  const documented = existingDirs
+    .flatMap((d) => readMarkdown(d))
+    .flatMap((f) => extractDocumentedItems(f.content, f.path.replace(projectRoot + "/", "")));
   const cov = computeLayerCoverage(layer, candidates, documented);
 
   writeFileSync(join(coverageDir, `${layer}.json`), JSON.stringify(cov, null, 2), "utf-8");
 
-  // Emit a gaps.md work list only when there are missing items and the layer
-  // is actually being documented (the docs folder exists). Skip undocumented
-  // layers so we don't litter gaps.md into every empty layer.
-  if (cov.missing.length > 0 && existsSync(docDir)) {
-    writeFileSync(join(docDir, "gaps.md"), renderGaps(cov), "utf-8");
+  // Defensive: a non-empty layer with NO doc folder on disk is a different
+  // failure mode than a genuinely undocumented one — it usually means the
+  // specialist wrote to a different folder than the verifier expects. Surface it
+  // explicitly so a folder-name mismatch can't masquerade as a silent 0%.
+  if (cov.total > 0 && existingDirs.length === 0) {
+    process.stderr.write(
+      `verify-coverage: WARNING ${layer}: no doc dir found (expected one of ` +
+        `${dirNames.map((d) => `layers/${d}/`).join(", ")}) — did the specialist write elsewhere?\n`,
+    );
+  }
+
+  // Emit a gaps.md work list (in the layer's primary existing folder) only when
+  // there are missing items and the layer is actually being documented. Skip
+  // undocumented layers so we don't litter gaps.md into every empty layer.
+  if (cov.missing.length > 0 && existingDirs.length > 0) {
+    writeFileSync(join(existingDirs[0], "gaps.md"), renderGaps(cov), "utf-8");
   }
 
   summary.push({ layer, ...cov });

@@ -18,7 +18,7 @@ import { join, resolve } from "node:path";
 import { loadCore } from "./_core.mjs";
 
 const core = await loadCore();
-const { candidatesByLayer, sourceLink } = core;
+const { candidatesByLayer, sourceLink, primaryDocDir, classifyTestKind } = core;
 
 const [, , projectRootArg, manifestArg] = process.argv;
 if (!projectRootArg) {
@@ -50,25 +50,51 @@ for (const link of manifest.dataModelLinks ?? []) contractOf.set(link.sqlId, lin
 const seedsDir = join(projectRoot, "docs/unwind/.cache/seeds");
 mkdirSync(seedsDir, { recursive: true });
 
+const toSeedItem = (c) => ({
+  id: c.id,
+  kind: c.kind,
+  name: c.name,
+  file: c.file,
+  startLine: c.startLine,
+  endLine: c.endLine,
+  link: sourceLink(linkFormat, c.file, c.startLine, c.endLine),
+  // db-ddl items are contracts attached to a code-side entity, not required docs.
+  ...(c.kind === "db-ddl"
+    ? { required: false, role: "contract", contractOf: contractOf.get(c.id) ?? null }
+    : {}),
+});
+
 const summary = [];
+// `name` is the seed filename, `docDir` the output folder. They match for tests
+// (one seed per test specialist folder); for other layers the file keeps the
+// layer name and `docDir` carries the (possibly renamed) folder, e.g.
+// domain -> domain-model.
+const writeSeed = (name, layer, docDir, candidates) => {
+  const items = candidates.map(toSeedItem);
+  writeFileSync(
+    join(seedsDir, `${name}.json`),
+    JSON.stringify({ layer, docDir, count: items.length, items }, null, 2),
+    "utf-8",
+  );
+  summary.push(`${name}=${items.length}`);
+};
+
 for (const [layer, candidates] of Object.entries(byLayer)) {
-  const seeds = candidates.map((c) => ({
-    id: c.id,
-    kind: c.kind,
-    name: c.name,
-    file: c.file,
-    startLine: c.startLine,
-    endLine: c.endLine,
-    link: sourceLink(linkFormat, c.file, c.startLine, c.endLine),
-    // db-ddl items are contracts attached to a code-side entity, not required docs.
-    ...(c.kind === "db-ddl"
-      ? { required: false, role: "contract", contractOf: contractOf.get(c.id) ?? null }
-      : {}),
-  }));
-  const outPath = join(seedsDir, `${layer}.json`);
-  writeFileSync(outPath, JSON.stringify({ layer, count: seeds.length, items: seeds }, null, 2), "utf-8");
-  summary.push(`${layer}=${seeds.length}`);
+  // The scanner emits a single `tests` layer; fan it out into one seed per test
+  // specialist so each gets only its own checklist (unit/integration/e2e). The
+  // seed filename IS the doc folder. Empty groups are skipped so we never
+  // dispatch a specialist with nothing to do. Coverage still verifies the
+  // unified `tests` layer by unioning all three folders.
+  if (layer === "tests") {
+    const groups = { "unit-tests": [], "integration-tests": [], "e2e-tests": [] };
+    for (const c of candidates) groups[classifyTestKind(c.file)].push(c);
+    for (const [docDir, group] of Object.entries(groups)) {
+      if (group.length > 0) writeSeed(docDir, "tests", docDir, group);
+    }
+    continue;
+  }
+  writeSeed(layer, layer, primaryDocDir(layer), candidates);
 }
 
-process.stderr.write(`seed-layers: wrote ${Object.keys(byLayer).length} seed files to ${seedsDir}\n`);
+process.stderr.write(`seed-layers: wrote ${summary.length} seed files to ${seedsDir}\n`);
 process.stderr.write(`seed-layers: ${summary.sort().join(" ")}\n`);

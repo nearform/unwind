@@ -11,6 +11,7 @@ uses-skills:
   - unwind:uw-analyze-unit-tests
   - unwind:uw-analyze-integration-tests
   - unwind:uw-analyze-e2e-tests
+  - unwind:uw-analyze-infrastructure
   - unwind:uw-verify
   - unwind:uw-complete
 allowed-tools:
@@ -90,10 +91,15 @@ ensure_unwind_core || echo "core unavailable — legacy unseeded dispatch"
 node "$UNWIND_PLUGIN_ROOT/skills/scripts/seed-layers.mjs" "$(pwd)"
 ```
 
-This writes `docs/unwind/.cache/seeds/{layer}.json` — each is
-`{layer, count, items:[{id, kind, name, file, startLine, endLine, link}]}`. These
-are the items every specialist **must** document. If the manifest is missing,
-skip this step and dispatch specialists the legacy way (no seed paste).
+This writes one seed file per specialist — `{layer, docDir, count, items:[{id,
+kind, name, file, startLine, endLine, link}]}`. The filename is the **doc folder**
+(`docDir`). Most layers map to one seed (`database.json`, `domain.json` →
+`docDir: domain-model`, …); the `tests` layer is **fanned out** into up to three
+seeds named by folder — `unit-tests.json`, `integration-tests.json`,
+`e2e-tests.json` — so each test specialist gets only its own checklist (empty
+groups are omitted). The `items` are what each specialist **must** document. If
+the manifest is missing, skip this step and dispatch specialists the legacy way
+(no seed paste).
 
 ### Step 1: Parse Architecture Document
 
@@ -112,12 +118,17 @@ Phase 3: service_layer (needs domain_model)
 Phase 4: api, messaging (parallel - need service_layer)
 Phase 5: frontend (optional - needs api)
 Phase 6: unit_tests, integration_tests, e2e_tests (parallel - no layer dependencies)
+Phase 7: infrastructure (parallel - no layer dependencies)
 ```
 
 ### Step 3: Dispatch Subagents
 
 For each layer, dispatch the specialist **with its seed file pasted in**
-(read `docs/unwind/.cache/seeds/{layer}.json` first):
+(read `docs/unwind/.cache/seeds/{layer}.json` first). The seed's `docDir` field
+is the **canonical output folder** — use it verbatim for `[docDir]` below. Do
+**not** derive the folder from the layer/seed-key name: they differ (`domain` →
+`domain-model`, `service` → `service-layer`), and a mismatch makes
+`verify-coverage` read an empty folder and report a false 0%.
 
 ```
 Task(subagent_type="general-purpose")
@@ -149,13 +160,14 @@ Task(subagent_type="general-purpose")
     (the seed items already include a ready-made `link` field.)
 
     IMPORTANT: Write incrementally to folder structure.
-    1. Create docs/unwind/layers/[layer]/ directory first
+    1. Create docs/unwind/layers/[docDir]/ directory first
+       ([docDir] = the seed file's `docDir` field, NOT the layer name)
     2. Write initial index.md with skeleton sections
     3. Analyze each section and write its .md file IMMEDIATELY after analyzing
     4. Update index.md after each section file is written
     5. Do NOT buffer all content for a single write at the end
 
-    Output folder: docs/unwind/layers/[layer]/
+    Output folder: docs/unwind/layers/[docDir]/
     - index.md (overview + links to sections)
     - section files per the skill spec
 
@@ -172,15 +184,28 @@ Task(subagent_type="general-purpose")
 
 ### Step 4: Testing Analysis
 
-After application layers complete, dispatch testing specialists in parallel:
+After application layers complete, dispatch testing specialists in parallel —
+**one per test seed file that exists** (the scanner's single `tests` layer was
+fanned out into per-folder seeds in Step 0; a project with only unit tests gets
+only `unit-tests.json`). Each specialist reads its **own** seed and writes to the
+matching folder:
 
 ```
-- uw-analyze-unit-tests → unit-tests/ folder
-- uw-analyze-integration-tests → integration-tests/ folder
-- uw-analyze-e2e-tests → e2e-tests/ folder
+- seeds/unit-tests.json        → uw-analyze-unit-tests        → unit-tests/
+- seeds/integration-tests.json → uw-analyze-integration-tests → integration-tests/
+- seeds/e2e-tests.json         → uw-analyze-e2e-tests         → e2e-tests/
 ```
 
-Testing analysis can reference application layer docs for coverage mapping.
+Dispatch each using the Step 3 template, pasting that test specialist's seed (its
+`items` are the checklist; `docDir` is the output folder). Skip a specialist whose
+seed file is absent. Testing analysis can reference application layer docs for
+coverage mapping.
+
+Also dispatch `uw-analyze-infrastructure` (→ `infrastructure/` folder) in this
+phase — it has no layer dependencies. It documents build/dependency config,
+runtime configuration, program entrypoints/bootstrap, and deploy/ops assets
+(the files the scanner classifies as `infrastructure`). Without it the seeded
+`infrastructure` layer is a permanent, uncloseable 0% gap.
 
 ### Step 5: Gap Detection (Deterministic)
 
@@ -269,9 +294,10 @@ Execution:
 4. Phase 4: `uw-analyze-api` (messaging skipped) (seeded)
 5. Phase 5: `uw-analyze-frontend` (seeded)
 6. Phase 6: `uw-analyze-unit-tests`, `uw-analyze-integration-tests`, `uw-analyze-e2e-tests` (parallel, seeded)
-7. **Gap Detection (deterministic)** - `verify-coverage.mjs` → coverage + gaps.md per layer
-8. **Gap Completion** - `uw-complete` for layers with gaps.md (parallel)
-9. **Verify → complete loop** until 100% coverage, then handoff to synthesis
+7. Phase 7: `uw-analyze-infrastructure` (parallel, seeded)
+8. **Gap Detection (deterministic)** - `verify-coverage.mjs` → coverage + gaps.md per layer
+9. **Gap Completion** - `uw-complete` for layers with gaps.md (parallel)
+10. **Verify → complete loop** until 100% coverage, then handoff to synthesis
 
 ## Refresh Mode
 

@@ -141,9 +141,24 @@ export function computeLayerCoverage(
     if (match) {
       covered++;
       matchedDocs.add(match);
-    } else {
-      missing.push({ id: c.id, kind: c.kind, name: c.name, file: c.file, startLine: c.startLine, endLine: c.endLine });
+      continue;
     }
+    // File-level fallback: a `file:` candidate represents the whole file as a
+    // documentation target — a safety net so empty-symbol files still register
+    // coverage. When the file's individual symbols ARE documented, demanding a
+    // SEPARATE file-level heading double-counts (a single-class file would show a
+    // phantom `file:` gap). Treat it as covered when any documented item belongs
+    // to the same file. Don't consume a doc (no matchedDocs.add) — that symbol doc
+    // still legitimately matches its own symbol candidate.
+    if (
+      c.kind === "file" &&
+      documented.some((d) => d.id && d.id.includes(`:${c.file}:`))
+    ) {
+      covered++;
+      matchedByFuzzy++;
+      continue;
+    }
+    missing.push({ id: c.id, kind: c.kind, name: c.name, file: c.file, startLine: c.startLine, endLine: c.endLine });
   }
 
   const extra = documented.filter((d) => !matchedDocs.has(d)).map((d) => `${d.heading} (${d.sourceFile})`);

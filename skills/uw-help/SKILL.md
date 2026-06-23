@@ -61,7 +61,8 @@ uw-analyze
         ├── uw-analyze-frontend     → frontend/        (if present)
         ├── uw-analyze-unit-tests         → unit-tests/
         ├── uw-analyze-integration-tests  → integration-tests/
-        └── uw-analyze-e2e-tests          → e2e-tests/
+        ├── uw-analyze-e2e-tests          → e2e-tests/
+        └── uw-analyze-infrastructure     → infrastructure/  (seeded)
         │
 verify-coverage.mjs → DETERMINISTIC diff (manifest − docs)
         │            → .cache/coverage/{layer}.json + gaps.md (missing items)
@@ -98,6 +99,7 @@ uw-plan       → REBUILD-PLAN.md (strategic rebuild approach)
 | `uw-analyze-api` | `api.md` |
 | `uw-analyze-messaging` | `messaging.md` |
 | `uw-analyze-frontend` | `frontend.md` |
+| `uw-analyze-infrastructure` | `infrastructure/` |
 
 ### Testing Specialists
 

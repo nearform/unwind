@@ -148,6 +148,74 @@ export function classifyRebuildLayer(
   return "unassigned";
 }
 
+/**
+ * Single source of truth for layer -> documentation folder(s) under
+ * `docs/unwind/layers/`. A layer maps to a LIST because `tests` fans out to
+ * three specialist folders (unit/integration/e2e). Both the analysis dispatch
+ * (which folder a specialist writes to) and `verify-coverage` (which folders it
+ * reads back) resolve through this map so the two can never drift — the root
+ * cause of the "false 0% coverage" folder-name mismatch.
+ */
+export const LAYER_DOC_DIRS: Record<RebuildLayer, readonly string[]> = {
+  database: ["database"],
+  domain: ["domain-model"],
+  service: ["service-layer"],
+  api: ["api"],
+  messaging: ["messaging"],
+  frontend: ["frontend"],
+  tests: ["unit-tests", "integration-tests", "e2e-tests"],
+  infrastructure: ["infrastructure"],
+  unassigned: ["unassigned"],
+};
+
+/** All documentation folder(s) for a layer (falls back to the layer name). */
+export function docDirsForLayer(layer: string): readonly string[] {
+  return LAYER_DOC_DIRS[layer as RebuildLayer] ?? [layer];
+}
+
+/**
+ * The canonical (primary) documentation folder for a layer — what a single
+ * specialist writes to and where `verify-coverage` drops a `gaps.md`. For
+ * `tests` this is `unit-tests`; the other test folders are still read back.
+ */
+export function primaryDocDir(layer: string): string {
+  return docDirsForLayer(layer)[0] ?? layer;
+}
+
+/** The three test specialist doc folders a `tests`-layer file can belong to. */
+export type TestDocDir = "unit-tests" | "integration-tests" | "e2e-tests";
+
+const E2E_TEST_RE =
+  /(^|[/._-])(e2e|cypress|playwright|webdriver|selenium|puppeteer)([/._-]|$)/i;
+// Integration markers: a directory segment (`it/`, `integration/`), the Java
+// failsafe suffix (`*IT.java`, `*IntegrationTest.java` — case-sensitive so
+// `audit.ts` isn't caught), or an `integration`/`contract` token in the name.
+const INTEGRATION_DIR_RE = /(^|\/)(it|integration|integration[-_]tests?)(\/|$)/i;
+const INTEGRATION_FILE_RE = /(IT|IntegrationTest)\.[a-z0-9]+$/;
+const INTEGRATION_TOKEN_RE = /(^|[/._-])(integration|contract)([/._-]|$)/i;
+
+/**
+ * Sub-classify a test file into its specialist doc folder. The scanner assigns a
+ * single `tests` layer; this splits that layer's candidates across the three
+ * test specialists so each is seeded with only its own checklist. Coverage still
+ * verifies the unified `tests` layer (the union of the three folders), so a
+ * misclassification here only shifts which specialist documents an item — it can
+ * never drop one. Defaults to `unit-tests`.
+ */
+export function classifyTestKind(filePath: string): TestDocDir {
+  const posix = filePath.split(sep).join("/");
+  const base = basename(posix);
+  if (E2E_TEST_RE.test(posix)) return "e2e-tests";
+  if (
+    INTEGRATION_DIR_RE.test(posix) ||
+    INTEGRATION_FILE_RE.test(base) ||
+    INTEGRATION_TOKEN_RE.test(base)
+  ) {
+    return "integration-tests";
+  }
+  return "unit-tests";
+}
+
 /** Dependency order used to drive specialist dispatch downstream. */
 export const REBUILD_LAYER_ORDER: readonly RebuildLayer[] = [
   "database",

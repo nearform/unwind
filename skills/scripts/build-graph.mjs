@@ -30,10 +30,15 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { loadCore, LAYER_DOC_DIR } from "./_core.mjs";
+import { loadCore } from "./_core.mjs";
 
 const core = await loadCore();
-const { buildRebuildGraph, validateRebuildGraph, extractDocumentedItems } = core;
+const {
+  buildRebuildGraph,
+  validateRebuildGraph,
+  extractDocumentedItems,
+  LAYER_DOC_DIRS,
+} = core;
 
 const [, , projectRootArg, manifestArg, outputArg] = process.argv;
 if (!projectRootArg) {
@@ -102,7 +107,7 @@ function readMarkdown(dir) {
 const layersRoot = join(projectRoot, "docs/unwind/layers");
 const documented = [];
 // Iterate every known layer doc dir plus any extra dirs present on disk.
-const docDirs = new Set(Object.values(LAYER_DOC_DIR));
+const docDirs = new Set(Object.values(LAYER_DOC_DIRS).flat());
 if (existsSync(layersRoot)) {
   for (const ent of readdirSync(layersRoot, { withFileTypes: true })) {
     if (ent.isDirectory()) docDirs.add(ent.name);

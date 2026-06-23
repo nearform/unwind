@@ -31,16 +31,3 @@ export async function loadCore() {
     }
   }
 }
-
-/** Map a rebuild layer to its docs/unwind/layers/<dir> documentation folder. */
-export const LAYER_DOC_DIR = {
-  database: "database",
-  domain: "domain-model",
-  service: "service-layer",
-  api: "api",
-  messaging: "messaging",
-  frontend: "frontend",
-  tests: "tests",
-  infrastructure: "infrastructure",
-  unassigned: "unassigned",
-};

@@ -15,9 +15,14 @@ export { getRepositoryInfo, getCommitHash } from "./scan/repo-info.js";
 export { buildImportMap } from "./imports/import-map.js";
 export {
   classifyRebuildLayer,
+  classifyTestKind,
   REBUILD_LAYER_ORDER,
+  LAYER_DOC_DIRS,
+  docDirsForLayer,
+  primaryDocDir,
   type RebuildLayer,
   type LayerEvidence,
+  type TestDocDir,
 } from "./layers/rebuild-layer-map.js";
 export {
   buildManifest,
