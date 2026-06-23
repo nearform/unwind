@@ -66,13 +66,15 @@ Invoke the first phase now — **`unwind:uw-scan`** — and then follow the pipe
 |-------|-------|----------|
 | 1. Scan | `unwind:uw-scan` | `architecture.md` + `.cache/scan-manifest.json` |
 | 2. Analyze | `unwind:uw-analyze` | `layers/**` (seeded, verified to 100%) |
-| 3. Plan | `unwind:uw-plan` | `REBUILD-PLAN.md` |
+| 3. Plan | `unwind:uw-plan` | `REBUILD-PLAN.md` (interviews you about target stack, re-use & phasing) |
 | 4. Dashboard | `unwind:uw-dashboard` | builds `rebuild-graph.json` + launches the viewer |
 
 - **Step-through mode:** invoke `unwind:uw-scan`, then act on each phase's
   continue/pause prompt as the user answers it.
 - **Run-to-dashboard mode:** invoke each phase in turn, auto-continuing at the gates,
-  until the dashboard launches — pausing only for the restart confirmation or errors.
+  until the dashboard launches — pausing only for the restart confirmation, the
+  **plan interview** (target stack and re-use are user decisions; `uw-plan` lets you
+  one-shot them via "accept all recommended defaults"), or errors.
 
 `unwind:uw-graph` is an **optional export** (raw `rebuild-graph.json` without a
 server, for static deploy / CI / sharing) — not a required phase; the dashboard

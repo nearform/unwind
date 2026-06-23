@@ -1,252 +1,266 @@
 ---
 name: uw-plan
-description: Use after layer analysis is complete to validate architecture documentation and generate a strategic rebuild plan focused on re-use decisions
+description: Use after layer analysis is complete to interview the user about the rebuild strategy (target stack, what to keep vs rebuild, phasing, risk) and generate a data-grounded REBUILD-PLAN.md that records those decisions.
 allowed-tools:
   - Read
   - Grep
   - Glob
   - Bash(mkdir:*, ls:*)
+  - Bash(node:*)
+  - Bash(pnpm:*)
+  - Bash(source:*)
+  - Read(docs/unwind/.cache/**)
   - Write(docs/unwind/**)
   - Edit(docs/unwind/**)
+  - AskUserQuestion
 ---
 
 # Synthesizing Findings → Rebuild Strategy
 
 ## Overview
 
-Transform layer analysis into a **strategic rebuild plan** that answers HOW to rebuild, not WHAT to rebuild.
+Transform layer analysis into a **strategic rebuild plan** that answers HOW to
+rebuild, not WHAT to rebuild. The plan is **co-authored with the user**, not guessed:
+the strategic decisions that shape a rebuild — target stack, what to keep vs rebuild,
+migration approach, phasing, risk tolerance — are ones only the user can make.
 
-**Key Principle:** Layer docs are the source of truth for what exists. The rebuild plan focuses on strategic decisions about re-use, phasing, and approach.
+This skill **grills the user** the way the `grilling` skill does: walk the decision
+tree one branch at a time, resolving dependencies in order, and **for every question
+provide a recommended answer derived from the deterministic data**. If a question can
+be answered from the scan/coverage data, **answer it from the data — don't ask**.
+
+**Key Principle:** Layer docs are the source of truth for what exists. This plan
+records the strategic *decisions* about re-use, phasing, and approach — grounded in the
+deterministic brief — and references the layer docs for the detail.
 
 **Requires:** `docs/unwind/layers/*/index.md` from layer specialists + verification reports
 **Produces:**
-- `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach with re-use decisions
+- `docs/unwind/REBUILD-PLAN.md` — strategic rebuild approach, target stack, and a decisions log
+- `docs/unwind/.cache/rebuild-decisions.json` — machine-readable record of the interview answers
 - Updated `docs/unwind/architecture.md` if corrections needed after detailed analysis
-
-**Does NOT produce:**
-- ~~CODEBASE.md~~ - Removed; architecture.md serves this purpose
 
 ## Prerequisites
 
 Before using this skill:
 1. All detected layers have been analyzed
-2. Verification pass has completed
+2. Verification pass has completed (coverage reports exist under `.cache/coverage/`)
 3. Layer folders exist in `docs/unwind/layers/` with index.md + section files
-
-## The Process
-
-### Step 1: Inventory Layer Documentation
-
-Read all docs from `docs/unwind/layers/`:
-- For each layer folder, read `index.md` and key section files
-- Note item counts, readiness scores, and gaps identified
-- Do NOT extract or copy content - just understand what exists
-
-### Step 2: Validate architecture.md
-
-Compare initial architecture discovery against detailed layer findings:
-- Are layer boundaries still accurate?
-- Were any layers discovered/removed during analysis?
-- Are cross-cutting concerns correctly identified?
-- Update architecture.md if corrections are needed
-
-### Step 3: Assess Strategic Re-use Options
-
-For each key area, determine what can be retained vs rebuilt:
-
-**Database:**
-- Can the rebuilt system connect to the live database?
-- Is running alongside the original system feasible?
-- Would a sync mechanism (change events, dual writes) be needed?
-
-**Tests:**
-- Are tests sufficiently decoupled from implementation details?
-- Can existing tests validate the rebuilt system?
-- What adapters would be needed for tech stack changes?
-
-**Frontend:**
-- Is the UI acceptable for initial phases?
-- Can we replace only the backend initially?
-- What API contract must be preserved exactly?
-
-**Integrations:**
-- Which external integrations are critical?
-- What webhook contracts must be maintained?
-- What scheduled jobs must continue?
-
-### Step 4: Determine Phasing Strategy
-
-Based on re-use assessment, define phases:
-- What can be retained as-is?
-- What needs adapters/wrappers?
-- What must be rebuilt from scratch?
-- What's the dependency order?
-
-### Step 5: Define Validation Approach
-
-Determine how to verify the rebuilt system matches the original:
-- What test vectors exist?
-- How can parallel running work?
-- What metrics prove equivalence?
-
-### Step 6: Generate REBUILD-PLAN.md
-
-Write strategic rebuild plan to `docs/unwind/REBUILD-PLAN.md`.
-
-**CRITICAL:** Never copy content from layer docs. Only reference them.
 
 ---
 
-## Output Format: REBUILD-PLAN.md
+## Phase A — Brief (deterministic intake)
+
+Build the **rebuild brief**: the verifiable facts that ground every interview
+question. Run the deterministic script:
+
+```bash
+# Locate the installed Unwind plugin, then load the core helper.
+# $0/BASH_SOURCE are unreliable under `bash -c`, so glob the install cache.
+UNWIND_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${UNWIND_PLUGIN_ROOT:-}}"
+[ -f "$UNWIND_PLUGIN_ROOT/skills/scripts/_resolve-plugin-root.sh" ] || \
+  UNWIND_PLUGIN_ROOT="$(ls -dt "$HOME"/.claude/plugins/cache/*/unwind/*/ 2>/dev/null | head -1)"
+source "${UNWIND_PLUGIN_ROOT%/}/skills/scripts/_resolve-plugin-root.sh"
+ensure_unwind_core || echo "core unavailable — using legacy artifact reading"
+node "$UNWIND_PLUGIN_ROOT/skills/scripts/plan-brief.mjs" "$(pwd)"
+```
+
+This writes `docs/unwind/.cache/plan-brief.json`. **Read it.** It contains:
+- `project` — name, languages, `estimatedComplexity`, file counts.
+- `perLayer[]` — per layer: file/candidate/symbol counts, coverage %, and
+  `[MUST]/[SHOULD]/[DON'T]` tallies. Use these to weight effort and confidence.
+- `contracts` — `dataModels`, `sqlDdl`, `dataModelLinks` (ORM↔SQL pairs to reconcile),
+  `endpoints` (+ by method). The API/data surface that must be preserved.
+- `importGraph` — `foundations` (depended-upon leaves: build first) and `hubs` (most
+  depended-upon files). Seeds the phasing order.
+- `readiness` — overall coverage % and `provisionalLayers` (< 100%). Where the plan
+  must flag itself provisional.
+
+Also skim `docs/unwind/architecture.md` for layer boundaries and cross-cutting concerns.
+
+**Graceful fallback** (per the repo's degrade-gracefully rule):
+- If the script exits non-zero (core/manifest unavailable), **read the artifacts
+  directly**: `docs/unwind/.cache/scan-manifest.json`, `.cache/coverage/*.json`, and
+  `grep` the `[MUST]/[SHOULD]/[DON'T]` tags across `docs/unwind/layers/**`. Say so.
+- If even those are absent, fall back to the **legacy flow**: read the layer `index.md`
+  files for counts and readiness. Say that the brief is approximate.
+
+Then validate `architecture.md` against the detailed findings (layer boundaries
+accurate? layers added/removed? cross-cutting concerns right?) and update it if needed.
+
+**Present a short factual summary** of the brief to the user (a few lines: stack,
+complexity, contract surface, readiness, the largest layers) before the interview, so
+they answer with the facts in view.
+
+---
+
+## Phase B — Grill (the interview)
+
+Walk the decision tree in **dependency order**, asking **one decision (or one
+tightly-coupled cluster) per `AskUserQuestion` call**. Asking everything at once is
+bewildering and breaks the dependency chain. For each question:
+
+- **List the recommended option first** with `(Recommended)` in the label, derived
+  from the brief. Give the data behind it in the option description.
+- **Feed each answer into the framing of the next** question — later branches depend on
+  earlier ones (e.g. target stack determines what counts as `[DON'T]` tech-specific).
+- **Skip any question the brief already answers.** (Grilling's escape hatch: if the
+  data answers it, don't ask — state the answer and move on.)
+- Offer **"Accept all recommended defaults"** as an option in the *first* question so a
+  user in a hurry (or `uw-start` run-to-dashboard mode) can one-shot the interview. The
+  decisions are still recorded with their recommended values.
+
+### Decision tree (each node: a question + a data-grounded default)
+
+1. **Target stack** — language / framework / runtime / datastore for the rebuild, and
+   which parts change vs stay. *This anchors everything downstream.* Default: propose
+   from the source stack (`project.languages`) + complexity. Nothing upstream captures
+   this, so it must be established here.
+2. **Database strategy** — keep live / snapshot+restore / sync (change events, dual
+   write). Default informed by `contracts.dataModels` / `dataModelLinks` and table count
+   (more ORM↔SQL links ⇒ schema is well-pinned ⇒ reuse is safer).
+3. **Frontend retention** — keep the existing UI and replace only the backend, vs
+   rebuild. Default informed by whether a `frontend` layer exists and the API-contract
+   rigidity (`contracts.endpoints`).
+4. **Test re-use** — run existing tests against the rebuild, vs rewrite. Default
+   informed by the `tests` layer coverage and coupling.
+5. **Integrations / scheduled jobs** to preserve — from the contract inventory and
+   messaging layer.
+6. **Phasing priority & order** — seeded by `importGraph.foundations` (build leaves
+   first) and `[MUST]` weighting per layer. Confirm the order and the first slice.
+7. **Validation approach & risk tolerance** — parallel-run, equivalence vectors, go-live
+   gating.
+
+The user can wrap up at any point ("accept the rest as recommended", "stop here") —
+honor it and record the remaining decisions at their recommended values.
+
+### Record every decision
+
+As decisions land, accumulate a list of records (one per question). After the
+interview, write the machine-readable record to
+`docs/unwind/.cache/rebuild-decisions.json`:
+
+```json
+{
+  "version": "1.0.0",
+  "generatedAt": "<ISO timestamp>",
+  "decisions": [
+    {
+      "id": "RD-1",
+      "topic": "Target stack",
+      "question": "What stack should the rebuild target?",
+      "recommended": "<data-grounded default you proposed>",
+      "chosen": "<what the user picked>",
+      "rationale": "<the brief data that informed it + why the user chose>"
+    }
+  ]
+}
+```
+
+---
+
+## Phase C — Synthesize (write the plan)
+
+Write `docs/unwind/REBUILD-PLAN.md`, grounded in the brief **and** the confirmed
+decisions. Each strategic section records the **decision the user made**, its rationale,
+and the brief data that informed it — never an LLM guess.
+
+**CRITICAL:** Never copy content from layer docs. Only reference them (anti-patterns below).
+
+### Output Format: REBUILD-PLAN.md
 
 ```markdown
 # [Project Name] - Rebuild Strategy
 
 > Generated by Unwind on [timestamp]
 
+## Target Stack
+
+**From:** [source stack — languages/framework/runtime/datastore]
+**To:** [target stack chosen in RD-1]
+**Changing:** [parts being re-platformed]   **Staying:** [parts retained]
+
 ## Executive Summary
 
-**Original Stack:** [brief tech summary]
-**Overall Readiness:** [X/10]
-**Recommended Approach:** [e.g., "Rebuild backend, retain frontend and database"]
+**Overall Readiness:** [overall coverage % from the brief] — provisional in: [layers < 100%]
+**Recommended Approach:** [one line, e.g. "Rebuild backend on the target stack, retain frontend + live DB"]
 
 ---
 
 ## Strategic Decisions
 
+> Each decision below was made during the rebuild interview and is recorded in
+> `## Rebuild Decisions`. Assessments cite the deterministic brief.
+
 ### Database Strategy
-
-**Question:** Can we connect to the live database during rebuild?
-
-**Assessment:**
-- [Findings from database layer analysis]
-- [Multi-tenancy implications]
-- [Schema compatibility considerations]
-
-**Recommendation:** [Specific recommendation with rationale]
-
-**Options if live DB not feasible:**
-- [ ] Snapshot and restore to dev environment
-- [ ] Build sync mechanism (change events)
-- [ ] Dual-write during transition
-
-### Test Re-usability
-
-**Question:** Can we run existing tests against the rebuilt system?
-
-**Assessment:**
-- [Test coupling analysis from test layer docs]
-- [Framework dependencies]
-- [Tech-specific vs behavior-focused tests]
-
-**Recommendation:** [Specific recommendation]
-
-**Adapters needed:**
-- [ ] [List any tech-specific adaptations]
+**Decision:** [chosen]  **Why:** [rationale + brief data — dataModels/links/table count]
+**If live DB not feasible:** [ ] snapshot+restore  [ ] sync mechanism  [ ] dual-write
 
 ### Frontend Retention
+**Decision:** [chosen]  **Why:** [rationale + brief data]
+**API contract:** preserve exactly [critical endpoints — count from brief]; can evolve [areas]
 
-**Question:** Can we retain the frontend and replace only the backend?
-
-**Assessment:**
-- [Frontend coupling analysis]
-- [API contract rigidity]
-- [State management implications]
-
-**Recommendation:** [Specific recommendation]
-
-**API Contract:**
-- Preserve exactly: [list critical endpoints/contracts]
-- Can evolve: [list flexible areas]
+### Test Re-usability
+**Decision:** [chosen]  **Why:** [test-layer coverage + coupling]
+**Adapters needed:** [ ] [list]
 
 ### Integration Preservation
-
-**External Services:**
 | Integration | Contract Type | Must Preserve |
 |-------------|---------------|---------------|
-| [Name] | [webhook/API/etc] | [Yes/No + reason] |
-
-**Scheduled Jobs:**
-| Job | Frequency | Rebuild Approach |
-|-----|-----------|------------------|
-| [Name] | [cron] | [retain/adapt/rebuild] |
+| [Name] | [webhook/API/job] | [Yes/No + reason] |
 
 ---
 
 ## Phasing Strategy
 
-### Phase 1: [Foundation]
+> Order seeded by the import graph (foundations first) and [MUST] weighting.
 
-**Retain:**
-- [Components that can be kept as-is]
+### Phase 1: Foundations
+**Build first:** [foundations from the brief — depended-upon leaves]
+**Retain / Adapt / Rebuild:** [...]   **Reference:** [layers/xxx/index.md]
+**Validation:** [ ] [check]
 
-**Adapt:**
-- [Components needing wrappers/bridges]
+### Phase 2: Core Logic
+[Same structure — highest-[MUST] layers]
 
-**Rebuild:**
-- [Components requiring full rebuild]
+### Phase 3: Interfaces (API)
+[Same structure — preserve the [count] endpoints]
 
-**Reference:** [layers/xxx/index.md]
-
-**Validation:**
-- [ ] [Specific check]
-- [ ] [Specific check]
-
-### Phase 2: [Core Logic]
-
+### Phase 4: Frontend (if rebuilding)
 [Same structure]
 
-### Phase 3: [Interfaces]
-
-[Same structure]
-
-### Phase 4: [Frontend] (if rebuilding)
-
-[Same structure]
-
-### Phase 5: [Integration]
-
-**Parallel Running Strategy:**
-- [How to run old and new side-by-side]
-- [Traffic splitting approach]
-- [Rollback triggers]
+### Phase 5: Integration & Cutover
+**Parallel running:** [old vs new] · **Traffic split** · **Rollback triggers**
 
 ---
 
 ## Validation Strategy
 
-### Equivalence Testing
+**Equivalence testing:** [how to prove the rebuild matches — cite test-layer coverage]
+**Test vectors:** [ ] existing integration tests pass  [ ] calc outputs match  [ ] API responses identical
+**Go-live checklist:** [ ] phase validations  [ ] parallel-run [duration]  [ ] rollback tested  [ ] monitoring
 
-**Approach:** [How to prove rebuilt system matches original]
+---
 
-**Test Vectors:**
-- [ ] Existing integration tests pass
-- [ ] Calculation outputs match (specific test cases)
-- [ ] API responses identical for sample requests
+## Rebuild Decisions
 
-### Go-Live Checklist
+> The interview answers (also in `.cache/rebuild-decisions.json`).
 
-- [ ] All phase validations complete
-- [ ] Parallel running successful for [duration]
-- [ ] Rollback tested
-- [ ] Monitoring in place
+| ID | Topic | Recommended | Chosen | Rationale |
+|----|-------|-------------|--------|-----------|
+| RD-1 | Target stack | [rec] | [chosen] | [why] |
+| RD-2 | Database | [rec] | [chosen] | [why] |
+| ... | | | | |
 
 ---
 
 ## Layer Documentation References
 
-> **Note:** These documents contain the detailed specifications. This plan focuses on strategic decisions only.
+> These documents contain the detailed specifications. This plan records strategic decisions only.
 
-| Layer | Reference | Readiness |
-|-------|-----------|-----------|
-| Database | [layers/database/index.md](layers/database/index.md) | X/10 |
-| Domain Model | [layers/domain-model/index.md](layers/domain-model/index.md) | X/10 |
-| Service Layer | [layers/service-layer/index.md](layers/service-layer/index.md) | X/10 |
-| API | [layers/api/index.md](layers/api/index.md) | X/10 |
-| Messaging | [layers/messaging/index.md](layers/messaging/index.md) | X/10 |
-| Frontend | [layers/frontend/index.md](layers/frontend/index.md) | X/10 |
-| Unit Tests | [layers/unit-tests/index.md](layers/unit-tests/index.md) | X/10 |
-| Integration Tests | [layers/integration-tests/index.md](layers/integration-tests/index.md) | X/10 |
+| Layer | Reference | Coverage |
+|-------|-----------|----------|
+| Database | [layers/database/index.md](layers/database/index.md) | [%] |
+| ... | | |
 ```
 
 ---
@@ -254,40 +268,38 @@ Write strategic rebuild plan to `docs/unwind/REBUILD-PLAN.md`.
 ## Anti-Patterns
 
 **NEVER do these:**
-
-1. **Copy tables from layer docs** - The reader can follow the reference link
-2. **Duplicate code examples** - Layer docs are the source of truth
-3. **List every endpoint/table/entity** - That's what layer docs are for
-4. **Include implementation details** - Focus on strategic decisions
-5. **Repeat WHAT to build** - Only discuss HOW to approach it
+1. **Copy tables/code from layer docs** — reference the link instead
+2. **List every endpoint/table/entity** — that's what layer docs are for
+3. **Invent the strategic decisions** — they come from the interview, recorded with rationale
+4. **Repeat WHAT to build** — only discuss HOW to approach it
 
 **ALWAYS do these:**
-
-1. **Reference layer docs with links** - Point to the detail, don't copy it
-2. **Answer strategic questions** - Database re-use? Test re-use? Frontend retention?
-3. **Focus on phasing decisions** - What order? What can be retained?
-4. **Define validation approach** - How to prove equivalence?
-5. **Make recommendations** - Give specific advice, not just options
+1. **Ground every recommendation in the brief** — cite counts, coverage, the import graph
+2. **Record the user's decisions** — both in the plan and `rebuild-decisions.json`
+3. **Order phasing by the dependency graph** — foundations first, [MUST] weighting
+4. **Flag provisional layers** — where coverage < 100%, say the plan is approximate there
 
 ---
 
 ## Refresh Mode
 
-If rebuild plan exists:
-1. Read existing plan
-2. Compare to new analysis
-3. Add `## Changes Since Last Plan` section
-4. Update recommendations if layer findings changed
+If a rebuild plan exists:
+1. Read existing plan + `rebuild-decisions.json`
+2. Re-run `plan-brief.mjs`; compare to the recorded decisions
+3. **Re-confirm only the decisions the new brief invalidates** (don't re-grill from scratch)
+4. Add a `## Changes Since Last Plan` section; update `rebuild-decisions.json`
 5. Validate architecture.md still accurate
 
 ## After Completion — continue or pause?
 
 Announce what was produced:
 > Rebuild strategy complete. See:
-> - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach with re-use decisions
-> - `docs/unwind/architecture.md` - Validated architecture overview
+> - `docs/unwind/REBUILD-PLAN.md` — strategy, target stack, and decisions log
+> - `docs/unwind/.cache/rebuild-decisions.json` — machine-readable decisions
+> - `docs/unwind/architecture.md` — validated architecture overview
 >
-> The layer documentation contains the detailed specifications. The rebuild plan focuses on HOW to approach the rebuild, not WHAT to build.
+> The layer documentation contains the detailed specifications. The rebuild plan
+> records HOW to approach the rebuild, not WHAT to build.
 
 Analysis is now complete. The natural next step is to **visualize** it — the
 dashboard builds its data (`rebuild-graph.json`) on demand, so you go straight there.

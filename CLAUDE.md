@@ -50,12 +50,16 @@ use** (`ensure_unwind_core`). `pnpm-lock.yaml` IS committed. We standardize on p
 candidate checklists → LLM layer specialists write tagged docs with anchor-id
 headings → `verify-coverage.mjs` does the deterministic `manifest − docs` diff →
 `gaps.md` → `uw-complete` fills them (loop to 100%) →
-`uw-plan` → REBUILD-PLAN.md → `build-graph.mjs` → **rebuild-graph.json**
-→ `uw-dashboard`. `detect-changes.mjs` (fingerprints) drives incremental refresh.
+`plan-brief.mjs` → **plan-brief.json** (the deterministic facts) → `uw-plan`
+**interviews the user** (grilling-style: target stack, re-use, phasing, risk) →
+REBUILD-PLAN.md (+ `rebuild-decisions.json`) → `build-graph.mjs` →
+**rebuild-graph.json** → `uw-dashboard`. `detect-changes.mjs` (fingerprints) drives
+incremental refresh.
 
 Artifacts live under the **target** repo's `docs/unwind/`:
 `architecture.md`, `layers/**`, `REBUILD-PLAN.md`, `rebuild-graph.json`, and
-`.cache/` (`scan-manifest.json`, `meta.json`, `changes.json`, `seeds/`, `coverage/`).
+`.cache/` (`scan-manifest.json`, `meta.json`, `changes.json`, `seeds/`, `coverage/`,
+`plan-brief.json`, `rebuild-decisions.json`).
 
 ## Commands
 
@@ -68,6 +72,7 @@ UNWIND_GRAPH_DIR=<project> pnpm --filter @unwind/dashboard dev   # dashboard on 
 node skills/scripts/scan.mjs <projectRoot>            # → docs/unwind/.cache/scan-manifest.json (+ meta.json)
 node skills/scripts/seed-layers.mjs <projectRoot>
 node skills/scripts/verify-coverage.mjs <projectRoot>
+node skills/scripts/plan-brief.mjs <projectRoot>     # → docs/unwind/.cache/plan-brief.json (grounds uw-plan interview)
 node skills/scripts/build-graph.mjs <projectRoot>    # → docs/unwind/rebuild-graph.json
 node skills/scripts/detect-changes.mjs <projectRoot> # incremental: diff vs meta.json baseline
 ```
