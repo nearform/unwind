@@ -179,6 +179,7 @@ perLayer.sort((a, b) => b.candidateCount - a.candidateCount || b.fileCount - a.f
 // --- Contract inventory: data models, SQL DDL, endpoints, ORM<->SQL links. ---
 const byDefinitionKind = {};
 const byEndpointMethod = {};
+const ormSources = {}; // detector/framework name -> count (drizzle, prisma, jpa, ...)
 let endpoints = 0;
 let dataModels = 0;
 let sqlDdl = 0;
@@ -188,6 +189,7 @@ for (const f of files) {
     byDefinitionKind[d.kind] = (byDefinitionKind[d.kind] || 0) + 1;
     if (d.kind === "db-ddl") sqlDdl++;
     else dataModels++;
+    if (d.source) ormSources[d.source] = (ormSources[d.source] || 0) + 1;
   }
   for (const e of s.endpoints || []) {
     endpoints++;
@@ -204,6 +206,18 @@ const contracts = {
   endpoints,
   byDefinitionKind,
   byEndpointMethod,
+};
+
+// --- Detected source stack: what the CURRENT system is built with, so the
+// interview can recommend concrete targets ("on Drizzle today -> keep, or move
+// to X?"). Languages come from the manifest; ORM/DB frameworks from definition
+// `source` tags. Dependency manifests (package.json etc.) are read by the skill
+// itself for the fuller library list. ---
+const detected = {
+  languages: manifest.project?.languages ?? [],
+  ormSources, // e.g. { drizzle: 39 } — the data-access framework in use
+  hasEndpoints: endpoints > 0,
+  endpointMethods: Object.keys(byEndpointMethod),
 };
 
 // --- Import graph: foundations (no internal deps) + hubs (most depended-upon). ---
@@ -264,6 +278,7 @@ const brief = {
     totalFiles: manifest.stats?.totalFiles ?? files.length,
     byLanguage: manifest.stats?.byLanguage ?? {},
   },
+  detected,
   perLayer,
   contracts,
   importGraph,

@@ -66,6 +66,9 @@ node "$UNWIND_PLUGIN_ROOT/skills/scripts/plan-brief.mjs" "$(pwd)"
 
 This writes `docs/unwind/.cache/plan-brief.json`. **Read it.** It contains:
 - `project` — name, languages, `estimatedComplexity`, file counts.
+- `detected` — the **current** stack: `languages`, `ormSources` (data-access framework
+  in use, e.g. `{drizzle: 39}`), `endpointMethods`. Use this to recommend concrete
+  *targets* per element ("on Drizzle today → keep, or move to X?").
 - `perLayer[]` — per layer: file/candidate/symbol counts, coverage %, and
   `[MUST]/[SHOULD]/[DON'T]` tallies. Use these to weight effort and confidence.
 - `contracts` — `dataModels`, `sqlDdl`, `dataModelLinks` (ORM↔SQL pairs to reconcile),
@@ -75,7 +78,13 @@ This writes `docs/unwind/.cache/plan-brief.json`. **Read it.** It contains:
 - `readiness` — overall coverage % and `provisionalLayers` (< 100%). Where the plan
   must flag itself provisional.
 
-Also skim `docs/unwind/architecture.md` for layer boundaries and cross-cutting concerns.
+Also:
+- Skim `docs/unwind/architecture.md` for layer boundaries and cross-cutting concerns.
+- **Read the project's dependency manifest(s)** — `package.json` (+ `pnpm-lock`/`bun`),
+  `requirements.txt`/`pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `*.csproj` —
+  to learn the **concrete current libraries** (web framework, validation, auth, queue,
+  HTTP client, test runner). This is what lets you recommend *specific* target modules
+  in the stack interview rather than generic categories.
 
 **Graceful fallback** (per the repo's degrade-gracefully rule):
 - If the script exits non-zero (core/manifest unavailable), **read the artifacts
@@ -109,26 +118,75 @@ bewildering and breaks the dependency chain. For each question:
   user in a hurry (or `uw-start` run-to-dashboard mode) can one-shot the interview. The
   decisions are still recorded with their recommended values.
 
-### Decision tree (each node: a question + a data-grounded default)
+The tree has two parts: **B1 — pin the exact target stack & architecture** (drill deep,
+relentlessly), then **B2 — re-use, phasing & validation**. B1 is the heart of the
+interview — don't settle for a one-line "rebuild in TypeScript". Keep drilling each
+element until the choice is concrete and named (a specific framework/library/version),
+because every B1 answer changes what downstream code is `[MUST]` vs `[DON'T]`
+tech-specific.
 
-1. **Target stack** — language / framework / runtime / datastore for the rebuild, and
-   which parts change vs stay. *This anchors everything downstream.* Default: propose
-   from the source stack (`project.languages`) + complexity. Nothing upstream captures
-   this, so it must be established here.
-2. **Database strategy** — keep live / snapshot+restore / sync (change events, dual
+### B1 — Target stack & architecture (drill until concrete)
+
+Ask these as **separate questions**, in order, each recommended-first from `detected`
++ the dependency manifest. Adapt: skip a question if the project clearly has no such
+element (no frontend ⇒ skip frontend framework), and **add follow-ups** when an answer
+opens a new branch (picking a meta-framework ⇒ ask routing/rendering mode).
+
+1. **Language & runtime** — e.g. TypeScript on Node / Bun / Cloudflare Workers / Deno;
+   Go; Python 3.x. Recommend from `detected.languages`. The runtime constrains
+   everything below (Workers ⇒ no native Node APIs, etc.).
+2. **Backend framework** — name one: Hono / Express / Fastify / NestJS (TS), FastAPI /
+   Django / Flask (Py), Gin / Echo (Go)… Recommend by runtime fit + the current
+   framework from the dependency manifest.
+3. **API contract style** — REST / tRPC / GraphQL / gRPC. Default REST when
+   `contracts.endpoints > 0` (preserve the existing surface); flag if moving off REST
+   breaks the documented endpoint contract.
+4. **Datastore & data-access** — DB engine (Postgres / MySQL / SQLite / D1 / Mongo) and
+   ORM/query layer (Drizzle / Prisma / Kysely / raw SQL / SQLAlchemy). Recommend from
+   `detected.ormSources` and `dataModelLinks`. (The keep-vs-migrate *data* decision is
+   B2 §1 — here we pick the access tech.)
+5. **Frontend framework** *(if a `frontend` layer exists)* — React / Vue / Svelte /
+   Solid, and meta-framework if any (Next / Remix / Astro / SvelteKit), plus
+   styling (Tailwind / CSS modules) and state/data-fetching (TanStack Query, etc.).
+6. **Per-element modules — go concern by concern.** For each cross-cutting concern the
+   brief/architecture surfaced, ask which specific library to use: **auth**
+   (Lucia / Auth.js / Clerk / custom JWT), **validation** (Zod / Valibot / Pydantic),
+   **messaging/queue** (if a `messaging` layer exists — BullMQ / Cloudflare Queues /
+   SQS), **caching**, **background jobs / cron**, **email/notifications**, **file
+   storage**, **observability/logging**, **testing framework** (Vitest / Jest /
+   Playwright). Recommend the current library (from deps) as the default and offer 1–2
+   modern alternatives. Ask explicitly: *"Any specific modules you want to use for any
+   part of the solution?"* and capture free-form answers.
+7. **Hosting / deployment target** — Cloudflare Workers / Vercel / AWS (Lambda / ECS) /
+   Fly / containers / bare VM. This often retro-constrains §1–§4 — if it conflicts with
+   an earlier answer, surface the conflict and re-confirm.
+8. **High-level architecture confirmation** — replay the **discovered** structure (the
+   layers from the brief/architecture.md and their dependencies) and confirm the target
+   shape: keep the same layer boundaries? monolith vs modular-monolith vs services?
+   Map each documented layer onto a target module. Get explicit sign-off that the
+   target architecture preserves the `[MUST]` contracts and data model.
+
+Before leaving B1, **play back the full assembled stack** ("So: TS + Hono on Workers,
+REST, Drizzle + D1, React + Tailwind, Zod, Vitest, Cloudflare Queues — correct?") and
+get a single confirmation, so the stack is locked as one coherent set, not eight
+disconnected picks.
+
+### B2 — Re-use, phasing & validation
+
+9. **Database strategy** — keep live / snapshot+restore / sync (change events, dual
    write). Default informed by `contracts.dataModels` / `dataModelLinks` and table count
-   (more ORM↔SQL links ⇒ schema is well-pinned ⇒ reuse is safer).
-3. **Frontend retention** — keep the existing UI and replace only the backend, vs
-   rebuild. Default informed by whether a `frontend` layer exists and the API-contract
-   rigidity (`contracts.endpoints`).
-4. **Test re-use** — run existing tests against the rebuild, vs rewrite. Default
-   informed by the `tests` layer coverage and coupling.
-5. **Integrations / scheduled jobs** to preserve — from the contract inventory and
-   messaging layer.
-6. **Phasing priority & order** — seeded by `importGraph.foundations` (build leaves
-   first) and `[MUST]` weighting per layer. Confirm the order and the first slice.
-7. **Validation approach & risk tolerance** — parallel-run, equivalence vectors, go-live
-   gating.
+   (more ORM↔SQL links ⇒ schema well-pinned ⇒ reuse safer).
+10. **Frontend retention** — keep the existing UI and replace only the backend, vs
+    rebuild (already partly answered if B1 §5 chose a new frontend framework). Default
+    informed by whether a `frontend` layer exists and API-contract rigidity.
+11. **Test re-use** — run existing tests against the rebuild, vs rewrite. Default
+    informed by the `tests` layer coverage and coupling.
+12. **Integrations / scheduled jobs** to preserve — from the contract inventory and
+    messaging layer.
+13. **Phasing priority & order** — seeded by `importGraph.foundations` (build leaves
+    first) and `[MUST]` weighting per layer. Confirm the order and the first slice.
+14. **Validation approach & risk tolerance** — parallel-run, equivalence vectors,
+    go-live gating.
 
 The user can wrap up at any point ("accept the rest as recommended", "stop here") —
 honor it and record the remaining decisions at their recommended values.
@@ -175,9 +233,26 @@ and the brief data that informed it — never an LLM guess.
 
 ## Target Stack
 
-**From:** [source stack — languages/framework/runtime/datastore]
-**To:** [target stack chosen in RD-1]
+**From:** [detected source stack — language/framework/runtime/datastore/ORM]
+**To (assembled in B1):**
+
+| Element | Choice | From (current) |
+|---------|--------|----------------|
+| Language & runtime | [e.g. TypeScript / Cloudflare Workers] | [detected] |
+| Backend framework | [e.g. Hono] | [detected] |
+| API contract style | [REST / tRPC / GraphQL] | [detected] |
+| Datastore | [e.g. D1 / Postgres] | [detected] |
+| Data access / ORM | [e.g. Drizzle] | [detected ormSources] |
+| Frontend | [framework + meta + styling, or "retained as-is"] | [detected] |
+| Auth | [module] | [detected] |
+| Validation | [module] | [detected] |
+| Messaging / jobs | [module] | [detected] |
+| Testing | [framework] | [detected] |
+| Hosting / deploy | [target] | [detected] |
+| Other requested modules | [free-form picks from B1 §6] | — |
+
 **Changing:** [parts being re-platformed]   **Staying:** [parts retained]
+**Architecture:** [confirmed shape from B1 §8 — monolith/modular/services; layer→module map]
 
 ## Executive Summary
 
@@ -245,11 +320,19 @@ and the brief data that informed it — never an LLM guess.
 
 > The interview answers (also in `.cache/rebuild-decisions.json`).
 
+> One row per question — the B1 stack sub-tree (language, framework, API style,
+> datastore, ORM, frontend, per-element modules, hosting, architecture) each get their
+> own RD id, then the B2 re-use/phasing/validation decisions.
+
 | ID | Topic | Recommended | Chosen | Rationale |
 |----|-------|-------------|--------|-----------|
-| RD-1 | Target stack | [rec] | [chosen] | [why] |
-| RD-2 | Database | [rec] | [chosen] | [why] |
-| ... | | | | |
+| RD-1 | Language & runtime | [rec] | [chosen] | [why] |
+| RD-2 | Backend framework | [rec] | [chosen] | [why] |
+| RD-3 | API contract style | [rec] | [chosen] | [why] |
+| RD-4 | Datastore & ORM | [rec] | [chosen] | [why] |
+| ... | (frontend, auth, validation, …, architecture) | | | |
+| RD-n | Database re-use | [rec] | [chosen] | [why] |
+| RD-n+1 | Phasing order | [rec] | [chosen] | [why] |
 
 ---
 
