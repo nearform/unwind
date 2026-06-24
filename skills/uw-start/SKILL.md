@@ -68,6 +68,7 @@ Invoke the first phase now — **`unwind:uw-scan`** — and then follow the pipe
 | 2. Analyze | `unwind:uw-analyze` | `layers/**` (seeded, verified to 100%) |
 | 3. Plan | `unwind:uw-plan` | `REBUILD-PLAN.md` (interviews you about target stack, re-use & phasing) |
 | 4. Dashboard | `unwind:uw-dashboard` | builds `rebuild-graph.json` + launches the viewer |
+| 5. Build *(optional)* | `unwind:uw-build` | executes the rebuild in the target stack + a source→target verification graph measuring completeness |
 
 - **Step-through mode:** invoke `unwind:uw-scan`, then act on each phase's
   continue/pause prompt as the user answers it.
@@ -82,6 +83,13 @@ builds the graph itself.
 
 ## Notes
 
+- **Executing the rebuild:** after the plan (and a review of the graph), run
+  `unwind:uw-build` to actually rebuild the codebase in the target stack. It
+  interviews you about scope/order, dispatches technology-agnostic per-layer builder
+  agents, holds its progress in `docs/unwind/.cache/rebuild-state.json`, and
+  maintains a source→target **verification graph** measuring completeness. It can run
+  step-by-step or, via the `/loop` skill (`/loop /uw-build`), loop until the measured
+  completeness hits target.
 - After code changes later, run `unwind:uw-refresh` (incremental) or just re-open
   `unwind:uw-dashboard` (it rebuilds the graph from the current scan + docs).
 - For the full skill index, see `unwind:uw-help`.

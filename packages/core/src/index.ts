@@ -67,6 +67,37 @@ export {
   type LineRange,
 } from "./graph/rebuild-graph-schema.js";
 // --- end Increment 4 ---
+// --- Increment 7: rebuild execution (uw-build) ---
+export {
+  REBUILD_STATE_VERSION,
+  validateRebuildState,
+  deriveProgressOverlay,
+  type RebuildState,
+  type RebuildStateConfig,
+  type RebuildNodeState,
+  type SliceState,
+  type LoopState,
+  type RebuildScope,
+  type VerificationDepth,
+  type ExecutionMode,
+  type ContractEquivalence,
+} from "./graph/rebuild-state-schema.js";
+export {
+  REBUILD_VERIFICATION_VERSION,
+  buildRebuildVerification,
+  validateRebuildVerification,
+  normalizeEndpointPath,
+  normalizeTableName,
+  endpointKey,
+  type RebuildVerificationGraph,
+  type VerificationNode,
+  type RebuiltEdge,
+  type RebuiltState,
+  type ContractDiff,
+  type RebuildMapping,
+  type BuildVerificationInputs,
+} from "./graph/rebuild-verification.js";
+// --- end Increment 7 ---
 // --- Increment 6: incremental fingerprints ---
 export {
   computeFileFingerprint,

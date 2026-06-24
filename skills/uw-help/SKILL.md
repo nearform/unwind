@@ -71,6 +71,12 @@ uw-complete → fills gaps.md, deletes it
         │   (loop verify → complete until 100% coverage)
         │
 uw-plan       → REBUILD-PLAN.md (strategic rebuild approach)
+        │
+uw-build      → executes the rebuild in the target stack (optional)
+        ├── uw-build-layer  → per-slice builder subagents (technology-agnostic)
+        ├── merge-rebuild-map.mjs → rebuild-state.json + rebuild-progress.json
+        └── verify-rebuild.mjs    → rebuild-verification-graph.json + rebuild-gaps.md
+                                     (re-scans the target; measures completeness)
 ```
 
 ## Skills
@@ -87,6 +93,8 @@ uw-plan       → REBUILD-PLAN.md (strategic rebuild approach)
 | `uw-plan` | `REBUILD-PLAN.md` |
 | `uw-graph` | `rebuild-graph.json` (graph + coverage) |
 | `uw-dashboard` | Launches the interactive graph dashboard |
+| `uw-build` | Executes the rebuild in the target stack + `rebuild-verification-graph.json` (completeness) |
+| `uw-build-layer` | Per-slice technology-agnostic builder (dispatched by `uw-build`) |
 | `uw-refresh` | Incremental update — re-analyzes only changed layers |
 
 ### Layer Specialists

@@ -390,12 +390,14 @@ dashboard builds its data (`rebuild-graph.json`) on demand, so you go straight t
 **Use AskUserQuestion** to ask whether to continue:
 - **Open the dashboard** *(recommended)* — invoke `unwind:uw-dashboard`; it
   (re)generates `rebuild-graph.json` from the current scan + docs and launches.
+- **Execute the rebuild** — invoke `unwind:uw-build` to start building in the target
+  stack (it interviews you about scope/order and measures completeness as it goes).
 - **Export the graph artifact only** — invoke `unwind:uw-graph` to write
   `rebuild-graph.json` without a server (for static deploy / CI / sharing).
 - **Pause here** — stop after the plan.
 
 Act on the choice in the same turn; if they pause, tell them how to resume: *"Run
-`unwind:uw-dashboard` (type `/uw-dashboard`) to explore the rebuild graph."*
+`unwind:uw-dashboard` to explore the graph, or `unwind:uw-build` to start the rebuild."*
 
 > **Pipeline:** scan → analyze → **plan ✓** → dashboard. `uw-graph` is an optional
 > artifact-export step, not a gate — the dashboard builds the graph itself.

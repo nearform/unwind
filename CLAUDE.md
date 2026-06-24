@@ -29,16 +29,18 @@ packages/
       layers/           rebuild-layer-map (file → layer) + contract-detectors (tables/endpoints)
       fingerprint/      structural + content fingerprints (incremental updates)
       manifest/         scan-manifest schema, build-manifest, candidates (shared id scheme)
-      graph/            coverage diff, rebuild-graph schema + build-graph
+      graph/            coverage diff, rebuild-graph schema + build-graph,
+                        rebuild-state schema + rebuild-verification (source→target diff)
       index.ts          public barrel (export blocks grouped by increment)
   dashboard/            @unwind/dashboard — React + React Flow + ELK (Vite), consumes rebuild-graph.json
 skills/
   scripts/              bundled .mjs the skills invoke (scan, seed-layers, verify-coverage,
-                        build-graph, detect-changes) + _core.mjs + _resolve-plugin-root.sh
+                        build-graph, detect-changes, merge-rebuild-map, verify-rebuild)
+                        + _core.mjs + _resolve-plugin-root.sh
   *                     markdown skills (uw-start entry point, uw-scan, uw-analyze,
                         uw-analyze-* layer specialists, uw-verify, uw-complete,
-                        uw-plan, uw-graph, uw-dashboard, uw-refresh, uw-help,
-                        analysis-principles)
+                        uw-plan, uw-graph, uw-dashboard, uw-build, uw-build-layer,
+                        uw-refresh, uw-help, analysis-principles, rebuild-principles)
 ```
 
 `dist/` and `*.tsbuildinfo` are gitignored — the core is **lazily built on first
@@ -56,10 +58,21 @@ REBUILD-PLAN.md (+ `rebuild-decisions.json`) → `build-graph.mjs` →
 **rebuild-graph.json** → `uw-dashboard`. `detect-changes.mjs` (fingerprints) drives
 incremental refresh.
 
-Artifacts live under the **target** repo's `docs/unwind/`:
-`architecture.md`, `layers/**`, `REBUILD-PLAN.md`, `rebuild-graph.json`, and
+Then **execution** (optional): `uw-build` interviews the user (scope/order/target),
+dispatches technology-agnostic `uw-build-layer` subagents that reproduce each slice's
+`[MUST]` contracts in the target stack and write per-slice source→target maps →
+`merge-rebuild-map.mjs` folds them into **rebuild-state.json** (+ derives
+`rebuild-progress.json`) → `verify-rebuild.mjs` re-scans the **target** repo and
+diffs it against the source graph → **rebuild-verification-graph.json** + `rebuild-gaps.md`
+(completeness over `[MUST]`). Builds run step-through or `/loop /uw-build`
+(loop-until-verified; the deterministic completeness % is the termination signal).
+
+Artifacts live under the **source** repo's `docs/unwind/`:
+`architecture.md`, `layers/**`, `REBUILD-PLAN.md`, `rebuild-graph.json`,
+`rebuild-verification-graph.json`, `rebuild-gaps.md`, and
 `.cache/` (`scan-manifest.json`, `meta.json`, `changes.json`, `seeds/`, `coverage/`,
-`plan-brief.json`, `rebuild-decisions.json`).
+`plan-brief.json`, `rebuild-decisions.json`, `rebuild-state.json`, `rebuild-map/`,
+`rebuild-progress.json`, `target-scan/`). Rebuilt code lives in the separate **target** repo.
 
 ## Commands
 
@@ -75,6 +88,8 @@ node skills/scripts/verify-coverage.mjs <projectRoot>
 node skills/scripts/plan-brief.mjs <projectRoot>     # → docs/unwind/.cache/plan-brief.json (grounds uw-plan interview)
 node skills/scripts/build-graph.mjs <projectRoot>    # → docs/unwind/rebuild-graph.json
 node skills/scripts/detect-changes.mjs <projectRoot> # incremental: diff vs meta.json baseline
+node skills/scripts/merge-rebuild-map.mjs <projectRoot>      # rebuild-map/*.json → rebuild-state.json (+ rebuild-progress.json)
+node skills/scripts/verify-rebuild.mjs <projectRoot> [targetRoot]  # re-scan target → rebuild-verification-graph.json + rebuild-gaps.md
 ```
 
 ## Deploy the drizzle-cube example
