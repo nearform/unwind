@@ -17,6 +17,12 @@ arithmetic** (`scan − docs`), not asserted. Symbol extraction supports
 TypeScript/JavaScript, Python, Rust, Java, and C#; other languages get file-level
 coverage, and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
 
+It can also **execute the rebuild**: `uw-build` interviews you about scope and
+order, dispatches technology-agnostic builder agents that reproduce each layer's
+`[MUST]` contracts in the target stack, then **re-scans the rebuilt repo and diffs
+it against the source** to measure completeness — a before/after picture, again by
+set arithmetic rather than assertion.
+
 ## Quick Start
 
 ### Install
@@ -42,6 +48,7 @@ Or run the phases manually:
 4. Use unwind:uw-analyze # seed → analyze → verify coverage → complete
 5. Use unwind:uw-plan   # → REBUILD-PLAN.md
 6. Use unwind:uw-dashboard   # re-open to explore coverage, priorities & contracts
+7. Use unwind:uw-build   # execute the rebuild in the target stack (+ verification graph)
 ```
 
 You can run **`unwind:uw-dashboard` any time after step 1** — right after the
@@ -56,7 +63,8 @@ pure-LLM flow.
 - `docs/unwind/REBUILD-PLAN.md` - Strategic rebuild approach
 - `docs/unwind/layers/*/` - Detailed layer analysis (folder per layer)
 - `docs/unwind/rebuild-graph.json` - Knowledge graph for the dashboard
-- `docs/unwind/.cache/` - Deterministic artifacts: `scan-manifest.json` (ground truth), `seeds/` (per-layer checklists), `coverage/` (per-layer coverage reports)
+- `docs/unwind/rebuild-verification-graph.json` - Source→target completeness (after `uw-build`)
+- `docs/unwind/.cache/` - Deterministic artifacts: `scan-manifest.json` (ground truth), `seeds/` (per-layer checklists), `coverage/` (per-layer coverage reports), `rebuild-state.json` (rebuild ledger)
 
 ---
 
@@ -89,7 +97,9 @@ makes "did we document everything?" a *checkable* question instead of a hopeful 
 | 5 | `uw-complete` | LLM | Fills the `gaps.md` work list. Loops 4 ⇄ 5 until coverage is 100% (or items are explicitly excluded). |
 | 6 | `uw-plan` | LLM | Produces the strategic **`REBUILD-PLAN.md`** (re-use decisions, phasing, validation). |
 | 7 | `build-graph.mjs` | **deterministic** | Joins manifest + coverage + docs into **`rebuild-graph.json`** — nodes carry MUST/SHOULD/DON'T, coverage state, and rebuild status — and powers the dashboard. |
-| ↻ | `detect-changes.mjs` | **deterministic** | After code changes, structural fingerprints find exactly what moved so only the **affected layers** are re-analyzed; changed contracts are flagged `stale` / `needs-recheck`. |
+| 8 | `uw-build` + `uw-build-layer` | LLM | **Executes** the rebuild: per-slice builder sub-agents reproduce each layer's `[MUST]` contracts in the target stack and record a source→target map. Holds progress in `rebuild-state.json`; can loop until verified (`/loop /uw-build`). |
+| 9 | `merge-rebuild-map.mjs` + `verify-rebuild.mjs` | **deterministic** | Folds the per-slice maps into `rebuild-state.json`, then **re-scans the target repo** and diffs it against the source graph (endpoint method+path; table+field names) → **`rebuild-verification-graph.json`** + `rebuild-gaps.md`. Completeness over `[MUST]`, measured not asserted. |
+| ↻ | `detect-changes.mjs` | **deterministic** | After code changes, structural fingerprints find exactly what moved so only the **affected layers** are re-analyzed; changed contracts are flagged `stale` / `needs-recheck` (and built nodes whose source moved are re-queued for rebuild). |
 
 **Why it matters:** completeness ("all 42 tables") used to be the LLM's word for it.
 Now the scanner finds the 42, the specialist documents them, and step 4 *proves*
@@ -116,6 +126,41 @@ status. To point it at any project directly:
 ```
 UNWIND_GRAPH_DIR="/path/to/project" pnpm --filter @unwind/dashboard dev
 ```
+
+## Execute the rebuild
+
+Once the plan exists, `uw-build` actually rebuilds the system in the target stack:
+
+```
+Use unwind:uw-build      # interview (scope/order/target) → build → verify
+/loop /uw-build          # ...or run it under /loop: build until completeness hits target
+```
+
+What it does:
+
+1. **Interviews you** (grilling-style, grounded in `REBUILD-PLAN.md`) for the few
+   decisions the plan doesn't already fix: scope (one slice / one phase / whole),
+   where the rebuilt code lives, verification depth, and execution mode. It skips
+   anything the plan already answers.
+2. **Dispatches builder agents** per slice. They are **technology-agnostic** but held
+   to functional equivalence (see `skills/rebuild-principles.md`): the external API
+   surface, the data model, and the business rules must behave the same — it is *not*
+   a line-by-line port. Each builder records a source→target map.
+3. **Measures completeness.** The target repo is re-scanned and diffed against the
+   source graph by the same set-arithmetic machinery: endpoints match on
+   method+path, tables on field names (across snake_case/camelCase, `:id`↔`{id}`,
+   etc.). Each source item becomes `equivalent`, `present`, `divergent`, `claimed`,
+   or `missing` → **`rebuild-verification-graph.json`** + a `rebuild-gaps.md` work
+   list, and the dashboard lights up via `rebuild-progress.json`.
+
+Progress is durable in `docs/unwind/.cache/rebuild-state.json`, so a build can be
+paused and resumed, run slice-by-slice, or looped unattended — the loop terminates
+on the **measured** completeness number, not a guess.
+
+> **Honest by design:** `present` means the symbol exists; it does **not** prove
+> behavior. The deterministic diff covers the routing surface and data-model shape —
+> field types, payload bodies, and business rules need the project's tests
+> (run-tests verification depth), not the graph.
 
 ## Keeping it fresh (incremental)
 
@@ -161,6 +206,8 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 | `uw-plan` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
 | `uw-graph` | Joins manifest + coverage + docs | `rebuild-graph.json` |
 | `uw-dashboard` | Launches the interactive graph UI | dashboard at `:5174` |
+| `uw-build` | Executes the rebuild in the target stack + measures completeness | rebuilt code + `rebuild-verification-graph.json` |
+| `uw-build-layer` | Per-slice technology-agnostic builder (dispatched by `uw-build`) | target code + source→target map |
 | `uw-refresh` | Incremental update (only changed layers) | refreshed docs + graph |
 
 ### Layer Specialists
@@ -188,12 +235,18 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 docs/unwind/
 ├── architecture.md                    # Layer detection, tech stack, repo info (derived from scan)
 ├── rebuild-graph.json                 # Knowledge graph for the dashboard
+├── rebuild-verification-graph.json    # Source→target completeness (after uw-build)
+├── rebuild-gaps.md                    # MUST items not yet present/equivalent (after uw-build)
 ├── .cache/                            # Deterministic artifacts
 │   ├── scan-manifest.json            # Ground truth: inventory, symbols, contracts, import graph
 │   ├── meta.json                     # Fingerprint baseline (incremental refresh)
 │   ├── changes.json                  # detect-changes output (incremental refresh)
 │   ├── seeds/{layer}.json            # Per-layer candidate checklists
-│   └── coverage/{layer}.json         # Per-layer coverage reports
+│   ├── coverage/{layer}.json         # Per-layer coverage reports
+│   ├── rebuild-state.json            # Rebuild ledger: per-node status + source→target map
+│   ├── rebuild-map/{slice}.json      # Per-slice mappings written by builder agents
+│   ├── rebuild-progress.json         # Rebuild-status overlay the dashboard renders
+│   └── target-scan/                  # Isolated scan of the rebuilt target repo
 ├── layers/
 │   ├── database/
 │   │   ├── index.md                   # Overview, links to sections
