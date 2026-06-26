@@ -1,5 +1,5 @@
 import { useStore } from "../store";
-import { coverageColor, nodeTypeColor, priorityColor, statusLabel } from "../colors";
+import { coverageColor, nodeTypeColor, priorityColor, rebuiltStateColor, statusLabel } from "../colors";
 import { sourceLink } from "../types";
 
 export default function NodeInfo({
@@ -81,6 +81,27 @@ export default function NodeInfo({
           {r.docRef ? <span className="font-mono text-[10px] break-all">{r.docRef}</span> : "—"}
         </Row>
       </div>
+
+      {/* Build assets — where this node was rebuilt in the target stack (uw-build). */}
+      {r.target && r.target.files.length > 0 && (
+        <div className="rounded-lg border border-border-subtle bg-elevated/50 p-3 mb-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-semibold text-accent uppercase tracking-wider">Rebuilt as</h3>
+            {r.target.state && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-text-secondary">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: rebuiltStateColor(r.target.state) }} />
+                {r.target.state}
+                {r.target.confirmed ? <span className="text-text-muted" title="Confirmed by a re-scan of the target repo">✓</span> : null}
+              </span>
+            )}
+          </div>
+          <div className="space-y-1">
+            {r.target.files.map((f) => (
+              <div key={f} className="font-mono text-[11px] text-text-primary break-all">{f}</div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-3">
         <button

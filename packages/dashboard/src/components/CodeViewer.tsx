@@ -33,7 +33,11 @@ export default function CodeViewer({
     }
     const ctrl = new AbortController();
     setState({ status: "loading" });
-    fetch(`/file-content.json?path=${encodeURIComponent(node.filePath)}`, {
+    // NOTE: /file-content.json is served by the dev-server middleware only — it is
+    // NOT emitted into the static build, so the live source viewer is non-functional
+    // on any static deploy (GitHub Pages, the Cloudflare demo). Base-prefixed for
+    // consistency; on a static host this fetch simply 404s and shows "Source unavailable".
+    fetch(`${import.meta.env.BASE_URL}file-content.json?path=${encodeURIComponent(node.filePath)}`, {
       signal: ctrl.signal,
     })
       .then(async (res) => {

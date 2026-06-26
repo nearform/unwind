@@ -86,6 +86,11 @@ function readSourceFile(url: URL) {
 }
 
 export default defineConfig({
+  // Sub-path hosting: GitHub Pages serves a project repo at /<repo>/, so the
+  // published dashboard lives under a sub-path (e.g. /<repo>/unwind/). Set
+  // VITE_BASE_URL at build time to rewrite asset hrefs accordingly; defaults to
+  // "/" for the dev server and the root-hosted Cloudflare demo (no-op there).
+  base: process.env.VITE_BASE_URL || "/",
   resolve: {
     alias: {
       "@core": path.resolve(__dirname, "../core/dist"),

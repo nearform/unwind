@@ -135,6 +135,30 @@ if (existsSync(progressPath)) {
   }
 }
 
+// --- Optional rebuild target mapping (the "build assets", from uw-build). ---
+// rebuild-state.json carries per-node target files/ids; the verification graph
+// carries the per-node rebuilt verdict + headline completeness stats. Both are
+// optional — without them the graph is the source-only planning view.
+let rebuildState;
+const rebuildStatePath = join(projectRoot, "docs/unwind/.cache/rebuild-state.json");
+if (existsSync(rebuildStatePath)) {
+  try {
+    rebuildState = JSON.parse(readFileSync(rebuildStatePath, "utf-8"));
+  } catch {
+    process.stderr.write("build-graph: ignoring malformed rebuild-state.json\n");
+  }
+}
+
+let verification;
+const verificationPath = join(projectRoot, "docs/unwind/rebuild-verification-graph.json");
+if (existsSync(verificationPath)) {
+  try {
+    verification = JSON.parse(readFileSync(verificationPath, "utf-8"));
+  } catch {
+    process.stderr.write("build-graph: ignoring malformed rebuild-verification-graph.json\n");
+  }
+}
+
 // --- Optional incremental staleness (from detect-changes.mjs). ---
 let staleIds;
 const changesPath = join(projectRoot, "docs/unwind/.cache/changes.json");
@@ -152,7 +176,7 @@ if (existsSync(changesPath)) {
 
 // --- Build, validate, write. ---
 const graph = buildRebuildGraph(
-  { manifest, coverageByLayer, documented, progress, staleIds },
+  { manifest, coverageByLayer, documented, progress, staleIds, rebuildState, verification },
   new Date().toISOString(),
 );
 
@@ -245,3 +269,12 @@ process.stderr.write(
     `build-graph: edges ${Object.entries(s.byEdgeType).map(([k, v]) => `${k}=${v}`).join(" ")}\n` +
     `build-graph: wrote ${outputPath}\n`,
 );
+if (graph.rebuildVerification) {
+  const rv = graph.rebuildVerification;
+  const mapped = graph.nodes.filter((n) => n.rebuild.target && n.rebuild.target.files.length > 0).length;
+  process.stderr.write(
+    `build-graph: rebuild completeness=${rv.completenessPct}% ` +
+      `(${rv.mustEquivalentOrPresent}/${rv.totalMust} MUST) ` +
+      `target=${rv.targetProject?.name ?? "?"} mappedNodes=${mapped}\n`,
+  );
+}

@@ -11,7 +11,13 @@ import type {
 } from "./types";
 import { ALL_COVERAGE, ALL_NODE_TYPES, ALL_PRIORITIES, ALL_REBUILD_STATUS } from "./types";
 
-export type ViewMode = "graph" | "overview" | "priorities" | "contracts" | "docs";
+export type ViewMode =
+  | "graph"
+  | "overview"
+  | "priorities"
+  | "contracts"
+  | "rebuild"
+  | "docs";
 export type Theme = "dark" | "light";
 
 const THEME_KEY = "unwind-dashboard-theme";

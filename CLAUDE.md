@@ -35,11 +35,12 @@ packages/
   dashboard/            @unwind/dashboard — React + React Flow + ELK (Vite), consumes rebuild-graph.json
 skills/
   scripts/              bundled .mjs the skills invoke (scan, seed-layers, verify-coverage,
-                        build-graph, detect-changes, merge-rebuild-map, verify-rebuild)
+                        build-graph, detect-changes, merge-rebuild-map, verify-rebuild,
+                        deploy-gh-pages)
                         + _core.mjs + _resolve-plugin-root.sh
   *                     markdown skills (uw-start entry point, uw-scan, uw-analyze,
                         uw-analyze-* layer specialists, uw-verify, uw-complete,
-                        uw-plan, uw-graph, uw-dashboard, uw-build, uw-build-layer,
+                        uw-plan, uw-graph, uw-dashboard, uw-publish, uw-build, uw-build-layer,
                         uw-refresh, uw-help, analysis-principles, rebuild-principles)
 ```
 
@@ -56,7 +57,10 @@ headings → `verify-coverage.mjs` does the deterministic `manifest − docs` di
 **interviews the user** (grilling-style: target stack, re-use, phasing, risk) →
 REBUILD-PLAN.md (+ `rebuild-decisions.json`) → `build-graph.mjs` →
 **rebuild-graph.json** → `uw-dashboard`. `detect-changes.mjs` (fingerprints) drives
-incremental refresh.
+incremental refresh. To **share** the dashboard, `uw-publish` (optional) builds it at
+the project's GitHub Pages sub-path and commits it into an `unwind/` subdir of the
+project's `gh-pages` branch (`deploy-gh-pages.mjs`) — never blatting existing branch
+content; viewable at `https://<owner>.github.io/<repo>/unwind/`.
 
 Then **execution** (optional): `uw-build` interviews the user (scope/order/target),
 dispatches technology-agnostic `uw-build-layer` subagents that reproduce each slice's
@@ -90,6 +94,7 @@ node skills/scripts/build-graph.mjs <projectRoot>    # → docs/unwind/rebuild-g
 node skills/scripts/detect-changes.mjs <projectRoot> # incremental: diff vs meta.json baseline
 node skills/scripts/merge-rebuild-map.mjs <projectRoot>      # rebuild-map/*.json → rebuild-state.json (+ rebuild-progress.json)
 node skills/scripts/verify-rebuild.mjs <projectRoot> [targetRoot]  # re-scan target → rebuild-verification-graph.json + rebuild-gaps.md
+node skills/scripts/deploy-gh-pages.mjs <projectRoot> [--plan|--push]  # publish dashboard to the project's gh-pages branch (unwind/ subdir; never blats)
 ```
 
 ## Deploy the drizzle-cube example
@@ -172,5 +177,12 @@ bundles small sample graph + docs that the `cp`s above overwrite with drizzle-cu
   comments and turns trailing `[MUST]`/`[SHOULD]`/`[DON'T]` heading tags into chips;
   styling is via component overrides on the same theme tokens (no global CSS). The
   open doc is URL state (`doc=<path>`).
+- The **Rebuild view** (`RebuildView`) shows the "build assets" after `uw-build`: the
+  source→target file mapping plus the headline completeness over `[MUST]`. The data is
+  folded into `rebuild-graph.json` by `build-graph.mjs` (each node's `rebuild.target`
+  from `rebuild-state.json`, and the graph-level `rebuildVerification` summary from
+  `rebuild-verification-graph.json`) — no extra fetch, so it also rides along to the
+  static gh-pages/Cloudflare deploys. The tab is hidden until a rebuild has produced
+  target mappings; the open view is URL state (`view=rebuild`).
 - Live demo: https://unwind.cliftonc.nl (deployed via a throwaway `.deploy/` folder,
   Workers static-assets-only).

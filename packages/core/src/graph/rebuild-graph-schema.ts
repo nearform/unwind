@@ -65,6 +65,25 @@ export type RebuildStatus =
    *  (set by incremental detect-changes) — a human must re-confirm. */
   | "needs-recheck";
 
+/**
+ * Where a source node was rebuilt to in the TARGET stack — the "build assets".
+ * Folded in (when present) from rebuild-state.json (`targetFiles`/`targetIds`) and
+ * rebuild-verification-graph.json (`rebuiltState`). Absent until `uw-build` runs.
+ */
+export interface RebuildTargetInfo {
+  /** Target file paths the source node was rebuilt into (relative to the target root). */
+  files: string[];
+  /** Target candidate ids (kind:path:name), when known. */
+  ids?: string[];
+  /**
+   * Verification verdict from rebuild-verification-graph.json, if verified:
+   * missing | claimed | present | equivalent | divergent | excluded.
+   */
+  state?: string | null;
+  /** True once the target file(s) were confirmed by a re-scan of the target repo. */
+  confirmed?: boolean;
+}
+
 /** The fused rebuild metadata attached to every node. */
 export interface RebuildBlock {
   priority: RebuildPriority;
@@ -73,6 +92,8 @@ export interface RebuildBlock {
   /** Source markdown file (relative path) the node was documented in, if any. */
   docRef: string | null;
   rebuildStatus: RebuildStatus;
+  /** Target-side mapping, present only after a rebuild (`uw-build`). */
+  target?: RebuildTargetInfo | null;
 }
 
 export interface LineRange {
@@ -118,6 +139,23 @@ export interface RebuildGraphStats {
   coveragePct: number;
 }
 
+/**
+ * Headline rebuild-verification summary, folded in after `uw-build` from
+ * rebuild-verification-graph.json. Drives the dashboard's Rebuild view; absent
+ * until the target repo has been verified (`verify-rebuild.mjs`).
+ */
+export interface RebuildVerificationSummary {
+  /** The rebuilt target project (name, root path, detected languages). */
+  targetProject: { name: string; root: string; languages: string[] } | null;
+  totalMust: number;
+  mustEquivalentOrPresent: number;
+  completenessPct: number;
+  /** rebuilt-state -> count (present, equivalent, missing, divergent, excluded, claimed). */
+  byRebuiltState: Record<string, number>;
+  /** When the verification graph was generated. */
+  generatedAt: string | null;
+}
+
 export interface RebuildGraph {
   version: string;
   generatedAt: string;
@@ -125,6 +163,8 @@ export interface RebuildGraph {
     name: string;
     languages: string[];
   };
+  /** Rebuild-verification summary, present only after a verified rebuild. */
+  rebuildVerification?: RebuildVerificationSummary | null;
   repository: {
     /** Carried from the manifest so the dashboard can render source links. */
     linkFormat: string;

@@ -32,7 +32,24 @@ export type CoverageState =
   | "verified"
   | "excluded"
   | "stale";
-export type RebuildStatus = "not-started" | "in-progress" | "done" | "verified";
+export type RebuildStatus =
+  | "not-started"
+  | "in-progress"
+  | "done"
+  | "verified"
+  | "needs-recheck";
+
+/**
+ * Where a source node was rebuilt to in the target stack (the "build assets").
+ * Present only after a rebuild (`uw-build`); folded into rebuild-graph.json.
+ */
+export interface RebuildTargetInfo {
+  files: string[];
+  ids?: string[];
+  /** missing | claimed | present | equivalent | divergent | excluded */
+  state?: string | null;
+  confirmed?: boolean;
+}
 
 export interface RebuildBlock {
   priority: RebuildPriority;
@@ -40,6 +57,7 @@ export interface RebuildBlock {
   coverage: CoverageState;
   docRef: string | null;
   rebuildStatus: RebuildStatus;
+  target?: RebuildTargetInfo | null;
 }
 
 export interface RebuildNode {
@@ -66,10 +84,21 @@ export interface GraphLayer {
   nodeCount: number;
 }
 
+/** Headline rebuild-verification summary, present only after a verified rebuild. */
+export interface RebuildVerificationSummary {
+  targetProject: { name: string; root: string; languages: string[] } | null;
+  totalMust: number;
+  mustEquivalentOrPresent: number;
+  completenessPct: number;
+  byRebuiltState: Record<string, number>;
+  generatedAt: string | null;
+}
+
 export interface RebuildGraph {
   version: string;
   generatedAt: string;
   project: { name: string; languages: string[] };
+  rebuildVerification?: RebuildVerificationSummary | null;
   repository: { linkFormat: string; url: string | null; branch: string | null };
   layers: GraphLayer[];
   nodes: RebuildNode[];
@@ -111,6 +140,7 @@ export const ALL_REBUILD_STATUS: RebuildStatus[] = [
   "in-progress",
   "done",
   "verified",
+  "needs-recheck",
 ];
 export const ALL_CONTRACT_KINDS: Exclude<ContractKind, null>[] = [
   "db-table",

@@ -56,6 +56,8 @@ export {
   type RebuildNode,
   type RebuildEdge,
   type RebuildBlock,
+  type RebuildTargetInfo,
+  type RebuildVerificationSummary,
   type GraphLayer,
   type RebuildGraphStats,
   type NodeType,

@@ -31,6 +31,8 @@ import {
   type RebuildNode,
   type RebuildPriority,
   type RebuildStatus,
+  type RebuildTargetInfo,
+  type RebuildVerificationSummary,
 } from "./rebuild-graph-schema.js";
 
 /** Human label for a layer key. */
@@ -131,6 +133,40 @@ export interface BuildGraphInputs {
    * `coverage: "stale"`, and done/verified contracts flip to "needs-recheck".
    */
   staleIds?: string[];
+  /**
+   * Parsed rebuild-state.json — its `nodes` (keyed by node id) carry the per-node
+   * source->target mapping (`targetFiles`, `targetIds`, `confirmedInTargetScan`).
+   * When present, each node gains a `rebuild.target` block (the "build assets").
+   */
+  rebuildState?: RebuildStateLike;
+  /**
+   * Parsed rebuild-verification-graph.json — its `nodes` (keyed by `sourceId`)
+   * carry the verification verdict (`rebuiltState`), and `stats`/`targetProject`
+   * become the graph-level `rebuildVerification` summary.
+   */
+  verification?: VerificationLike;
+}
+
+/** Minimal shape of rebuild-state.json consumed here (decoupled from the full schema). */
+export interface RebuildStateLike {
+  targetRoot?: string;
+  nodes?: Record<
+    string,
+    { targetFiles?: string[]; targetIds?: string[]; confirmedInTargetScan?: boolean } | undefined
+  >;
+}
+
+/** Minimal shape of rebuild-verification-graph.json consumed here. */
+export interface VerificationLike {
+  generatedAt?: string;
+  targetProject?: { name?: string; root?: string; languages?: string[] };
+  nodes?: { sourceId: string; rebuiltState?: string }[];
+  stats?: {
+    totalMust?: number;
+    mustEquivalentOrPresent?: number;
+    completenessPct?: number;
+    byRebuiltState?: Record<string, number>;
+  };
 }
 
 function norm(s: string): string {
@@ -142,8 +178,30 @@ export function buildRebuildGraph(
   inputs: BuildGraphInputs,
   generatedAt: string,
 ): RebuildGraph {
-  const { manifest, coverageByLayer, documented, progress } = inputs;
+  const { manifest, coverageByLayer, documented, progress, rebuildState, verification } = inputs;
   const staleIds = new Set(inputs.staleIds ?? []);
+
+  // --- Index target-side mapping (the "build assets") by node id, when a rebuild
+  // has run. rebuild-state.json gives target files/ids; the verification graph
+  // (keyed by sourceId == node id) gives the per-node rebuilt verdict. ---
+  const verdictById = new Map<string, string>();
+  for (const vn of verification?.nodes ?? []) {
+    if (vn && typeof vn.sourceId === "string" && vn.rebuiltState) {
+      verdictById.set(vn.sourceId, vn.rebuiltState);
+    }
+  }
+  function targetInfoFor(id: string): RebuildTargetInfo | null {
+    const ts = rebuildState?.nodes?.[id];
+    const verdict = verdictById.get(id) ?? null;
+    const files = ts?.targetFiles ?? [];
+    if (files.length === 0 && !verdict) return null; // nothing rebuilt for this node
+    return {
+      files,
+      ids: ts?.targetIds && ts.targetIds.length > 0 ? ts.targetIds : undefined,
+      state: verdict,
+      confirmed: ts?.confirmedInTargetScan,
+    };
+  }
 
   // --- Index documented items for priority + docRef lookup. ---
   const docById = new Map<string, DocumentedItem>();
@@ -231,6 +289,7 @@ export function buildRebuildGraph(
           coverage,
           docRef,
           rebuildStatus,
+          target: targetInfoFor(c.id),
         },
       });
       layerCounts[layer] = (layerCounts[layer] ?? 0) + 1;
@@ -336,6 +395,28 @@ export function buildRebuildGraph(
       ? 100
       : Math.round((documentedOrVerified / nodes.length) * 1000) / 10;
 
+  // --- Rebuild-verification summary (headline completeness over [MUST]). ---
+  let rebuildVerification: RebuildVerificationSummary | null = null;
+  if (verification?.stats) {
+    const tp = verification.targetProject;
+    rebuildVerification = {
+      targetProject: tp
+        ? {
+            name: tp.name ?? "target",
+            // The verification graph often stores root as "" — fall back to the
+            // rebuild-state's targetRoot (the actual rebuilt repo path).
+            root: tp.root || rebuildState?.targetRoot || "",
+            languages: tp.languages ?? [],
+          }
+        : null,
+      totalMust: verification.stats.totalMust ?? 0,
+      mustEquivalentOrPresent: verification.stats.mustEquivalentOrPresent ?? 0,
+      completenessPct: verification.stats.completenessPct ?? 0,
+      byRebuiltState: verification.stats.byRebuiltState ?? {},
+      generatedAt: verification.generatedAt ?? null,
+    };
+  }
+
   return {
     version: REBUILD_GRAPH_VERSION,
     generatedAt,
@@ -343,6 +424,7 @@ export function buildRebuildGraph(
       name: manifest.project.name,
       languages: manifest.project.languages,
     },
+    rebuildVerification,
     repository: {
       linkFormat: manifest.repository.linkFormat,
       url: manifest.repository.url,

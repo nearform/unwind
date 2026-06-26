@@ -113,6 +113,10 @@ No "next phase" to gate — instead tell the user how to keep it current:
 - **Contracts** — filterable table of every contract node (tables, endpoints, …)
   with kind, priority, coverage, rebuild status, and a source link; click a row to
   focus it in the graph.
+- **Rebuild** — appears only after `unwind:uw-build`. Shows the "build assets": the
+  source→target file mapping per node and the headline completeness over `[MUST]`
+  (from `rebuild-state.json` + `rebuild-verification-graph.json`, folded into the
+  graph by `build-graph.mjs`). Click a row to focus the source node in the graph.
 
 ## Notes
 

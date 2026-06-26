@@ -121,11 +121,30 @@ Use unwind:uw-dashboard         # launch the React + React Flow dashboard
 The dashboard (`http://127.0.0.1:5174`) shows the dependency-ordered layers, a
 per-layer **coverage meter**, the **MUST/SHOULD/DON'T** breakdown, and a filterable
 **contract inventory** (every table, endpoint, …) with source links and rebuild
-status. To point it at any project directly:
+status. After a rebuild (`unwind:uw-build`) a **Rebuild view** also appears — the
+source→target file mapping ("build assets") plus the headline completeness over
+`[MUST]`. To point it at any project directly:
 
 ```
 UNWIND_GRAPH_DIR="/path/to/project" pnpm --filter @unwind/dashboard dev
 ```
+
+### Publish to GitHub Pages
+
+Share the dashboard for your scanned project without running a server:
+
+```
+Use unwind:uw-publish   # build + push to the project's gh-pages branch
+```
+
+It builds the dashboard at the correct sub-path and commits it into an `unwind/`
+subdir of your repo's `gh-pages` branch, so it's viewable at
+`https://<owner>.github.io/<repo>/unwind/`. An **existing `gh-pages` branch is never
+blatted** — only the `unwind/` subdir is replaced (a fresh orphan branch is created
+only if none exists). All git work happens in an isolated worktree, and the push only
+happens after you confirm. One-time setup: enable **Settings → Pages → Source =
+`gh-pages` branch**. (The live source-code viewer is dev-server-only and is inactive
+on the static deploy.)
 
 ## Execute the rebuild
 
@@ -206,6 +225,7 @@ All analysis follows these principles (see `skills/analysis-principles.md`):
 | `uw-plan` | Generates strategic rebuild plan | `REBUILD-PLAN.md` |
 | `uw-graph` | Joins manifest + coverage + docs | `rebuild-graph.json` |
 | `uw-dashboard` | Launches the interactive graph UI | dashboard at `:5174` |
+| `uw-publish` | Publishes the dashboard to the project's `gh-pages` (optional) | `https://<owner>.github.io/<repo>/unwind/` |
 | `uw-build` | Executes the rebuild in the target stack + measures completeness | rebuilt code + `rebuild-verification-graph.json` |
 | `uw-build-layer` | Per-slice technology-agnostic builder (dispatched by `uw-build`) | target code + source→target map |
 | `uw-refresh` | Incremental update (only changed layers) | refreshed docs + graph |

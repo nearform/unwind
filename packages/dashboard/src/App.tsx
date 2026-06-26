@@ -8,6 +8,7 @@ import {
   type RebuildGraph,
 } from "./types";
 import { decodeState, encodeState, writeUrl } from "./urlState";
+import { rebuiltStateColor } from "./colors";
 import GraphView from "./components/GraphView";
 import SearchBar from "./components/SearchBar";
 import FilterPanel from "./components/FilterPanel";
@@ -17,6 +18,7 @@ import CodeViewer from "./components/CodeViewer";
 import RebuildOverview from "./components/RebuildOverview";
 import PriorityBreakdown from "./components/PriorityBreakdown";
 import ContractInventory from "./components/ContractInventory";
+import RebuildView from "./components/RebuildView";
 
 // The Docs view pulls in react-markdown + remark-gfm (~60kB gzip); load it only
 // when the tab is actually opened so the initial graph bundle stays lean.
@@ -27,6 +29,8 @@ const VIEWS: { id: ViewMode; label: string }[] = [
   { id: "overview", label: "Coverage" },
   { id: "priorities", label: "Priorities" },
   { id: "contracts", label: "Contracts" },
+  // "Rebuild" is filtered out until a rebuild has produced target mappings.
+  { id: "rebuild", label: "Rebuild" },
   { id: "docs", label: "Docs" },
 ];
 
@@ -52,6 +56,11 @@ export default function App() {
   const urlApplied = useRef(false);
   const fetchStarted = useRef(false);
   const docsFetchStarted = useRef(false);
+
+  // The Rebuild view only makes sense once a rebuild has produced target mappings.
+  const hasRebuild =
+    !!graph?.rebuildVerification ||
+    !!graph?.nodes.some((n) => n.rebuild.target && n.rebuild.target.files.length > 0);
 
   // Reflect the theme onto <html> so the CSS variables switch.
   useEffect(() => {
@@ -80,7 +89,7 @@ export default function App() {
   useEffect(() => {
     if (viewMode !== "docs" || docsFetchStarted.current) return;
     docsFetchStarted.current = true;
-    fetch("/docs-bundle.json")
+    fetch(`${import.meta.env.BASE_URL}docs-bundle.json`)
       .then(async (res) => {
         const data: unknown = await res.json();
         if (!res.ok) {
@@ -104,7 +113,7 @@ export default function App() {
     // would reset filters AFTER the URL is hydrated.
     if (fetchStarted.current) return;
     fetchStarted.current = true;
-    fetch("/rebuild-graph.json")
+    fetch(`${import.meta.env.BASE_URL}rebuild-graph.json`)
       .then(async (res) => {
         const data: unknown = await res.json();
         if (!res.ok) {
@@ -130,7 +139,7 @@ export default function App() {
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Official Nearform mark (navy N) on a white chip so it reads on any header theme. */}
           <span className="shrink-0 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-border-subtle">
-            <img src="/nearform.svg" alt="Nearform" className="w-5 h-5" />
+            <img src={`${import.meta.env.BASE_URL}nearform.svg`} alt="Nearform" className="w-5 h-5" />
           </span>
           <div className="flex items-baseline min-w-0">
             <h1 className="text-base font-semibold tracking-wide text-accent shrink-0">Unwind</h1>
@@ -153,7 +162,7 @@ export default function App() {
         </div>
 
         <nav className="flex items-center bg-elevated rounded-lg p-0.5 ml-2">
-          {VIEWS.map((v) => (
+          {VIEWS.filter((v) => v.id !== "rebuild" || hasRebuild).map((v) => (
             <button
               key={v.id}
               onClick={() => setViewMode(v.id)}
@@ -182,7 +191,30 @@ export default function App() {
           <div className="flex items-center gap-3 text-xs text-text-muted">
             <span>{graph.stats.nodeCount} nodes</span>
             <span>{graph.stats.edgeCount} edges</span>
-            <span className="text-accent">{graph.stats.coveragePct}% covered</span>
+            {graph.rebuildVerification ? (
+              <>
+                {/* Once a rebuild exists, lead with the build's completeness — the
+                    doc-coverage % otherwise reads like the rebuild is unfinished. */}
+                <span
+                  className="font-semibold"
+                  style={{
+                    color: rebuiltStateColor(
+                      graph.rebuildVerification.completenessPct >= 100 ? "equivalent" : "divergent",
+                    ),
+                  }}
+                  title={`${graph.rebuildVerification.mustEquivalentOrPresent}/${graph.rebuildVerification.totalMust} [MUST] equivalent or present in the target`}
+                >
+                  {graph.rebuildVerification.completenessPct}% rebuilt
+                </span>
+                <span title="Documentation coverage of the source (not rebuild progress)">
+                  {graph.stats.coveragePct}% documented
+                </span>
+              </>
+            ) : (
+              <span className="text-accent" title="Documentation coverage of the source">
+                {graph.stats.coveragePct}% documented
+              </span>
+            )}
           </div>
         )}
         <button
@@ -228,6 +260,7 @@ export default function App() {
           {graph && viewMode === "overview" && <RebuildOverview />}
           {graph && viewMode === "priorities" && <PriorityBreakdown />}
           {graph && viewMode === "contracts" && <ContractInventory />}
+          {graph && viewMode === "rebuild" && <RebuildView />}
           {graph && viewMode === "docs" && (
             <Suspense
               fallback={

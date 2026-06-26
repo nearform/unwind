@@ -244,7 +244,9 @@ Remind that `present` ≠ `correct` — structural presence doesn't prove behavi
 behavioral equivalence use run-tests depth / the project's equivalence vectors.
 
 **Use AskUserQuestion** for the next step:
-- **Open the dashboard** — `unwind:uw-dashboard` (shows rebuild status on the graph).
+- **Open the dashboard** — `unwind:uw-dashboard` (shows rebuild status on the graph,
+  plus a **Rebuild** view: the source→target file mapping + completeness, folded in
+  from `rebuild-state.json` + `rebuild-verification-graph.json`).
 - **Continue the rebuild** — next slice/phase (or `/loop /uw-build`).
 - **Pause here.**
 

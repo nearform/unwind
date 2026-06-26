@@ -102,6 +102,7 @@ export function decodeState(search: string, graph: RebuildGraph): UrlState {
     view === "overview" ||
     view === "priorities" ||
     view === "contracts" ||
+    view === "rebuild" ||
     view === "docs"
   ) {
     out.viewMode = view;

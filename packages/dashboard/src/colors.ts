@@ -50,6 +50,30 @@ export function statusLabel(s: RebuildStatus): string {
   return s.replace(/-/g, " ");
 }
 
+/**
+ * Color for a rebuilt-state verdict (from rebuild-verification-graph.json):
+ * present | equivalent | divergent | missing | claimed | excluded. Reuses the
+ * coverage tokens so the palette stays consistent across views.
+ */
+export function rebuiltStateColor(state: string | null | undefined): string {
+  switch (state) {
+    case "equivalent":
+      return "var(--color-cov-verified)";
+    case "present":
+      return "var(--color-cov-documented)";
+    case "divergent":
+      return "var(--color-prio-should)";
+    case "missing":
+      return "var(--color-cov-stale)";
+    case "claimed":
+      return "var(--color-cov-scanned)";
+    case "excluded":
+      return "var(--color-cov-excluded)";
+    default:
+      return "var(--color-text-muted)";
+  }
+}
+
 /** A representative color per rebuild layer (theme-aware CSS var). */
 export function layerColor(layer: string): string {
   switch (layer) {
