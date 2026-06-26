@@ -6,8 +6,8 @@
     "name": "clifton",
     "email": "clifton@guidemode.dev"
   },
-  "homepage": "https://github.com/cliftonc/unwind",
-  "repository": "https://github.com/cliftonc/unwind",
+  "homepage": "https://github.com/nearform/unwind",
+  "repository": "https://github.com/nearform/unwind",
   "license": "MIT",
   "keywords": ["skills", "reverse-engineering", "codebase-analysis", "api-discovery", "documentation"]
 }

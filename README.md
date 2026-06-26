@@ -28,8 +28,8 @@ set arithmetic rather than assertion.
 ### Install
 
 ```
-/plugin marketplace add cliftonc/unwind
-/plugin install unwind@cliftonc
+/plugin marketplace add nearform/unwind
+/plugin install unwind@nearform
 ```
 Restart Claude Code after installation.
 
@@ -71,9 +71,9 @@ pure-LLM flow.
 ### Updating
 
 ```
-/plugin marketplace update cliftonc
+/plugin marketplace update nearform
 /plugin uninstall unwind
-/plugin install unwind@cliftonc
+/plugin install unwind@nearform
 ```
 
 ---
