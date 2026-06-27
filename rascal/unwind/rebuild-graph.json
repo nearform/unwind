@@ -1,0 +1,3386 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-06-26T05:55:40.958Z",
+  "project": {
+    "name": "rascal",
+    "languages": [
+      "javascript",
+      "json",
+      "markdown",
+      "txt",
+      "unknown",
+      "yaml"
+    ]
+  },
+  "rebuildVerification": {
+    "targetProject": {
+      "name": "rascal",
+      "root": "/Users/clifton/work/rascal-ts",
+      "languages": [
+        "javascript",
+        "json",
+        "markdown",
+        "txt",
+        "typescript",
+        "unknown",
+        "yaml"
+      ]
+    },
+    "totalMust": 54,
+    "mustEquivalentOrPresent": 54,
+    "completenessPct": 100,
+    "byRebuiltState": {
+      "excluded": 28,
+      "present": 77
+    },
+    "generatedAt": "2026-06-26T03:54:38.578Z"
+  },
+  "repository": {
+    "linkFormat": "https://github.com/cliftonc/rascal/blob/master/{path}#L{start}-L{end}",
+    "url": "https://github.com/cliftonc/rascal",
+    "branch": "master"
+  },
+  "layers": [
+    {
+      "id": "api",
+      "label": "API",
+      "nodeCount": 2
+    },
+    {
+      "id": "domain",
+      "label": "Domain Model",
+      "nodeCount": 6
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "nodeCount": 38
+    },
+    {
+      "id": "messaging",
+      "label": "Messaging",
+      "nodeCount": 36
+    },
+    {
+      "id": "service",
+      "label": "Service Layer",
+      "nodeCount": 8
+    },
+    {
+      "id": "tests",
+      "label": "Tests",
+      "nodeCount": 15
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:_config.yml:_config.yml",
+      "type": "file",
+      "name": "_config.yml",
+      "filePath": "_config.yml",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 1
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/ci-cd.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:.eslintignore:.eslintignore",
+      "type": "file",
+      "name": ".eslintignore",
+      "filePath": ".eslintignore",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 2
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:.eslintrc.json:.eslintrc.json",
+      "type": "file",
+      "name": ".eslintrc.json",
+      "filePath": ".eslintrc.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 26
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "eslint.config.js"
+          ],
+          "ids": [
+            "file:eslint.config.js:eslint.config.js"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:.github/workflows/node-js-ci.yml:node-js-ci.yml",
+      "type": "file",
+      "name": "node-js-ci.yml",
+      "filePath": ".github/workflows/node-js-ci.yml",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/ci-cd.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            ".github/workflows/node-js-ci.yml"
+          ],
+          "ids": [
+            "file:.github/workflows/node-js-ci.yml:node-js-ci.yml"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:.github/workflows/node-js-publish.yml:node-js-publish.yml",
+      "type": "file",
+      "name": "node-js-publish.yml",
+      "filePath": ".github/workflows/node-js-publish.yml",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 37
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/ci-cd.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            ".github/workflows/node-js-publish.yml"
+          ],
+          "ids": [
+            "file:.github/workflows/node-js-publish.yml:node-js-publish.yml"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:.husky/pre-commit:pre-commit",
+      "type": "file",
+      "name": "pre-commit",
+      "filePath": ".husky/pre-commit",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 4
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            ".husky/pre-commit"
+          ],
+          "ids": [
+            "file:.husky/pre-commit:pre-commit"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:.npmignore:.npmignore",
+      "type": "file",
+      "name": ".npmignore",
+      "filePath": ".npmignore",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 11
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            ".npmignore"
+          ],
+          "ids": [
+            "file:.npmignore:.npmignore"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:.npmrc:.npmrc",
+      "type": "file",
+      "name": ".npmrc",
+      "filePath": ".npmrc",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 1
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:CHANGELOG.md:CHANGELOG.md",
+      "type": "file",
+      "name": "CHANGELOG.md",
+      "filePath": "CHANGELOG.md",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 811
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/advanced/cluster.js:cluster.js",
+      "type": "file",
+      "name": "cluster.js",
+      "filePath": "examples/advanced/cluster.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 12
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/advanced/config.js:config.js",
+      "type": "file",
+      "name": "config.js",
+      "filePath": "examples/advanced/config.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 202
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/advanced/handlers/deleteUser.js:deleteUser.js",
+      "type": "file",
+      "name": "deleteUser.js",
+      "filePath": "examples/advanced/handlers/deleteUser.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 19
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/advanced/handlers/saveUser.js:saveUser.js",
+      "type": "file",
+      "name": "saveUser.js",
+      "filePath": "examples/advanced/handlers/saveUser.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 35
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/advanced/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "examples/advanced/index.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 101
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/busy-publisher/config.json:config.json",
+      "type": "file",
+      "name": "config.json",
+      "filePath": "examples/busy-publisher/config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 34
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/busy-publisher/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "examples/busy-publisher/index.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 32
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/busy-publisher/package-lock.json:package-lock.json",
+      "type": "file",
+      "name": "package-lock.json",
+      "filePath": "examples/busy-publisher/package-lock.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 13
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/busy-publisher/package.json:package.json",
+      "type": "file",
+      "name": "package.json",
+      "filePath": "examples/busy-publisher/package.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 14
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/default-exchange/config.json:config.json",
+      "type": "file",
+      "name": "config.json",
+      "filePath": "examples/default-exchange/config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/default-exchange/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "examples/default-exchange/index.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/mocha/config.json:config.json",
+      "type": "file",
+      "name": "config.json",
+      "filePath": "examples/mocha/config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 21
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/mocha/test.js:test.js",
+      "type": "file",
+      "name": "test.js",
+      "filePath": "examples/mocha/test.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 40
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/promises/config.json:config.json",
+      "type": "file",
+      "name": "config.json",
+      "filePath": "examples/promises/config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 29
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/promises/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "examples/promises/index.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 32
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/simple/config.json:config.json",
+      "type": "file",
+      "name": "config.json",
+      "filePath": "examples/simple/config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 37
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/simple/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "examples/simple/index.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/package-lock.json:package-lock.json",
+      "type": "file",
+      "name": "package-lock.json",
+      "filePath": "examples/streams/package-lock.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 13
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/package.json:package.json",
+      "type": "file",
+      "name": "package.json",
+      "filePath": "examples/streams/package.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 14
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/publisher-config.json:publisher-config.json",
+      "type": "file",
+      "name": "publisher-config.json",
+      "filePath": "examples/streams/publisher-config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 37
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/publisher.js:publisher.js",
+      "type": "file",
+      "name": "publisher.js",
+      "filePath": "examples/streams/publisher.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 38
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/subscriber-config.json:subscriber-config.json",
+      "type": "file",
+      "name": "subscriber-config.json",
+      "filePath": "examples/streams/subscriber-config.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 28
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:examples/streams/subscriber.js:subscriber.js",
+      "type": "file",
+      "name": "subscriber.js",
+      "filePath": "examples/streams/subscriber.js",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 25
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/examples.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/schema.json:schema.json",
+      "type": "file",
+      "name": "schema.json",
+      "filePath": "lib/config/schema.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 693
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/validation.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/types.ts",
+            "src/config/schema.ts"
+          ],
+          "ids": [
+            "file:src/config/types.ts:types.ts",
+            "file:src/config/schema.ts:schema.ts",
+            "function:src/config/schema.ts:validateSchema"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:LICENSE.txt:LICENSE.txt",
+      "type": "file",
+      "name": "LICENSE.txt",
+      "filePath": "LICENSE.txt",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 22
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "LICENSE.txt"
+          ],
+          "ids": [
+            "file:LICENSE.txt:LICENSE.txt"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:package-lock.json:package-lock.json",
+      "type": "file",
+      "name": "package-lock.json",
+      "filePath": "package-lock.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 4863
+      },
+      "rebuild": {
+        "priority": "DON'T",
+        "contractKind": null,
+        "coverage": "excluded",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [],
+          "state": "excluded"
+        }
+      }
+    },
+    {
+      "id": "file:package.json:package.json",
+      "type": "file",
+      "name": "package.json",
+      "filePath": "package.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 69
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "package.json"
+          ],
+          "ids": [
+            "file:package.json:package.json"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:README.md:README.md",
+      "type": "file",
+      "name": "README.md",
+      "filePath": "README.md",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 1924
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "README.md"
+          ],
+          "ids": [
+            "file:README.md:README.md"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/.eslintrc.json:.eslintrc.json",
+      "type": "file",
+      "name": ".eslintrc.json",
+      "filePath": "test/.eslintrc.json",
+      "layer": "infrastructure",
+      "lineRange": {
+        "start": 1,
+        "end": 18
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/infrastructure/build-config.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "eslint.config.js"
+          ],
+          "ids": [
+            "file:eslint.config.js:eslint.config.js"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "index.js",
+      "layer": "api",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/api/public-exports.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/index.ts"
+          ],
+          "ids": [
+            "file:src/index.ts:index.ts",
+            "export:src/index.ts:Broker"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/management/Client.js:Client.js",
+      "type": "file",
+      "name": "Client.js",
+      "filePath": "lib/management/Client.js",
+      "layer": "api",
+      "lineRange": {
+        "start": 1,
+        "end": 56
+      },
+      "rebuild": {
+        "priority": null,
+        "contractKind": null,
+        "coverage": "documented",
+        "docRef": null,
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/management/Client.ts"
+          ],
+          "ids": [
+            "file:src/management/Client.ts:Client.ts",
+            "class:src/management/Client.ts:Client"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/Broker.js:Broker.js",
+      "type": "file",
+      "name": "Broker.js",
+      "filePath": "lib/amqp/Broker.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 232
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/broker.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/Broker.ts"
+          ],
+          "ids": [
+            "file:src/amqp/Broker.ts:Broker.ts",
+            "class:src/amqp/Broker.ts:Broker",
+            "function:src/amqp/Broker.ts:create"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/BrokerAsPromised.js:BrokerAsPromised.js",
+      "type": "file",
+      "name": "BrokerAsPromised.js",
+      "filePath": "lib/amqp/BrokerAsPromised.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 87
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/broker.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/BrokerAsPromised.ts"
+          ],
+          "ids": [
+            "file:src/amqp/BrokerAsPromised.ts:BrokerAsPromised.ts",
+            "class:src/amqp/BrokerAsPromised.ts:BrokerAsPromised",
+            "function:src/amqp/BrokerAsPromised.ts:create"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/Publication.js:Publication.js",
+      "type": "file",
+      "name": "Publication.js",
+      "filePath": "lib/amqp/Publication.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 272
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/publication.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/Publication.ts"
+          ],
+          "ids": [
+            "file:src/amqp/Publication.ts:Publication.ts",
+            "class:src/amqp/Publication.ts:Publication",
+            "function:src/amqp/Publication.ts:create",
+            "function:src/amqp/Publication.ts:publishToExchange",
+            "function:src/amqp/Publication.ts:publishToConfirmExchange",
+            "function:src/amqp/Publication.ts:sendToQueue",
+            "function:src/amqp/Publication.ts:sendToConfirmQueue",
+            "function:src/amqp/Publication.ts:publishNoConfirm",
+            "function:src/amqp/Publication.ts:publishAndConfirm",
+            "function:src/amqp/Publication.ts:encrypt",
+            "function:src/amqp/Publication.ts:getContent"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/PublicationSession.js:PublicationSession.js",
+      "type": "file",
+      "name": "PublicationSession.js",
+      "filePath": "lib/amqp/PublicationSession.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 45
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/publication.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/PublicationSession.ts"
+          ],
+          "ids": [
+            "file:src/amqp/PublicationSession.ts:PublicationSession.ts",
+            "class:src/amqp/PublicationSession.ts:PublicationSession"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/SubscriberError.js:SubscriberError.js",
+      "type": "file",
+      "name": "SubscriberError.js",
+      "filePath": "lib/amqp/SubscriberError.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 216
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/recovery.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/SubscriberError.ts"
+          ],
+          "ids": [
+            "file:src/amqp/SubscriberError.ts:SubscriberError.ts",
+            "class:src/amqp/SubscriberError.ts:SubscriptionRecovery"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/SubscriberSession.js:SubscriberSession.js",
+      "type": "file",
+      "name": "SubscriberSession.js",
+      "filePath": "lib/amqp/SubscriberSession.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 229
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/subscription.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/SubscriberSession.ts"
+          ],
+          "ids": [
+            "file:src/amqp/SubscriberSession.ts:SubscriberSession.ts",
+            "class:src/amqp/SubscriberSession.ts:SubscriberSession"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/SubscriberSessionAsPromised.js:SubscriberSessionAsPromised.js",
+      "type": "file",
+      "name": "SubscriberSessionAsPromised.js",
+      "filePath": "lib/amqp/SubscriberSessionAsPromised.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 32
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/subscription.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/SubscriberSessionAsPromised.ts"
+          ],
+          "ids": [
+            "file:src/amqp/SubscriberSessionAsPromised.ts:SubscriberSessionAsPromised.ts",
+            "class:src/amqp/SubscriberSessionAsPromised.ts:SubscriberSessionAsPromised"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/Subscription.js:Subscription.js",
+      "type": "file",
+      "name": "Subscription.js",
+      "filePath": "lib/amqp/Subscription.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 335
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/subscription.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/Subscription.ts"
+          ],
+          "ids": [
+            "file:src/amqp/Subscription.ts:Subscription.ts",
+            "class:src/amqp/Subscription.ts:Subscription",
+            "function:src/amqp/Subscription.ts:create"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/applyBindings.js:applyBindings.js",
+      "type": "file",
+      "name": "applyBindings.js",
+      "filePath": "lib/amqp/tasks/applyBindings.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 45
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/applyBindings.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/applyBindings.ts:applyBindings.ts",
+            "function:src/amqp/tasks/applyBindings.ts:applyBindings"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/assertExchanges.js:assertExchanges.js",
+      "type": "file",
+      "name": "assertExchanges.js",
+      "filePath": "lib/amqp/tasks/assertExchanges.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 27
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/assertExchanges.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/assertExchanges.ts:assertExchanges.ts",
+            "function:src/amqp/tasks/assertExchanges.ts:assertExchanges"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/assertQueues.js:assertQueues.js",
+      "type": "file",
+      "name": "assertQueues.js",
+      "filePath": "lib/amqp/tasks/assertQueues.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/assertQueues.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/assertQueues.ts:assertQueues.ts",
+            "function:src/amqp/tasks/assertQueues.ts:assertQueues"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/assertVhost.js:assertVhost.js",
+      "type": "file",
+      "name": "assertVhost.js",
+      "filePath": "lib/amqp/tasks/assertVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 29
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/assertVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/assertVhost.ts:assertVhost.ts",
+            "function:src/amqp/tasks/assertVhost.ts:assertVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/bounceVhost.js:bounceVhost.js",
+      "type": "file",
+      "name": "bounceVhost.js",
+      "filePath": "lib/amqp/tasks/bounceVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 6
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/bounceVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/bounceVhost.ts:bounceVhost.ts",
+            "function:src/amqp/tasks/bounceVhost.ts:bounceVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/checkExchanges.js:checkExchanges.js",
+      "type": "file",
+      "name": "checkExchanges.js",
+      "filePath": "lib/amqp/tasks/checkExchanges.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/checkExchanges.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/checkExchanges.ts:checkExchanges.ts",
+            "function:src/amqp/tasks/checkExchanges.ts:checkExchanges"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/checkQueues.js:checkQueues.js",
+      "type": "file",
+      "name": "checkQueues.js",
+      "filePath": "lib/amqp/tasks/checkQueues.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/checkQueues.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/checkQueues.ts:checkQueues.ts",
+            "function:src/amqp/tasks/checkQueues.ts:checkQueues"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/checkVhost.js:checkVhost.js",
+      "type": "file",
+      "name": "checkVhost.js",
+      "filePath": "lib/amqp/tasks/checkVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 29
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/checkVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/checkVhost.ts:checkVhost.ts",
+            "function:src/amqp/tasks/checkVhost.ts:checkVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/closeChannels.js:closeChannels.js",
+      "type": "file",
+      "name": "closeChannels.js",
+      "filePath": "lib/amqp/tasks/closeChannels.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 18
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/closeChannels.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/closeChannels.ts:closeChannels.ts",
+            "function:src/amqp/tasks/closeChannels.ts:closeChannels"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/closeConnection.js:closeConnection.js",
+      "type": "file",
+      "name": "closeConnection.js",
+      "filePath": "lib/amqp/tasks/closeConnection.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 10
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/closeConnection.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/closeConnection.ts:closeConnection.ts",
+            "function:src/amqp/tasks/closeConnection.ts:closeConnection"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/createChannels.js:createChannels.js",
+      "type": "file",
+      "name": "createChannels.js",
+      "filePath": "lib/amqp/tasks/createChannels.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 19
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/createChannels.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/createChannels.ts:createChannels.ts",
+            "function:src/amqp/tasks/createChannels.ts:createChannels"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/createConnection.js:createConnection.js",
+      "type": "file",
+      "name": "createConnection.js",
+      "filePath": "lib/amqp/tasks/createConnection.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 75
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/createConnection.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/createConnection.ts:createConnection.ts",
+            "function:src/amqp/tasks/createConnection.ts:createConnection"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/deleteExchanges.js:deleteExchanges.js",
+      "type": "file",
+      "name": "deleteExchanges.js",
+      "filePath": "lib/amqp/tasks/deleteExchanges.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/deleteExchanges.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/deleteExchanges.ts:deleteExchanges.ts",
+            "function:src/amqp/tasks/deleteExchanges.ts:deleteExchanges"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/deleteQueues.js:deleteQueues.js",
+      "type": "file",
+      "name": "deleteQueues.js",
+      "filePath": "lib/amqp/tasks/deleteQueues.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 22
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/deleteQueues.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/deleteQueues.ts:deleteQueues.ts",
+            "function:src/amqp/tasks/deleteQueues.ts:deleteQueues"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/deleteVhost.js:deleteVhost.js",
+      "type": "file",
+      "name": "deleteVhost.js",
+      "filePath": "lib/amqp/tasks/deleteVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 30
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/deleteVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/deleteVhost.ts:deleteVhost.ts",
+            "function:src/amqp/tasks/deleteVhost.ts:deleteVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/forewarnVhost.js:forewarnVhost.js",
+      "type": "file",
+      "name": "forewarnVhost.js",
+      "filePath": "lib/amqp/tasks/forewarnVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 6
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/forewarnVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/forewarnVhost.ts:forewarnVhost.ts",
+            "function:src/amqp/tasks/forewarnVhost.ts:forewarnVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "lib/amqp/tasks/index.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 25
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/index.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/index.ts:index.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/initCounters.js:initCounters.js",
+      "type": "file",
+      "name": "initCounters.js",
+      "filePath": "lib/amqp/tasks/initCounters.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 25
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/initCounters.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/initCounters.ts:initCounters.ts",
+            "function:src/amqp/tasks/initCounters.ts:initCounters"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/initPublications.js:initPublications.js",
+      "type": "file",
+      "name": "initPublications.js",
+      "filePath": "lib/amqp/tasks/initPublications.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 24
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/initPublications.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/initPublications.ts:initPublications.ts",
+            "function:src/amqp/tasks/initPublications.ts:initPublications"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/initShovels.js:initShovels.js",
+      "type": "file",
+      "name": "initShovels.js",
+      "filePath": "lib/amqp/tasks/initShovels.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 42
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/initShovels.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/initShovels.ts:initShovels.ts",
+            "function:src/amqp/tasks/initShovels.ts:initShovels"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/initSubscriptions.js:initSubscriptions.js",
+      "type": "file",
+      "name": "initSubscriptions.js",
+      "filePath": "lib/amqp/tasks/initSubscriptions.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/initSubscriptions.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/initSubscriptions.ts:initSubscriptions.ts",
+            "function:src/amqp/tasks/initSubscriptions.ts:initSubscriptions"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/initVhosts.js:initVhosts.js",
+      "type": "file",
+      "name": "initVhosts.js",
+      "filePath": "lib/amqp/tasks/initVhosts.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 31
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/initVhosts.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/initVhosts.ts:initVhosts.ts",
+            "function:src/amqp/tasks/initVhosts.ts:initVhosts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/nukeVhost.js:nukeVhost.js",
+      "type": "file",
+      "name": "nukeVhost.js",
+      "filePath": "lib/amqp/tasks/nukeVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 6
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/nukeVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/nukeVhost.ts:nukeVhost.ts",
+            "function:src/amqp/tasks/nukeVhost.ts:nukeVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/purgeQueues.js:purgeQueues.js",
+      "type": "file",
+      "name": "purgeQueues.js",
+      "filePath": "lib/amqp/tasks/purgeQueues.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 23
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/purgeQueues.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/purgeQueues.ts:purgeQueues.ts",
+            "function:src/amqp/tasks/purgeQueues.ts:purgeQueues"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/purgeVhost.js:purgeVhost.js",
+      "type": "file",
+      "name": "purgeVhost.js",
+      "filePath": "lib/amqp/tasks/purgeVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 6
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/purgeVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/purgeVhost.ts:purgeVhost.ts",
+            "function:src/amqp/tasks/purgeVhost.ts:purgeVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/tasks/shutdownVhost.js:shutdownVhost.js",
+      "type": "file",
+      "name": "shutdownVhost.js",
+      "filePath": "lib/amqp/tasks/shutdownVhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 6
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/tasks.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/tasks/shutdownVhost.ts"
+          ],
+          "ids": [
+            "file:src/amqp/tasks/shutdownVhost.ts:shutdownVhost.ts",
+            "function:src/amqp/tasks/shutdownVhost.ts:shutdownVhost"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/Vhost.js:Vhost.js",
+      "type": "file",
+      "name": "Vhost.js",
+      "filePath": "lib/amqp/Vhost.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 517
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/vhost.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/Vhost.ts",
+            "src/amqp/SerialQueue.ts"
+          ],
+          "ids": [
+            "file:src/amqp/Vhost.ts:Vhost.ts",
+            "class:src/amqp/Vhost.ts:Vhost",
+            "function:src/amqp/Vhost.ts:create",
+            "function:src/amqp/Vhost.ts:composeTasks",
+            "class:src/amqp/SerialQueue.ts:SerialQueue"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/amqp/XDeath.js:XDeath.js",
+      "type": "file",
+      "name": "XDeath.js",
+      "filePath": "lib/amqp/XDeath.js",
+      "layer": "messaging",
+      "lineRange": {
+        "start": 1,
+        "end": 5
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/messaging/recovery.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/amqp/XDeath.ts"
+          ],
+          "ids": [
+            "file:src/amqp/XDeath.ts:XDeath.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/backoff/exponential.js:exponential.js",
+      "type": "file",
+      "name": "exponential.js",
+      "filePath": "lib/backoff/exponential.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 27
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/backoff.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/backoff/exponential.ts"
+          ],
+          "ids": [
+            "function:src/backoff/exponential.ts:exponential"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/backoff/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "lib/backoff/index.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 13
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/backoff.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/backoff/index.ts"
+          ],
+          "ids": [
+            "function:src/backoff/index.ts:backoff"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/backoff/linear.js:linear.js",
+      "type": "file",
+      "name": "linear.js",
+      "filePath": "lib/backoff/linear.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 11
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/backoff.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/backoff/linear.ts"
+          ],
+          "ids": [
+            "function:src/backoff/linear.ts:linear"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/counters/index.js:index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "lib/counters/index.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 9
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/counters.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/counters/index.ts"
+          ],
+          "ids": [
+            "file:src/counters/index.ts:index.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/counters/inMemory.js:inMemory.js",
+      "type": "file",
+      "name": "inMemory.js",
+      "filePath": "lib/counters/inMemory.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 15
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/counters.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/counters/inMemory.ts"
+          ],
+          "ids": [
+            "function:src/counters/inMemory.ts:inMemory"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/counters/inMemoryCluster.js:inMemoryCluster.js",
+      "type": "file",
+      "name": "inMemoryCluster.js",
+      "filePath": "lib/counters/inMemoryCluster.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 71
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/counters.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/counters/inMemoryCluster.ts"
+          ],
+          "ids": [
+            "function:src/counters/inMemoryCluster.ts:master",
+            "function:src/counters/inMemoryCluster.ts:worker"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/counters/stub.js:stub.js",
+      "type": "file",
+      "name": "stub.js",
+      "filePath": "lib/counters/stub.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 7
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/counters.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/counters/stub.ts"
+          ],
+          "ids": [
+            "function:src/counters/stub.ts:stub"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "file",
+      "name": "setTimeoutUnref.js",
+      "filePath": "lib/utils/setTimeoutUnref.js",
+      "layer": "service",
+      "lineRange": {
+        "start": 1,
+        "end": 5
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/service-layer/utilities.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/utils/setTimeoutUnref.ts"
+          ],
+          "ids": [
+            "function:src/utils/setTimeoutUnref.ts:setTimeoutUnref"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/baseline.js:baseline.js",
+      "type": "file",
+      "name": "baseline.js",
+      "filePath": "lib/config/baseline.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 110
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/entities.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/baseline.ts"
+          ],
+          "ids": [
+            "file:src/config/baseline.ts:baseline.ts",
+            "function:src/config/baseline.ts:baseline"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/configure.js:configure.js",
+      "type": "file",
+      "name": "configure.js",
+      "filePath": "lib/config/configure.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 367
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/validation.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/configure.ts",
+            "src/config/fqn.ts",
+            "src/config/helpers.ts"
+          ],
+          "ids": [
+            "file:src/config/configure.ts:configure.ts",
+            "function:src/config/configure.ts:configure"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/defaults.js:defaults.js",
+      "type": "file",
+      "name": "defaults.js",
+      "filePath": "lib/config/defaults.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 21
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/value-objects.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/defaults.ts"
+          ],
+          "ids": [
+            "file:src/config/defaults.ts:defaults.ts",
+            "function:src/config/defaults.ts:defaultConfig"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/fqn.js:fqn.js",
+      "type": "file",
+      "name": "fqn.js",
+      "filePath": "lib/config/fqn.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 20
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/value-objects.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/fqn.ts"
+          ],
+          "ids": [
+            "file:src/config/fqn.ts:fqn.ts",
+            "function:src/config/fqn.ts:qualify",
+            "function:src/config/fqn.ts:prefix",
+            "function:src/config/fqn.ts:suffix"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/tests.js:tests.js",
+      "type": "file",
+      "name": "tests.js",
+      "filePath": "lib/config/tests.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 44
+      },
+      "rebuild": {
+        "priority": "SHOULD",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/value-objects.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/tests.ts"
+          ],
+          "ids": [
+            "file:src/config/tests.ts:tests.ts",
+            "function:src/config/tests.ts:testConfig"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:lib/config/validate.js:validate.js",
+      "type": "file",
+      "name": "validate.js",
+      "filePath": "lib/config/validate.js",
+      "layer": "domain",
+      "lineRange": {
+        "start": 1,
+        "end": 189
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/domain-model/validation.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "src/config/validate.ts",
+            "src/config/helpers.ts"
+          ],
+          "ids": [
+            "file:src/config/validate.ts:validate.ts",
+            "function:src/config/validate.ts:validate"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/backoff/exponential.tests.js:exponential.tests.js",
+      "type": "file",
+      "name": "exponential.tests.js",
+      "filePath": "test/backoff/exponential.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 69
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/pure-unit-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/backoff/exponential.test.ts"
+          ],
+          "ids": [
+            "file:test/backoff/exponential.test.ts:exponential.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/backoff/linear.tests.js:linear.tests.js",
+      "type": "file",
+      "name": "linear.tests.js",
+      "filePath": "test/backoff/linear.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 28
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/pure-unit-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/backoff/linear.test.ts"
+          ],
+          "ids": [
+            "file:test/backoff/linear.test.ts:linear.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/broker.tests.js:broker.tests.js",
+      "type": "file",
+      "name": "broker.tests.js",
+      "filePath": "test/broker.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 540
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/broker-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/broker.test.ts"
+          ],
+          "ids": [
+            "file:test/broker.test.ts:broker.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/brokerAsPromised.tests.js:brokerAsPromised.tests.js",
+      "type": "file",
+      "name": "brokerAsPromised.tests.js",
+      "filePath": "test/brokerAsPromised.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 247
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/broker-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/brokerAsPromised.test.ts"
+          ],
+          "ids": [
+            "file:test/brokerAsPromised.test.ts:brokerAsPromised.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/caches/inMemory.tests.js:inMemory.tests.js",
+      "type": "file",
+      "name": "inMemory.tests.js",
+      "filePath": "test/caches/inMemory.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 50
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/pure-unit-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/counters/inMemory.test.ts"
+          ],
+          "ids": [
+            "file:test/counters/inMemory.test.ts:inMemory.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/config.tests.js:config.tests.js",
+      "type": "file",
+      "name": "config.tests.js",
+      "filePath": "test/config.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 2105
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/config-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/config.test.ts"
+          ],
+          "ids": [
+            "file:test/config.test.ts:config.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/defaults.tests.js:defaults.tests.js",
+      "type": "file",
+      "name": "defaults.tests.js",
+      "filePath": "test/defaults.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 594
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/config-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/defaults.test.ts"
+          ],
+          "ids": [
+            "file:test/defaults.test.ts:defaults.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/publications.tests.js:publications.tests.js",
+      "type": "file",
+      "name": "publications.tests.js",
+      "filePath": "test/publications.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 916
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/publication-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/publications.test.ts"
+          ],
+          "ids": [
+            "file:test/publications.test.ts:publications.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/publicationsAsPromised.tests.js:publicationsAsPromised.tests.js",
+      "type": "file",
+      "name": "publicationsAsPromised.tests.js",
+      "filePath": "test/publicationsAsPromised.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 582
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/publication-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/publicationsAsPromised.test.ts"
+          ],
+          "ids": [
+            "file:test/publicationsAsPromised.test.ts:publicationsAsPromised.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/shovel.tests.js:shovel.tests.js",
+      "type": "file",
+      "name": "shovel.tests.js",
+      "filePath": "test/shovel.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 104
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/vhost-shovel-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/shovel.test.ts"
+          ],
+          "ids": [
+            "file:test/shovel.test.ts:shovel.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/subscriptions.tests.js:subscriptions.tests.js",
+      "type": "file",
+      "name": "subscriptions.tests.js",
+      "filePath": "test/subscriptions.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 2952
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/subscription-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/subscriptions.test.ts"
+          ],
+          "ids": [
+            "file:test/subscriptions.test.ts:subscriptions.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/subscriptionsAsPromised.tests.js:subscriptionsAsPromised.tests.js",
+      "type": "file",
+      "name": "subscriptionsAsPromised.tests.js",
+      "filePath": "test/subscriptionsAsPromised.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 2135
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/subscription-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/subscriptionsAsPromised.test.ts"
+          ],
+          "ids": [
+            "file:test/subscriptionsAsPromised.test.ts:subscriptionsAsPromised.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "file",
+      "name": "amqputils.js",
+      "filePath": "test/utils/amqputils.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 162
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/utilities.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/utils/amqputils.ts"
+          ],
+          "ids": [
+            "file:test/utils/amqputils.ts:amqputils.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/validation.tests.js:validation.tests.js",
+      "type": "file",
+      "name": "validation.tests.js",
+      "filePath": "test/validation.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 924
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/config-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/validation.test.ts"
+          ],
+          "ids": [
+            "file:test/validation.test.ts:validation.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    },
+    {
+      "id": "file:test/vhost.tests.js:vhost.tests.js",
+      "type": "file",
+      "name": "vhost.tests.js",
+      "filePath": "test/vhost.tests.js",
+      "layer": "tests",
+      "lineRange": {
+        "start": 1,
+        "end": 287
+      },
+      "rebuild": {
+        "priority": "MUST",
+        "contractKind": null,
+        "coverage": "verified",
+        "docRef": "docs/unwind/layers/unit-tests/vhost-shovel-tests.md",
+        "rebuildStatus": "done",
+        "target": {
+          "files": [
+            "test/vhost.test.ts"
+          ],
+          "ids": [
+            "file:test/vhost.test.ts:vhost.test.ts"
+          ],
+          "state": "present",
+          "confirmed": true
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:examples/advanced/cluster.js:cluster.js",
+      "target": "file:examples/advanced/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:examples/advanced/index.js:index.js",
+      "target": "file:examples/advanced/config.js:config.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:index.js:index.js",
+      "target": "file:lib/amqp/Broker.js:Broker.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:index.js:index.js",
+      "target": "file:lib/amqp/BrokerAsPromised.js:BrokerAsPromised.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:index.js:index.js",
+      "target": "file:lib/config/defaults.js:defaults.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:index.js:index.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:index.js:index.js",
+      "target": "file:lib/counters/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/amqp/tasks/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/config/configure.js:configure.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/config/fqn.js:fqn.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/config/validate.js:validate.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/counters/inMemory.js:inMemory.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/counters/inMemoryCluster.js:inMemoryCluster.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Broker.js:Broker.js",
+      "target": "file:lib/counters/stub.js:stub.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/BrokerAsPromised.js:BrokerAsPromised.js",
+      "target": "file:lib/amqp/Broker.js:Broker.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/BrokerAsPromised.js:BrokerAsPromised.js",
+      "target": "file:lib/amqp/SubscriberSessionAsPromised.js:SubscriberSessionAsPromised.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Publication.js:Publication.js",
+      "target": "file:lib/amqp/PublicationSession.js:PublicationSession.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Publication.js:Publication.js",
+      "target": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/SubscriberError.js:SubscriberError.js",
+      "target": "file:lib/amqp/XDeath.js:XDeath.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/SubscriberError.js:SubscriberError.js",
+      "target": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/SubscriberSession.js:SubscriberSession.js",
+      "target": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Subscription.js:Subscription.js",
+      "target": "file:lib/amqp/SubscriberError.js:SubscriberError.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Subscription.js:Subscription.js",
+      "target": "file:lib/amqp/SubscriberSession.js:SubscriberSession.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Subscription.js:Subscription.js",
+      "target": "file:lib/amqp/XDeath.js:XDeath.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Subscription.js:Subscription.js",
+      "target": "file:lib/backoff/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Subscription.js:Subscription.js",
+      "target": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/assertVhost.js:assertVhost.js",
+      "target": "file:lib/management/Client.js:Client.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/checkVhost.js:checkVhost.js",
+      "target": "file:lib/management/Client.js:Client.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/deleteVhost.js:deleteVhost.js",
+      "target": "file:lib/management/Client.js:Client.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/applyBindings.js:applyBindings.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/assertExchanges.js:assertExchanges.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/assertQueues.js:assertQueues.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/assertVhost.js:assertVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/bounceVhost.js:bounceVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/checkExchanges.js:checkExchanges.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/checkQueues.js:checkQueues.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/checkVhost.js:checkVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/closeChannels.js:closeChannels.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/closeConnection.js:closeConnection.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/createChannels.js:createChannels.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/createConnection.js:createConnection.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/deleteExchanges.js:deleteExchanges.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/deleteQueues.js:deleteQueues.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/deleteVhost.js:deleteVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/forewarnVhost.js:forewarnVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/initCounters.js:initCounters.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/initPublications.js:initPublications.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/initShovels.js:initShovels.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/initSubscriptions.js:initSubscriptions.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/initVhosts.js:initVhosts.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/nukeVhost.js:nukeVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/purgeQueues.js:purgeQueues.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/purgeVhost.js:purgeVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/index.js:index.js",
+      "target": "file:lib/amqp/tasks/shutdownVhost.js:shutdownVhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/initPublications.js:initPublications.js",
+      "target": "file:lib/amqp/Publication.js:Publication.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/initSubscriptions.js:initSubscriptions.js",
+      "target": "file:lib/amqp/Subscription.js:Subscription.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/tasks/initVhosts.js:initVhosts.js",
+      "target": "file:lib/amqp/Vhost.js:Vhost.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Vhost.js:Vhost.js",
+      "target": "file:lib/amqp/tasks/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Vhost.js:Vhost.js",
+      "target": "file:lib/backoff/index.js:index.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/amqp/Vhost.js:Vhost.js",
+      "target": "file:lib/utils/setTimeoutUnref.js:setTimeoutUnref.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/backoff/index.js:index.js",
+      "target": "file:lib/backoff/exponential.js:exponential.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/backoff/index.js:index.js",
+      "target": "file:lib/backoff/linear.js:linear.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/config/configure.js:configure.js",
+      "target": "file:lib/config/baseline.js:baseline.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/config/configure.js:configure.js",
+      "target": "file:lib/config/fqn.js:fqn.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/config/tests.js:tests.js",
+      "target": "file:lib/config/defaults.js:defaults.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/counters/index.js:index.js",
+      "target": "file:lib/counters/inMemory.js:inMemory.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/counters/index.js:index.js",
+      "target": "file:lib/counters/inMemoryCluster.js:inMemoryCluster.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/counters/index.js:index.js",
+      "target": "file:lib/counters/stub.js:stub.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:lib/counters/inMemoryCluster.js:inMemoryCluster.js",
+      "target": "file:lib/counters/inMemory.js:inMemory.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/backoff/exponential.tests.js:exponential.tests.js",
+      "target": "file:lib/backoff/exponential.js:exponential.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/backoff/linear.tests.js:linear.tests.js",
+      "target": "file:lib/backoff/linear.js:linear.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/broker.tests.js:broker.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/broker.tests.js:broker.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/brokerAsPromised.tests.js:brokerAsPromised.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/caches/inMemory.tests.js:inMemory.tests.js",
+      "target": "file:lib/counters/inMemory.js:inMemory.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/config.tests.js:config.tests.js",
+      "target": "file:lib/config/configure.js:configure.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/defaults.tests.js:defaults.tests.js",
+      "target": "file:lib/config/configure.js:configure.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/publications.tests.js:publications.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/publications.tests.js:publications.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/publicationsAsPromised.tests.js:publicationsAsPromised.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/publicationsAsPromised.tests.js:publicationsAsPromised.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/shovel.tests.js:shovel.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/subscriptions.tests.js:subscriptions.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/subscriptions.tests.js:subscriptions.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/subscriptionsAsPromised.tests.js:subscriptionsAsPromised.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/subscriptionsAsPromised.tests.js:subscriptionsAsPromised.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/validation.tests.js:validation.tests.js",
+      "target": "file:lib/config/validate.js:validate.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/vhost.tests.js:vhost.tests.js",
+      "target": "file:lib/config/tests.js:tests.js",
+      "type": "imports"
+    },
+    {
+      "source": "file:test/vhost.tests.js:vhost.tests.js",
+      "target": "file:test/utils/amqputils.js:amqputils.js",
+      "type": "imports"
+    }
+  ],
+  "stats": {
+    "nodeCount": 105,
+    "edgeCount": 89,
+    "layerCount": 6,
+    "byNodeType": {
+      "file": 105
+    },
+    "byEdgeType": {
+      "imports": 89
+    },
+    "byCoverage": {
+      "excluded": 28,
+      "verified": 76,
+      "documented": 1
+    },
+    "byPriority": {
+      "DON'T": 28,
+      "SHOULD": 22,
+      "MUST": 54,
+      "none": 1
+    },
+    "coveragePct": 73.3
+  }
+}
