@@ -109,7 +109,8 @@ Unwind falls back to a pure-LLM flow.
 
 ## Visualize the graph
 
-Live demo: [unwind.cliftonc.nl](https://unwind.cliftonc.nl)
+Live demo: [unwind.cliftonc.nl](https://unwind.cliftonc.nl) · published to GitHub
+Pages with `uw-publish`: [nearform.github.io/unwind/rascal](https://nearform.github.io/unwind/rascal/)
 
 After a run, explore your own result interactively:
 

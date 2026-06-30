@@ -44,8 +44,8 @@
   --color-graph-mask: var(--c-graph-mask);
   --color-minimap-node: var(--c-minimap-node);
 
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 /* ---- Dark (default) — Nearform deep navy + bright green ---- */
