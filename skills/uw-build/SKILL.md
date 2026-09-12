@@ -250,7 +250,7 @@ behavioral equivalence use run-tests depth / the project's equivalence vectors.
 - **Continue the rebuild** — next slice/phase (or `/loop /uw-build`).
 - **Pause here.**
 
-> **Pipeline:** scan → analyze → plan → **build ✓** → dashboard.
+> **Pipeline:** scan → analyze → grill → plan → **build ✓** → dashboard.
 
 ## Refresh interaction
 

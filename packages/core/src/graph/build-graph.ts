@@ -26,6 +26,7 @@ import {
   type CoverageState,
   type EdgeType,
   type GraphLayer,
+  type NodeRisk,
   type NodeType,
   type RebuildGraph,
   type RebuildNode,
@@ -33,6 +34,9 @@ import {
   type RebuildStatus,
   type RebuildTargetInfo,
   type RebuildVerificationSummary,
+  type RiskSeverity,
+  type RiskSummary,
+  type RiskVerdict,
 } from "./rebuild-graph-schema.js";
 
 /** Human label for a layer key. */
@@ -145,6 +149,24 @@ export interface BuildGraphInputs {
    * become the graph-level `rebuildVerification` summary.
    */
   verification?: VerificationLike;
+  /**
+   * Parsed .cache/grill-findings.json from `uw-grill` — the "is this worth
+   * rebuilding?" overlay. Each finding names the candidate id it attaches to, so
+   * findings fold onto nodes by the same join key as everything else.
+   */
+  grill?: GrillFindingsLike;
+}
+
+/** Minimal shape of grill-findings.json consumed here. */
+export interface GrillFindingsLike {
+  generatedAt?: string;
+  findings?: {
+    id: string;
+    candidateId?: string;
+    category?: string;
+    severity?: string;
+    verdict?: string | null;
+  }[];
 }
 
 /** Minimal shape of rebuild-state.json consumed here (decoupled from the full schema). */
@@ -178,7 +200,8 @@ export function buildRebuildGraph(
   inputs: BuildGraphInputs,
   generatedAt: string,
 ): RebuildGraph {
-  const { manifest, coverageByLayer, documented, progress, rebuildState, verification } = inputs;
+  const { manifest, coverageByLayer, documented, progress, rebuildState, verification, grill } =
+    inputs;
   const staleIds = new Set(inputs.staleIds ?? []);
 
   // --- Index target-side mapping (the "build assets") by node id, when a rebuild
@@ -228,6 +251,62 @@ export function buildRebuildGraph(
   const reportedLayers = new Set(Object.keys(coverageByLayer));
 
   const byLayer = candidatesByLayer(manifest);
+
+  // --- Index grill findings by the candidate id they attach to. Severity and
+  // verdict are rolled up per node: worst severity wins, and the most decisive
+  // verdict wins (drop > fix-in-rebuild > downgrade > document-first > reassign
+  // > preserve), because one dropped rule outranks five confirmations. ---
+  const SEVERITY_RANK: Record<string, number> = { low: 0, medium: 1, high: 2 };
+  const VERDICT_RANK: Record<string, number> = {
+    preserve: 0,
+    reassign: 1,
+    "document-first": 2,
+    downgrade: 3,
+    "fix-in-rebuild": 4,
+    drop: 5,
+  };
+  const riskById = new Map<string, NodeRisk>();
+  const riskSummary: RiskSummary = {
+    generatedAt: grill?.generatedAt ?? null,
+    total: 0,
+    openCount: 0,
+    byCategory: {},
+    bySeverity: {},
+    byVerdict: {},
+  };
+  for (const f of grill?.findings ?? []) {
+    if (!f || typeof f.candidateId !== "string" || !f.candidateId) continue;
+    const severity = (
+      f.severity && f.severity in SEVERITY_RANK ? f.severity : "medium"
+    ) as RiskSeverity;
+    const verdict = (f.verdict ?? null) as RiskVerdict | null;
+    riskSummary.total += 1;
+    if (!verdict) riskSummary.openCount += 1;
+    if (f.category) {
+      riskSummary.byCategory[f.category] = (riskSummary.byCategory[f.category] ?? 0) + 1;
+    }
+    riskSummary.bySeverity[severity] = (riskSummary.bySeverity[severity] ?? 0) + 1;
+    if (verdict) riskSummary.byVerdict[verdict] = (riskSummary.byVerdict[verdict] ?? 0) + 1;
+
+    const prev = riskById.get(f.candidateId);
+    if (!prev) {
+      riskById.set(f.candidateId, {
+        severity,
+        verdict,
+        findings: [f.id],
+        categories: f.category ? [f.category] : [],
+        openCount: verdict ? 0 : 1,
+      });
+      continue;
+    }
+    if (SEVERITY_RANK[severity] > SEVERITY_RANK[prev.severity]) prev.severity = severity;
+    if (verdict && (!prev.verdict || VERDICT_RANK[verdict] > VERDICT_RANK[prev.verdict])) {
+      prev.verdict = verdict;
+    }
+    if (!prev.findings.includes(f.id)) prev.findings.push(f.id);
+    if (f.category && !prev.categories.includes(f.category)) prev.categories.push(f.category);
+    if (!verdict) prev.openCount += 1;
+  }
 
   const nodes: RebuildNode[] = [];
   const layerCounts: Record<string, number> = {};
@@ -291,6 +370,7 @@ export function buildRebuildGraph(
           rebuildStatus,
           target: targetInfoFor(c.id),
         },
+        risk: riskById.get(c.id) ?? null,
       });
       layerCounts[layer] = (layerCounts[layer] ?? 0) + 1;
     }
@@ -420,6 +500,8 @@ export function buildRebuildGraph(
   return {
     version: REBUILD_GRAPH_VERSION,
     generatedAt,
+    // Only surface the grill roll-up when a grill actually ran.
+    riskSummary: riskSummary.total > 0 ? riskSummary : null,
     project: {
       name: manifest.project.name,
       languages: manifest.project.languages,
@@ -461,7 +543,7 @@ function defaultStatus(coverage: CoverageState): RebuildStatus {
 }
 
 /** File stem without directory or extension(s) for test<->source matching. */
-function stemOf(path: string): string {
+export function stemOf(path: string): string {
   const base = basename(path);
   // strip a single trailing extension; keep compound names intact otherwise.
   return base.replace(/\.[a-z0-9]+$/i, "").toLowerCase();
@@ -473,7 +555,7 @@ function stemOf(path: string): string {
  * FooTest.java / FooTests.java / FooIT.java (JVM suffix convention).
  * Returns null when no convention matches.
  */
-function testTargetStem(path: string): string | null {
+export function testTargetStem(path: string): string | null {
   const base = basename(path);
   let m = base.match(/^(.+?)\.(test|spec|e2e)\.[a-z0-9]+$/i);
   if (m) return m[1].toLowerCase();

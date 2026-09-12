@@ -176,11 +176,18 @@ When all gaps are filled (every `gaps.md` deleted), re-verify to prove the cover
 loop converged before moving on.
 
 **Use AskUserQuestion** to ask whether to continue:
-- **Re-verify coverage** *(recommended)* — confirm 100%, then proceed to planning.
+- **Re-verify coverage** *(recommended)* — confirm 100%, then proceed.
+- **Grill the business logic** — invoke `unwind:uw-grill`. Coverage proves every
+  item is *documented*; it proves nothing about whether the behaviour deserves to
+  be rebuilt. The grill hunts obsolete rules, unexplained constants and
+  contradictions, and writes the questions only a domain expert can answer into
+  `docs/unwind/questions/`. Worth it before planning; skip it if the spec is the
+  only deliverable.
 - **Pause here** — stop and resume later.
 
 Act in the same turn:
-- **Continue** → invoke `unwind:uw-verify` (and, once 100%, `unwind:uw-plan`).
+- **Continue** → invoke `unwind:uw-verify` (and, once 100%, `unwind:uw-grill` or
+  `unwind:uw-plan`).
 - **Pause** → tell them how to resume: *"Run `unwind:uw-verify` (type `/uw-verify`) to re-check coverage."*
 
-> **Pipeline:** scan → analyze → verify → **complete ✓** → plan → dashboard.
+> **Pipeline:** scan → analyze → verify → **complete ✓** → grill → plan → dashboard.

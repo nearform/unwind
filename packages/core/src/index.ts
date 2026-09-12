@@ -46,7 +46,13 @@ export {
 // --- Increment 4: rebuild graph ---
 export {
   buildRebuildGraph,
+  // Test-linkage helpers. Exported so grill-brief.mjs derives `tested_by` from
+  // the SAME naming conventions the graph uses, instead of re-implementing them
+  // in .mjs and silently drifting.
+  stemOf,
+  testTargetStem,
   type BuildGraphInputs,
+  type GrillFindingsLike,
   type ProgressOverlay,
 } from "./graph/build-graph.js";
 export {
@@ -58,6 +64,10 @@ export {
   type RebuildBlock,
   type RebuildTargetInfo,
   type RebuildVerificationSummary,
+  type NodeRisk,
+  type RiskSummary,
+  type RiskSeverity,
+  type RiskVerdict,
   type GraphLayer,
   type RebuildGraphStats,
   type NodeType,

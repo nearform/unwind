@@ -399,5 +399,5 @@ dashboard builds its data (`rebuild-graph.json`) on demand, so you go straight t
 Act on the choice in the same turn; if they pause, tell them how to resume: *"Run
 `unwind:uw-dashboard` to explore the graph, or `unwind:uw-build` to start the rebuild."*
 
-> **Pipeline:** scan → analyze → **plan ✓** → dashboard. `uw-graph` is an optional
+> **Pipeline:** scan → analyze → grill → **plan ✓** → dashboard. `uw-graph` is an optional
 > artifact-export step, not a gate — the dashboard builds the graph itself.

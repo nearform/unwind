@@ -1,5 +1,13 @@
 import { useStore } from "../store";
-import { coverageColor, nodeTypeColor, priorityColor, rebuiltStateColor, statusLabel } from "../colors";
+import {
+  coverageColor,
+  nodeTypeColor,
+  priorityColor,
+  rebuiltStateColor,
+  riskColor,
+  statusLabel,
+  verdictLabel,
+} from "../colors";
 import { sourceLink } from "../types";
 
 export default function NodeInfo({
@@ -81,6 +89,35 @@ export default function NodeInfo({
           {r.docRef ? <span className="font-mono text-[10px] break-all">{r.docRef}</span> : "—"}
         </Row>
       </div>
+
+      {/* Grill risk — someone questioned whether this should be rebuilt at all
+          (uw-grill). Absent until a grill has produced findings for this node. */}
+      {node.risk && (
+        <div className="rounded-lg border border-border-subtle bg-elevated/50 p-3 mb-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-semibold text-accent uppercase tracking-wider">Risk</h3>
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-text-secondary">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: riskColor(node.risk.severity) }} />
+              {node.risk.severity}
+            </span>
+          </div>
+          <Row label="Verdict">
+            <span className={node.risk.verdict ? "" : "text-text-muted italic"}>
+              {verdictLabel(node.risk.verdict)}
+            </span>
+          </Row>
+          <Row label="Findings">{node.risk.categories.join(", ") || "—"}</Row>
+          <Row label="Questions">
+            <span className="font-mono text-[10px]">{node.risk.findings.join(" ")}</span>
+          </Row>
+          {node.risk.openCount > 0 && (
+            <p className="text-[11px] text-text-muted leading-relaxed">
+              {node.risk.openCount} question{node.risk.openCount === 1 ? "" : "s"} still
+              awaiting an answer — see the Docs view under <span className="font-mono">questions/</span>.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Build assets — where this node was rebuilt in the target stack (uw-build). */}
       {r.target && r.target.files.length > 0 && (

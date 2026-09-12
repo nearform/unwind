@@ -32,6 +32,13 @@ Supported languages for symbol extraction: **TypeScript/JavaScript, Python, Rust
 Java, C#**. Other languages still get full file-level coverage (graceful
 degradation), and if Node/pnpm is unavailable Unwind falls back to a pure-LLM flow.
 
+### What coverage does NOT prove
+
+100% coverage means every symbol is *described*. It says nothing about whether the
+described behaviour deserves to be reproduced. `uw-grill` is the step that asks
+that question — and because the person running Unwind usually can't answer it, it
+writes the business questions into `docs/unwind/questions/` for the people who can.
+
 ## Principles
 
 See `analysis-principles.md`:
@@ -69,6 +76,12 @@ verify-coverage.mjs → DETERMINISTIC diff (manifest − docs)
         │
 uw-complete → fills gaps.md, deletes it
         │   (loop verify → complete until 100% coverage)
+        │
+uw-grill      → attacks the business logic (optional, before planning)
+        ├── grill-brief.mjs   → .cache/grill-brief.json (hotspot buckets)
+        ├── uw-grill-layer    → per-layer adversarial explorers (evidence required)
+        ├── questions/*.md    → questionnaires for DOMAIN EXPERTS, by capability
+        └── grill-answers.mjs → ingests ticked answers → retags the layer docs
         │
 uw-plan       → REBUILD-PLAN.md (strategic rebuild approach)
         │

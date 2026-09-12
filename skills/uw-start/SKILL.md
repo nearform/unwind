@@ -1,6 +1,6 @@
 ---
 name: uw-start
-description: Start here. The entry point for reverse-engineering a codebase with Unwind — orients you, checks prerequisites, handles restart vs update, then runs the rebuild pipeline (scan → analyze → plan → dashboard) with a checkpoint at each phase. Use when beginning Unwind on a repo, or when unsure which uw- skill to run first.
+description: Start here. The entry point for reverse-engineering a codebase with Unwind — orients you, checks prerequisites, handles restart vs update, then runs the rebuild pipeline (scan → analyze → grill → plan → dashboard) with a checkpoint at each phase. Use when beginning Unwind on a repo, or when unsure which uw- skill to run first.
 allowed-tools:
   - Read
   - Glob
@@ -20,7 +20,7 @@ continue/pause gate, so you stay in control.
 > logic. Every documented item is tagged `[MUST]` / `[SHOULD]` / `[DON'T]`, and
 > completeness is **verified by set arithmetic** (scan − docs), not asserted.
 >
-> **Pipeline:** scan → analyze → plan → dashboard. We checkpoint at each phase.
+> **Pipeline:** scan → analyze → grill → plan → dashboard. We checkpoint at each phase.
 
 ## Step 1: Preconditions
 
@@ -66,12 +66,20 @@ Invoke the first phase now — **`unwind:uw-scan`** — and then follow the pipe
 |-------|-------|----------|
 | 1. Scan | `unwind:uw-scan` | `architecture.md` + `.cache/scan-manifest.json` |
 | 2. Analyze | `unwind:uw-analyze` | `layers/**` (seeded, verified to 100%) |
-| 3. Plan | `unwind:uw-plan` | `REBUILD-PLAN.md` (interviews you about target stack, re-use & phasing) |
-| 4. Dashboard | `unwind:uw-dashboard` | builds `rebuild-graph.json` + launches the viewer |
-| 5. Build *(optional)* | `unwind:uw-build` | executes the rebuild in the target stack + a source→target verification graph measuring completeness |
+| 3. Grill *(optional)* | `unwind:uw-grill` | `questions/*.md` — attacks the documented business logic and asks domain experts what shouldn't be rebuilt |
+| 4. Plan | `unwind:uw-plan` | `REBUILD-PLAN.md` (interviews you about target stack, re-use & phasing) |
+| 5. Dashboard | `unwind:uw-dashboard` | builds `rebuild-graph.json` + launches the viewer |
+| 6. Build *(optional)* | `unwind:uw-build` | executes the rebuild in the target stack + a source→target verification graph measuring completeness |
 
 - **Step-through mode:** invoke `unwind:uw-scan`, then act on each phase's
   continue/pause prompt as the user answers it.
+**Grilling is opt-in and never auto-runs.** After the coverage loop closes, offer
+`unwind:uw-grill`: it hunts for business rules that shouldn't be rebuilt at all
+(obsolete workarounds, unexplained constants, contradictions) and writes the ones
+only a domain expert can settle into `docs/unwind/questions/`. Run it **before**
+the plan, so the plan isn't built on rules you were about to drop. Skip it when the
+user just wants the spec.
+
 - **Run-to-dashboard mode:** invoke each phase in turn, auto-continuing at the gates,
   until the dashboard launches — pausing only for the restart confirmation, the
   **plan interview** (target stack and re-use are user decisions; `uw-plan` lets you

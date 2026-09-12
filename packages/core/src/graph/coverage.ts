@@ -20,6 +20,18 @@ export interface DocumentedItem {
   /** Explicit anchor id if present. */
   id: string | null;
   sourceFile: string;
+  // Body shape, measured from this heading up to the next heading. Used by
+  // grill-brief.mjs to spot a [MUST] that is documented but too thin to rebuild
+  // from — something coverage (a set diff over ids) structurally cannot see.
+  // Additive and optional: nothing in the coverage path reads these.
+  /** Non-blank lines of body text following the heading. */
+  bodyLines?: number;
+  /** Body contains a fenced code block. */
+  hasCodeBlock?: boolean;
+  /** Body contains a markdown table row. */
+  hasTable?: boolean;
+  /** 1-based line number of the heading within `sourceFile`. */
+  line?: number;
 }
 
 // A heading is a documented item when it carries an explicit `<!-- id: ... -->`
@@ -38,9 +50,36 @@ const TAG_RE = /\[(MUST|SHOULD|DON'T)\]/;
 /** Parse documented items from one markdown file. */
 export function extractDocumentedItems(markdown: string, sourceFile: string): DocumentedItem[] {
   const items: DocumentedItem[] = [];
-  for (const line of markdown.split("\n")) {
-    const h = line.match(HEADING_RE);
-    if (!h) continue;
+  const lines = markdown.split("\n");
+  // The item whose body we are currently accumulating (headings close the
+  // previous item's body, whether or not the new heading is itself an item).
+  let open: DocumentedItem | null = null;
+  let inFence = false;
+
+  const closeOpen = () => {
+    open = null;
+    inFence = false;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const fence = /^\s*(```|~~~)/.test(line);
+
+    const h = fence || inFence ? null : line.match(HEADING_RE);
+    if (fence) inFence = !inFence;
+
+    if (!h) {
+      if (open) {
+        if (fence) open.hasCodeBlock = true;
+        else if (!inFence && /^\s*\|.*\|/.test(line)) open.hasTable = true;
+        if (line.trim() !== "") open.bodyLines = (open.bodyLines ?? 0) + 1;
+      }
+      continue;
+    }
+
+    // A heading always ends the previous item's body.
+    closeOpen();
+
     const level = h[1].length;
     const raw = h[2];
     const anchor = raw.match(ANCHOR_RE);
@@ -53,13 +92,19 @@ export function extractDocumentedItems(markdown: string, sourceFile: string): Do
       .replace(/`/g, "")
       .trim();
     if (!name) continue;
-    items.push({
+    const item: DocumentedItem = {
       heading: raw,
       name,
       tag: tagM ? (tagM[1] as DocumentedItem["tag"]) : null,
       id: anchor ? anchor[1] : null,
       sourceFile,
-    });
+      bodyLines: 0,
+      hasCodeBlock: false,
+      hasTable: false,
+      line: i + 1,
+    };
+    items.push(item);
+    open = item;
   }
   return items;
 }
