@@ -36,10 +36,11 @@ packages/
 skills/
   scripts/              bundled .mjs the skills invoke (scan, seed-layers, verify-coverage,
                         build-graph, detect-changes, merge-rebuild-map, verify-rebuild,
-                        deploy-gh-pages)
+                        deploy-gh-pages, grill-brief, grill-answers)
                         + _core.mjs + _resolve-plugin-root.sh
   *                     markdown skills (uw-start entry point, uw-scan, uw-analyze,
                         uw-analyze-* layer specialists, uw-verify, uw-complete,
+                        uw-grill, uw-grill-layer,
                         uw-plan, uw-graph, uw-dashboard, uw-publish, uw-build, uw-build-layer,
                         uw-refresh, uw-help, analysis-principles, rebuild-principles)
 ```
@@ -53,6 +54,7 @@ use** (`ensure_unwind_core`). `pnpm-lock.yaml` IS committed. We standardize on p
 candidate checklists → LLM layer specialists write tagged docs with anchor-id
 headings → `verify-coverage.mjs` does the deterministic `manifest − docs` diff →
 `gaps.md` → `uw-complete` fills them (loop to 100%) →
+**optionally** `uw-grill` (see below) →
 `plan-brief.mjs` → **plan-brief.json** (the deterministic facts) → `uw-plan`
 **interviews the user** (grilling-style: target stack, re-use, phasing, risk) →
 REBUILD-PLAN.md (+ `rebuild-decisions.json`) → `build-graph.mjs` →
@@ -61,6 +63,22 @@ incremental refresh. To **share** the dashboard, `uw-publish` (optional) builds 
 the project's GitHub Pages sub-path and commits it into an `unwind/` subdir of the
 project's `gh-pages` branch (`deploy-gh-pages.mjs`) — never blatting existing branch
 content; viewable at `https://<owner>.github.io/<repo>/unwind/`.
+
+**Grilling** (optional, between complete and plan): coverage proves every item is
+*documented*, never that its behaviour deserves to be reproduced. `grill-brief.mjs`
+ranks hotspot **buckets** (thin `[MUST]`s, untested `[MUST]`s, ORM↔SQL field
+mismatches, duplicate symbol names, tenancy gaps) from signals the core already
+computes — no new parsers, no composite risk score. `uw-grill` dispatches
+`uw-grill-layer` specialists over the five business-logic layers; every finding
+must quote real code at a real line or it is rejected at merge. Findings are then
+split by **who can answer**: code-answerable ones are settled during the run, and
+the rest become questionnaires for **domain experts** at `docs/unwind/questions/`
+(grouped by business capability, plain English, checkbox answers). Experts answer
+in place; `grill-answers.mjs` ingests the ticks and `uw-grill` writes verdicts back
+into the layer docs — `drop` retags `[MUST]`→`[DON'T]` with a mandatory rationale,
+`fix-in-rebuild` writes the correction into the doc **body**. Nothing new is wired
+to `uw-plan`/`uw-build`: the retags move the tallies `plan-brief.mjs` already
+recounts, and `rebuild-principles.md` §2 already forbids porting a `[DON'T]`.
 
 Then **execution** (optional): `uw-build` interviews the user (scope/order/target),
 dispatches technology-agnostic `uw-build-layer` subagents that reproduce each slice's
@@ -73,8 +91,10 @@ diffs it against the source graph → **rebuild-verification-graph.json** + `reb
 
 Artifacts live under the **source** repo's `docs/unwind/`:
 `architecture.md`, `layers/**`, `REBUILD-PLAN.md`, `rebuild-graph.json`,
-`rebuild-verification-graph.json`, `rebuild-gaps.md`, and
+`rebuild-verification-graph.json`, `rebuild-gaps.md`,
+`questions/**` (the domain-expert questionnaires), and
 `.cache/` (`scan-manifest.json`, `meta.json`, `changes.json`, `seeds/`, `coverage/`,
+`grill-brief.json`, `grill/`, `grill-findings.json`,
 `plan-brief.json`, `rebuild-decisions.json`, `rebuild-state.json`, `rebuild-map/`,
 `rebuild-progress.json`, `target-scan/`). Rebuilt code lives in the separate **target** repo.
 
@@ -89,6 +109,9 @@ UNWIND_GRAPH_DIR=<project> pnpm --filter @unwind/dashboard dev   # dashboard on 
 node skills/scripts/scan.mjs <projectRoot>            # → docs/unwind/.cache/scan-manifest.json (+ meta.json)
 node skills/scripts/seed-layers.mjs <projectRoot>
 node skills/scripts/verify-coverage.mjs <projectRoot>
+node skills/scripts/grill-brief.mjs <projectRoot>          # → .cache/grill-brief.json + grill/seeds/ (hotspot buckets)
+node skills/scripts/grill-brief.mjs <projectRoot> --merge  # grill/*.json → .cache/grill-findings.json (evidence enforced)
+node skills/scripts/grill-answers.mjs <projectRoot> [--apply]  # parse ticked questions/*.md → verdicts
 node skills/scripts/plan-brief.mjs <projectRoot>     # → docs/unwind/.cache/plan-brief.json (grounds uw-plan interview)
 node skills/scripts/build-graph.mjs <projectRoot>    # → docs/unwind/rebuild-graph.json
 node skills/scripts/detect-changes.mjs <projectRoot> # incremental: diff vs meta.json baseline

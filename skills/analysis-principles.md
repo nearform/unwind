@@ -201,7 +201,20 @@ Put the tag at the end of every markdown heading for tables, functions, entities
 |-----|---------|----------|
 | **[MUST]** | Essential - rebuild fails without this | Tables, core functions, business logic, API contracts |
 | **[SHOULD]** | Valuable pattern but could differ | Caching, logging, helper utilities, test helpers |
-| **[DON'T]** | Tech-specific - omit from rebuild | ORM syntax, CSS classes, build config |
+| **[DON'T]** | Do not reproduce in the rebuild | ORM syntax, CSS classes, build config — **or** a rule `uw-grill` ruled out as obsolete |
+
+`[DON'T]` has **two** causes, and a rebuilt system is worse off if they're
+confused: something can be tech-specific to the *source stack* (build the
+idiomatic target equivalent), or it can be a business rule that is genuinely
+obsolete (build nothing at all). When `uw-grill` retags an item to `[DON'T]`, a
+rationale line saying which cause applies is **mandatory**:
+
+```markdown
+### applyVat1994 [DON'T] <!-- id: function:src/legacy/vat.ts:applyVat1994 -->
+
+**Grill verdict (GQ-0007): drop.** Superseded by the 2021 rules. Not
+tech-specific — this rule is obsolete. Do not reproduce it.
+```
 
 ### Default Tag
 

@@ -96,6 +96,53 @@ export interface RebuildBlock {
   target?: RebuildTargetInfo | null;
 }
 
+/**
+ * Grill risk overlay — the "is this worth rebuilding?" layer.
+ *
+ * Folded in (when present) from .cache/grill-findings.json, produced by
+ * `uw-grill`. Where `coverage` says an item is DOCUMENTED and `target` says it
+ * was REBUILT, `risk` says a human questioned whether the behaviour it
+ * describes should be reproduced at all. Absent until `uw-grill` runs.
+ */
+export type RiskSeverity = "high" | "medium" | "low";
+
+export type RiskVerdict =
+  /** Correct and intentional — rebuild faithfully. */
+  | "preserve"
+  /** Reproduce the intent, not the defect; the correction is in the doc body. */
+  | "fix-in-rebuild"
+  /** Obsolete — do not rebuild (retagged [DON'T]). */
+  | "drop"
+  /** Not contract-critical after all (retagged [SHOULD]). */
+  | "downgrade"
+  /** Too thin to rebuild from; routed back to uw-complete. */
+  | "document-first"
+  /** Routed to a different owner; still open. */
+  | "reassign";
+
+export interface NodeRisk {
+  severity: RiskSeverity;
+  /** Highest-precedence verdict across this node's findings; null while open. */
+  verdict: RiskVerdict | null;
+  /** Question ids (GQ-nnnn) — cross-reference into docs/unwind/questions/. */
+  findings: string[];
+  /** Finding categories, e.g. ["magic-constant","thin-spec"]. */
+  categories: string[];
+  /** Findings on this node still awaiting an answer. */
+  openCount: number;
+}
+
+/** Graph-level roll-up of the grill pass. */
+export interface RiskSummary {
+  generatedAt: string | null;
+  total: number;
+  /** Findings with no verdict yet — the honest output of an unfinished grill. */
+  openCount: number;
+  byCategory: Record<string, number>;
+  bySeverity: Record<string, number>;
+  byVerdict: Record<string, number>;
+}
+
 export interface LineRange {
   start: number;
   end: number;
@@ -111,6 +158,12 @@ export interface RebuildNode {
   summary?: string;
   tags?: string[];
   rebuild: RebuildBlock;
+  /**
+   * Grill findings attached to this node. Deliberately a sibling of `rebuild`,
+   * not a field inside it: different provenance (a human interview, not the
+   * manifest/coverage/docs fusion) and a different lifecycle.
+   */
+  risk?: NodeRisk | null;
 }
 
 export interface RebuildEdge {
@@ -165,6 +218,8 @@ export interface RebuildGraph {
   };
   /** Rebuild-verification summary, present only after a verified rebuild. */
   rebuildVerification?: RebuildVerificationSummary | null;
+  /** Grill roll-up, present only after `uw-grill` has produced findings. */
+  riskSummary?: RiskSummary | null;
   repository: {
     /** Carried from the manifest so the dashboard can render source links. */
     linkFormat: string;
@@ -193,6 +248,15 @@ const EDGE_TYPES = new Set<EdgeType>([
   "tested_by",
 ]);
 const PRIORITIES = new Set(["MUST", "SHOULD", "DON'T"]);
+const RISK_SEVERITIES = new Set<RiskSeverity>(["high", "medium", "low"]);
+const RISK_VERDICTS = new Set<RiskVerdict>([
+  "preserve",
+  "fix-in-rebuild",
+  "drop",
+  "downgrade",
+  "document-first",
+  "reassign",
+]);
 const COVERAGE_STATES = new Set<CoverageState>([
   "scanned",
   "documented",
@@ -276,6 +340,19 @@ export function validateRebuildGraph(g: unknown): string[] {
           problems.push(
             `nodes[${i}] (${n.id}) invalid rebuild.rebuildStatus: ${r.rebuildStatus}`,
           );
+        }
+      }
+      // `risk` is optional (absent until uw-grill runs) — validate only when present.
+      if (n.risk !== undefined && n.risk !== null) {
+        const k = n.risk;
+        if (!RISK_SEVERITIES.has(k.severity)) {
+          problems.push(`nodes[${i}] (${n.id}) invalid risk.severity: ${k.severity}`);
+        }
+        if (k.verdict !== null && k.verdict !== undefined && !RISK_VERDICTS.has(k.verdict)) {
+          problems.push(`nodes[${i}] (${n.id}) invalid risk.verdict: ${k.verdict}`);
+        }
+        if (!Array.isArray(k.findings) || k.findings.length === 0) {
+          problems.push(`nodes[${i}] (${n.id}) risk.findings must be a non-empty array`);
         }
       }
     });

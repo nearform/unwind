@@ -174,7 +174,7 @@ Then act on the choice in the same turn — don't just describe it:
 
 If they pause, tell them how to resume: *"Run `unwind:uw-analyze` (type `/uw-analyze`) when ready."*
 
-> **Pipeline:** **scan ✓** → analyze → plan → dashboard. Each phase is its own skill
+> **Pipeline:** **scan ✓** → analyze → grill → plan → dashboard. Each phase is its own skill
 > and ends by asking whether to continue or pause. (`uw-graph` is an optional export;
 > the dashboard builds its graph on demand.)
 ```

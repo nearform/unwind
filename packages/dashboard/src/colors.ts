@@ -1,4 +1,11 @@
-import type { CoverageState, NodeType, RebuildPriority, RebuildStatus } from "./types";
+import type {
+  CoverageState,
+  NodeType,
+  RebuildPriority,
+  RebuildStatus,
+  RiskSeverity,
+  RiskVerdict,
+} from "./types";
 
 /** Graph node-type color (CSS var defined in index.css). */
 export function nodeTypeColor(t: NodeType): string {
@@ -44,6 +51,28 @@ export function priorityColor(p: RebuildPriority): string {
     default:
       return "var(--color-text-muted)";
   }
+}
+
+/**
+ * Color for a grill risk severity. Reuses the existing coverage/priority tokens
+ * rather than introducing new CSS vars, so re-theming stays a single token swap.
+ */
+export function riskColor(sev: RiskSeverity | null | undefined): string {
+  switch (sev) {
+    case "high":
+      return "var(--color-prio-must)";
+    case "medium":
+      return "var(--color-cov-stale)";
+    case "low":
+      return "var(--color-prio-should)";
+    default:
+      return "var(--color-text-muted)";
+  }
+}
+
+/** Human label for a grill verdict ("fix-in-rebuild" -> "fix in rebuild"). */
+export function verdictLabel(v: RiskVerdict | null | undefined): string {
+  return v ? v.replace(/-/g, " ") : "unanswered";
 }
 
 export function statusLabel(s: RebuildStatus): string {

@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { Handle, Position } from "@xyflow/react";
 import type { NodeProps, Node } from "@xyflow/react";
-import type { NodeType, CoverageState, RebuildPriority } from "../types";
-import { coverageColor, nodeTypeColor, priorityColor } from "../colors";
+import type { NodeType, CoverageState, RebuildPriority, RiskSeverity } from "../types";
+import { coverageColor, nodeTypeColor, priorityColor, riskColor } from "../colors";
 
 export interface RebuildNodeData extends Record<string, unknown> {
   label: string;
@@ -10,6 +10,10 @@ export interface RebuildNodeData extends Record<string, unknown> {
   coverage: CoverageState;
   priority: RebuildPriority;
   selected: boolean;
+  /** Grill severity, when uw-grill flagged this node. */
+  riskSeverity?: RiskSeverity | null;
+  /** Grill questions on this node still awaiting an answer. */
+  riskOpen?: number;
 }
 
 export type RebuildFlowNode = Node<RebuildNodeData, "rebuild">;
@@ -54,6 +58,17 @@ function RebuildNodeView({ data }: NodeProps<RebuildFlowNode>) {
             style={{ backgroundColor: coverageColor(data.coverage) }}
           />
           <span className="text-[8px] text-text-muted">{data.coverage}</span>
+          {data.riskSeverity && (
+            <span
+              className="ml-auto w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: riskColor(data.riskSeverity) }}
+              title={
+                data.riskOpen
+                  ? `${data.riskOpen} unanswered grill question(s) — ${data.riskSeverity} risk`
+                  : `Grilled — ${data.riskSeverity} risk`
+              }
+            />
+          )}
         </div>
       </div>
       <Handle type="source" position={Position.Right} className="!bg-text-muted !w-1.5 !h-1.5" />

@@ -60,6 +60,37 @@ export interface RebuildBlock {
   target?: RebuildTargetInfo | null;
 }
 
+/**
+ * Grill risk overlay (from uw-grill, via .cache/grill-findings.json). Mirrors
+ * NodeRisk in @unwind/core. Absent until a grill has produced findings.
+ */
+export type RiskSeverity = "high" | "medium" | "low";
+
+export type RiskVerdict =
+  | "preserve"
+  | "fix-in-rebuild"
+  | "drop"
+  | "downgrade"
+  | "document-first"
+  | "reassign";
+
+export interface NodeRisk {
+  severity: RiskSeverity;
+  verdict: RiskVerdict | null;
+  findings: string[];
+  categories: string[];
+  openCount: number;
+}
+
+export interface RiskSummary {
+  generatedAt: string | null;
+  total: number;
+  openCount: number;
+  byCategory: Record<string, number>;
+  bySeverity: Record<string, number>;
+  byVerdict: Record<string, number>;
+}
+
 export interface RebuildNode {
   id: string;
   type: NodeType;
@@ -70,6 +101,7 @@ export interface RebuildNode {
   summary?: string;
   tags?: string[];
   rebuild: RebuildBlock;
+  risk?: NodeRisk | null;
 }
 
 export interface RebuildEdge {
@@ -99,6 +131,7 @@ export interface RebuildGraph {
   generatedAt: string;
   project: { name: string; languages: string[] };
   rebuildVerification?: RebuildVerificationSummary | null;
+  riskSummary?: RiskSummary | null;
   repository: { linkFormat: string; url: string | null; branch: string | null };
   layers: GraphLayer[];
   nodes: RebuildNode[];

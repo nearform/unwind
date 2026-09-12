@@ -97,7 +97,7 @@ mention the likely reason they ran it (static deploy / CI / sharing).
 If they actually wanted to *view* the graph, point them at `unwind:uw-dashboard`
 (which would have built it for them) rather than treating this as a required step.
 
-> **Pipeline:** scan → analyze → plan → dashboard. `uw-graph` is an **optional
+> **Pipeline:** scan → analyze → grill → plan → dashboard. `uw-graph` is an **optional
 > export** off to the side — the dashboard builds the graph itself.
 
 ## The `rebuild` block

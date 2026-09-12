@@ -159,6 +159,23 @@ if (existsSync(verificationPath)) {
   }
 }
 
+// --- Optional grill findings (from uw-grill) — the "is this worth rebuilding?"
+// overlay. Findings name the candidate id they attach to, so they fold onto
+// nodes by the same join key as everything else. Absent until a grill runs. ---
+let grill;
+const grillPath = join(projectRoot, "docs/unwind/.cache/grill-findings.json");
+if (existsSync(grillPath)) {
+  try {
+    grill = JSON.parse(readFileSync(grillPath, "utf-8"));
+    process.stderr.write(
+      `build-graph: folding in ${grill.findings?.length ?? 0} grill findings ` +
+        `(${grill.openCount ?? 0} open)\n`,
+    );
+  } catch {
+    process.stderr.write("build-graph: ignoring malformed grill-findings.json\n");
+  }
+}
+
 // --- Optional incremental staleness (from detect-changes.mjs). ---
 let staleIds;
 const changesPath = join(projectRoot, "docs/unwind/.cache/changes.json");
@@ -176,7 +193,7 @@ if (existsSync(changesPath)) {
 
 // --- Build, validate, write. ---
 const graph = buildRebuildGraph(
-  { manifest, coverageByLayer, documented, progress, staleIds, rebuildState, verification },
+  { manifest, coverageByLayer, documented, progress, staleIds, rebuildState, verification, grill },
   new Date().toISOString(),
 );
 
@@ -231,15 +248,27 @@ function docTitle(content, rel) {
 const docFiles = collectDocFiles(docsRoot)
   .map(({ rel, full }) => {
     const content = readFileSync(full, "utf-8");
-    // Group: top-level files under "Overview"; layer docs under their folder.
-    const group = rel.startsWith("layers/") ? rel.split("/")[1] : "Overview";
+    // Group: grill questionnaires get their own group (they're addressed to a
+    // human and are the most time-sensitive thing in the bundle); layer docs
+    // group by their folder; everything else is "Overview".
+    const group = rel.startsWith("questions/")
+      ? "Questions"
+      : rel.startsWith("layers/")
+        ? rel.split("/")[1]
+        : "Overview";
     return { path: rel, title: docTitle(content, rel), group, content };
   })
-  // Stable order: Overview docs first, then layer docs alphabetically by path.
+  // Stable order: Questions first (they're waiting on someone), then Overview,
+  // then layer docs alphabetically by path.
   .sort((a, b) => {
-    const ao = a.group === "Overview" ? 0 : 1;
-    const bo = b.group === "Overview" ? 0 : 1;
-    return ao - bo || a.path.localeCompare(b.path);
+    const rank = (g) => (g === "Questions" ? 0 : g === "Overview" ? 1 : 2);
+    // An index/README is the way into its group — it sorts first within it.
+    const isIndex = (f) => /\/(README|index)\.md$/i.test(f.path);
+    return (
+      rank(a.group) - rank(b.group) ||
+      (isIndex(b) ? 1 : 0) - (isIndex(a) ? 1 : 0) ||
+      a.path.localeCompare(b.path)
+    );
   });
 
 const docsBundle = {

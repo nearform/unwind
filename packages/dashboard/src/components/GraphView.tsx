@@ -75,6 +75,8 @@ function GraphInner() {
         nodeType: n.type,
         coverage: n.rebuild.coverage,
         priority: n.rebuild.priority,
+        riskSeverity: n.risk?.severity ?? null,
+        riskOpen: n.risk?.openCount ?? 0,
         selected: false,
       },
     }));

@@ -95,6 +95,26 @@ node "$UNWIND_PLUGIN_ROOT/skills/scripts/build-graph.mjs" "$(pwd)"
 structurally flips to `rebuildStatus: "needs-recheck"` (human-set progress in
 `rebuild-progress.json` is otherwise preserved).
 
+### Step 4b: Re-check grill findings (only if a grill has run)
+
+```bash
+ls docs/unwind/.cache/grill-findings.json >/dev/null 2>&1 && echo "grill findings exist"
+```
+
+Each finding records the `contentHash` of the file it was evidenced against. When
+that file's hash has moved, the finding is about code that no longer exists —
+either it was fixed, or the quote is now wrong. **Do not keep asserting it.**
+
+For every finding whose `contentHash` no longer matches the current manifest:
+- Mark it `"stale": true` in `grill-findings.json`.
+- If it is still **open**, remove its block from the questionnaire under
+  `docs/unwind/questions/` — asking a domain expert about deleted code wastes the
+  one thing you can't get more of, which is their willingness to answer.
+- If it was already **answered**, leave the verdict alone (the decision stands)
+  but note the drift so the next grill re-evidences it.
+
+Then re-run `/uw-grill` if the changed layers need fresh findings.
+
 ### Step 5: Report
 
 Summarize: layers re-analyzed, items added/removed, stale items resolved, and
