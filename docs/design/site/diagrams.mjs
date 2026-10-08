@@ -106,50 +106,62 @@ const D = {};
 D['01-big-picture'] = () => {
   current = '01';
   let b = '';
-  // Rewind lane
+  // Rewind lane (runs locally, per slice)
   b += box({ x: 16, y: 76, w: 1008, h: 128, k: 'lane' });
   b += laneLabel(32, 96, 'REWIND · understand the source', '#1E3A8A');
+  b += chip(276, 82, 'per slice · runs locally via the CLI', 'new').svg;
   b += box({ x: 32, y: 112, w: 170, h: 70, k: 'src', t: 'Source repo', s: ['any language · git'] });
   b += box({ x: 240, y: 112, w: 220, h: 70, k: 'det', t: 'Semantic Model', s: ['typed facts · ids · edges', 'tree-sitter + compilers'] });
   b += box({ x: 498, y: 112, w: 240, h: 70, k: 'llm', t: 'Layer docs + grill', s: ['tagged [MUST] / [SHOULD] / [DON\'T]', 'coverage = manifest − docs'] });
-  b += box({ x: 776, y: 112, w: 232, h: 70, k: 'det', t: 'rw-spec (compile)', s: ['model + graph + docs → Spec'] });
+  b += box({ x: 776, y: 112, w: 232, h: 70, k: 'det', t: 'rw-spec (compile)', s: ['model + docs → Spec fragment'] });
   b += arr([[202, 147], [238, 147]]) + arr([[460, 147], [496, 147]]) + arr([[738, 147], [774, 147]]);
+  // Server backbone
+  b += arr([[892, 182], [892, 230]], { c: 'p' });
+  b += txt(882, 222, 'push artifacts per slice', { size: 11.5, fill: '#4C1D95', anchor: 'end' });
+  b += box({ x: 16, y: 232, w: 1008, h: 80, k: 'new', thick: true, t: 'UNWIND SERVER · shared backbone from day 0', s: ['slices + owners · artifacts in git · state + index in SQLite · basic UI · token auth', 'converges slice fragments into one project Spec · tracks progress per slice', 'artifacts only: source code never leaves the developer\'s machine'] });
   // Spec + side loops
-  b += box({ x: 352, y: 240, w: 336, h: 76, k: 'art', thick: true, t: 'SPEC · stack-neutral typed IR', s: ['entities · endpoints · events · operations', 'scenarios · priorities · provenance'] });
-  b += arr([[892, 182], [892, 222], [520, 222], [520, 238]]);
-  b += box({ x: 32, y: 236, w: 270, h: 84, k: 'human', t: 'Context gaps', s: ['agents find what code can\'t say', '→ interview briefs → stakeholders', '→ answers enrich the Spec'] });
-  b += arr([[352, 262], [304, 262]], { c: 'gr' }) + arr([[304, 296], [350, 296]], { c: 'gr' });
-  b += box({ x: 738, y: 236, w: 270, h: 84, k: 'det', t: 'Behaviour parity', s: ['scenarios run vs legacy → goldens', 'replay vs target → parity %', 'observations enrich the Spec'] });
-  b += arr([[688, 262], [736, 262]], { c: 'b' }) + arr([[736, 296], [690, 296]], { c: 'b' });
-  // Play lane
-  b += box({ x: 16, y: 350, w: 1008, h: 176, k: 'lane' });
-  b += laneLabel(32, 370, 'PLAY · rebuild in the target stack', '#9A3412');
-  b += arr([[520, 316], [520, 336], [300, 336], [300, 386]]);
-  b += box({ x: 32, y: 388, w: 178, h: 70, k: 'human', t: 'Target Kit', s: ['client recipe book', '(own git repo)'] });
-  b += box({ x: 236, y: 388, w: 158, h: 70, k: 'llm', t: 'Plan', s: ['choose / tailor Kit', 'phasing · risk'] });
-  b += box({ x: 420, y: 388, w: 182, h: 70, k: 'det', t: 'Generate', s: ['recipes → code + holes', 'correct by construction'] });
-  b += box({ x: 628, y: 388, w: 168, h: 70, k: 'llm', t: 'Fill holes', s: ['business logic only'] });
-  b += box({ x: 822, y: 388, w: 186, h: 70, k: 'det', thick: true, t: 'Verify', s: ['re-scan target − Spec', 'MUST completeness %'] });
-  b += arr([[210, 423], [234, 423]], { c: 'gr' }) + arr([[394, 423], [418, 423]]) + arr([[602, 423], [626, 423]]) + arr([[796, 423], [820, 423]]);
-  b += arr([[915, 458], [915, 494], [511, 494], [511, 460]], { c: 'o', dash: true });
-  b += txt(713, 512, 'gaps → regenerate / refill until verified (loop mode)', { size: 11.5, fill: '#9A3412', anchor: 'middle' });
+  b += arr([[520, 312], [520, 342]], { c: 'p' });
+  b += txt(530, 332, 'converged', { size: 11.5, fill: '#4C1D95' });
+  b += box({ x: 352, y: 344, w: 336, h: 76, k: 'art', thick: true, t: 'SPEC · stack-neutral typed IR', s: ['entities · endpoints · events · operations', 'scenarios · priorities · provenance'] });
+  b += box({ x: 32, y: 340, w: 270, h: 84, k: 'human', t: 'Context gaps', s: ['agents find what code can\'t say', '→ interview briefs → stakeholders', '→ answers enrich the Spec'] });
+  b += arr([[352, 366], [304, 366]], { c: 'gr' }) + arr([[304, 400], [350, 400]], { c: 'gr' });
+  b += box({ x: 738, y: 340, w: 270, h: 84, k: 'det', t: 'Behaviour parity', s: ['scenarios run vs legacy → goldens', 'replay vs target → parity %', 'observations enrich the Spec'] });
+  b += arr([[688, 366], [736, 366]], { c: 'b' }) + arr([[736, 400], [690, 400]], { c: 'b' });
+  // Play lane (per slice)
+  b += box({ x: 16, y: 454, w: 1008, h: 176, k: 'lane' });
+  b += laneLabel(32, 474, 'PLAY · rebuild in the target stack', '#9A3412');
+  b += chip(600, 460, 'per slice · ordered by seams', 'new').svg;
+  b += arr([[520, 420], [520, 440], [300, 440], [300, 490]]);
+  b += box({ x: 32, y: 492, w: 178, h: 70, k: 'human', t: 'Target Kit', s: ['client recipe book', '(own git repo)'] });
+  b += box({ x: 236, y: 492, w: 158, h: 70, k: 'llm', t: 'Plan', s: ['choose / tailor Kit', 'phasing · risk'] });
+  b += box({ x: 420, y: 492, w: 182, h: 70, k: 'det', t: 'Generate', s: ['recipes → code + holes', 'correct by construction'] });
+  b += box({ x: 628, y: 492, w: 168, h: 70, k: 'llm', t: 'Fill holes', s: ['business logic only'] });
+  b += box({ x: 822, y: 492, w: 186, h: 70, k: 'det', thick: true, t: 'Verify', s: ['re-scan target − Spec', 'MUST completeness %'] });
+  b += arr([[210, 527], [234, 527]], { c: 'gr' }) + arr([[394, 527], [418, 527]]) + arr([[602, 527], [626, 527]]) + arr([[796, 527], [820, 527]]);
+  b += arr([[915, 562], [915, 598], [511, 598], [511, 564]], { c: 'o', dash: true });
+  b += txt(713, 616, 'gaps → regenerate / refill until verified (loop mode)', { size: 11.5, fill: '#9A3412', anchor: 'middle' });
+  // Verify results back to the server
+  b += arr([[1008, 510], [1044, 510], [1044, 272], [1026, 272]], { c: 'p' });
+  b += txt(1036, 446, 'push verify results', { size: 11.5, fill: '#4C1D95', anchor: 'end' });
   // Target
-  b += box({ x: 560, y: 552, w: 448, h: 50, k: 'src', t: 'Target repo · new stack', s: ['generated structure + filled holes + native parity tests'] });
-  b += arr([[712, 526], [712, 550]]);
-  b += txt(32, 584, 'Surfaces: unwind CLI (primary, used by skills) · MCP adapter · App', { size: 12, fill: '#64748B' });
-  svgDoc('01-big-picture', 'Unwind destination: Rewind → Spec → Play', 1040, 620, b, ['det', 'llm', 'art', 'human']);
+  b += box({ x: 560, y: 656, w: 448, h: 50, k: 'src', t: 'Target repo · new stack', s: ['generated structure + filled holes + native parity tests'] });
+  b += arr([[712, 630], [712, 654]]);
+  b += txt(32, 688, 'Surfaces: unwind CLI (does the work, next to the code) · Unwind Server UI · MCP adapter later', { size: 12, fill: '#64748B' });
+  svgDoc('01-big-picture', 'Unwind destination: Server · Rewind → Spec → Play', 1064, 724, b, ['det', 'llm', 'art', 'human', 'new']);
 };
 
 // ── 02 Today vs destination ───────────────────────────────────────────────────
 D['02-today-vs-destination'] = () => {
   current = '02';
   let b = '';
-  b += box({ x: 24, y: 80, w: 340, h: 790, k: 'lane' });
-  b += laneLabel(40, 102, 'TODAY · one plugin (uw-*)');
+  b += box({ x: 24, y: 80, w: 340, h: 860, k: 'lane' });
+  b += laneLabel(40, 102, 'TODAY · one plugin (uw-*), single user');
   b += box({ x: 520, y: 80, w: 496, h: 382, k: 'lane' });
-  b += laneLabel(536, 102, 'REWIND plugin (rw-*)', '#1E3A8A');
+  b += laneLabel(536, 102, 'REWIND plugin (rw-*) · per slice', '#1E3A8A');
   b += box({ x: 520, y: 506, w: 496, h: 296, k: 'lane' });
-  b += laneLabel(536, 528, 'PLAY plugin (pl-*)', '#9A3412');
+  b += laneLabel(536, 528, 'PLAY plugin (pl-*) · per slice', '#9A3412');
+  b += box({ x: 520, y: 816, w: 496, h: 124, k: 'lane' });
+  b += laneLabel(536, 838, 'SHARED · server + surfaces (day 0)', '#4C1D95');
   const L = (y, k, t, s) => box({ x: 40, y, w: 308, h: 40, k, t, s: s ? [s] : [], ts: 13.5 });
   const R = (y, k, t, s) => box({ x: 536, y, w: 464, h: 40, k, t, s: s ? [s] : [], ts: 13.5 });
   const rows = [
@@ -165,7 +177,8 @@ D['02-today-vs-destination'] = () => {
     [638, null, ['new', 'pl-generate', 'recipes + blueprints → code + holes']],
     [686, ['llm', 'uw-build · uw-build-layer', 'LLM writes every line'], ['llm', 'pl-build-layer', 'fills holes only']],
     [734, ['det', 'merge-rebuild-map · verify-rebuild', 'names + fields'], ['det', 'pl-verify · pl-parity', '+ types · holes · behaviour']],
-    [818, ['det', 'uw-graph · uw-dashboard · uw-publish', 'scripts in skills/scripts'], ['det', 'unwind CLI · MCP · serve / App', 'one engine; skills shell out to the CLI']],
+    [850, ['art', 'local docs/unwind/ only', 'no shared state · no slices'], ['new', 'Unwind Server (unwind serve)', 'slices · git + SQLite · UI · token auth · convergence']],
+    [894, ['det', 'uw-graph · uw-dashboard · uw-publish', 'scripts in skills/scripts'], ['det', 'unwind CLI · MCP adapter', 'one engine; skills shell out; CLI pushes']],
   ];
   for (const [y, l, r] of rows) {
     if (l) b += L(y, ...l);
@@ -176,7 +189,7 @@ D['02-today-vs-destination'] = () => {
   b += txt(768, 478, 'SPEC — the only Rewind → Play contract', { size: 12.5, weight: 700, fill: '#334155', anchor: 'middle' });
   b += txt(434, 500, 'renamed /', { size: 11.5, fill: '#64748B', anchor: 'middle' });
   b += txt(434, 515, 'evolved', { size: 11.5, fill: '#64748B', anchor: 'middle' });
-  svgDoc('02-today-vs-destination', 'Today vs destination: the Rewind / Play split', 1040, 890, b, ['det', 'llm', 'new']);
+  svgDoc('02-today-vs-destination', 'Today vs destination: Server + the Rewind / Play split', 1040, 960, b, ['det', 'llm', 'art', 'new']);
 };
 
 // ── 03 Concept transfer ───────────────────────────────────────────────────────

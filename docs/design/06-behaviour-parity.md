@@ -1,10 +1,10 @@
-# 05 · Behaviour parity: Spec-derived tests against legacy *and* rebuild
+# 06 · Behaviour parity: Spec-derived tests against legacy *and* rebuild
 
 > **In short:** Structural verification proves the rebuild *has* the right endpoints and tables. It never proves it *behaves* the same. We generate stack-neutral **scenarios** from the Spec and run them twice. Against the legacy app, the results **observe and enrich the Spec**; against the rebuild, the same scenarios give a **behavioural parity verdict**. This is characterization (golden-master) testing, driven by the Spec.
 
 ![Behaviour parity: scenarios run against legacy and target](diagrams/08-behaviour-parity.svg)
 
-## 5.1 Why
+## 6.1 Why
 
 - `rebuild-principles.md` §8 already says *present ≠ correct*. Today's verifier (`graph/rebuild-verification.ts`) checks method plus path and field names, and every other kind of node can only ever reach `present`.
 - `VerificationDepth` already declares `run-tests` (`graph/rebuild-state-schema.ts:31`), but nothing implements it.
@@ -14,7 +14,7 @@
   - edge cases;
   - confirmation or refutation of grill hypotheses.
 
-## 5.2 Scenarios
+## 6.2 Scenarios
 
 A **scenario** is a new Spec node kind. It is stack-neutral and lives in the Spec.
 
@@ -44,10 +44,10 @@ record: false                # true = expected unknown; capture from legacy as g
   1. **Generated from the Spec**: per endpoint and entity (happy path, validation failure, auth failure, not-found, pagination), and per `[MUST]` operation.
   2. **Mined from legacy tests.** The `uw-analyze-*-tests` layers already catalogue them; we translate their intent into scenarios.
   3. **Grill findings**: each suspected bug or edge case becomes a probe.
-  4. **Captured traffic**: HAR files, proxy logs and recorded UI sessions, scrubbed (§5.4).
-  5. **Interviews and experts**: "users rely on X" ([05b](05b-context-gaps.md)).
+  4. **Captured traffic**: HAR files, proxy logs and recorded UI sessions, scrubbed (§6.4).
+  5. **Interviews and experts**: "users rely on X" ([07](07-context-gaps.md)).
 
-## 5.3 Boundary drivers
+## 6.3 Boundary drivers
 
 Drivers are pluggable. When a driver cannot run, the scenario is still kept and marked `manual / not runnable`.
 
@@ -62,7 +62,7 @@ Drivers are pluggable. When a driver cannot run, the scenario is still kept and 
 
 Exploration by agents is non-deterministic, but **replay must be deterministic**. Recorded sessions are therefore converted into scripted scenarios before they count toward parity.
 
-## 5.4 Normalisation and intentional differences
+## 6.4 Normalisation and intentional differences
 
 - **Scrubbers** for nondeterminism: generated ids, timestamps, ordering of unordered collections, tokens and nonces. Each scrubber is declared per scenario or globally.
 - **A mapping layer** for intentional differences, reusing the structural verifier's equivalence rules:
@@ -71,7 +71,7 @@ Exploration by agents is non-deterministic, but **replay must be deterministic**
   - target conventions from the Kit (e.g. error envelope, status 422 vs 400).
 - **Verdict-aware.** `[DON'T]` items are excluded. `fix-in-rebuild` grill verdicts *expect* the legacy result to differ; the scenario holds the corrected expectation, and legacy is recorded only as a reference.
 
-## 5.5 Lifecycle
+## 6.5 Lifecycle
 
 1. **`rw-observe`** (Rewind):
    - generate or collect scenarios;
@@ -79,21 +79,21 @@ Exploration by agents is non-deterministic, but **replay must be deterministic**
    - record goldens where `record: true`;
    - write observations back into the Spec with provenance `observed`.
 
-   Where an observation disagrees with the docs, a grill question or context gap is raised ([05b](05b-context-gaps.md)).
+   Where an observation disagrees with the docs, a grill question or context gap is raised ([07](07-context-gaps.md)).
 2. **`pl-parity`** (Play): run the same scenarios against the target, apply scrubbers and the mapping layer, and write `parity-report.json` plus `parity-gaps.md`.
 3. **Verification depth `behavioural`**, which implements today's `run-tests` depth. Parity % over `[MUST]` scenarios becomes a second termination signal for loop mode, alongside structural completeness %.
 
-## 5.6 Parity tests live on in the target
+## 6.6 Parity tests live on in the target
 
-Kit recipes (e.g. `endpoint-parity-test` in [03 §3.4](03-target-kits-and-recipes.md)) can emit scenarios as **native tests in the target stack**, for example vitest plus Hono's test client. The parity suite then stays in the rebuilt repo as its permanent regression suite, owned by the team, and needs no Unwind at runtime.
+Kit recipes (e.g. `endpoint-parity-test` in [04 §4.4](04-target-kits-and-recipes.md)) can emit scenarios as **native tests in the target stack**, for example vitest plus Hono's test client. The parity suite then stays in the rebuilt repo as its permanent regression suite, owned by the team, and needs no Unwind at runtime.
 
-## 5.7 Safety and limits
+## 6.7 Safety and limits
 
 - **Never run against production.** `rw-observe` requires an explicit legacy base URL or connection, plus a sandbox confirmation.
 - **Read-only first.** Scenarios that change state run only against disposable or seeded environments (a Docker recipe, a snapshot restore).
 - **Secrets and personal data.** Captured traffic is scrubbed before it is stored. Goldens never contain credentials.
 - **When the legacy app can't run at all:**
   - scenarios still exist as Spec-level **acceptance criteria**;
-  - expected results come from domain experts via the questionnaire flow (`docs/unwind/questions/`, see [05b](05b-context-gaps.md));
+  - expected results come from domain experts via the questionnaire flow (`docs/unwind/questions/`, see [07](07-context-gaps.md));
   - they run against the target only.
-- **Not a proof.** Parity covers the scenarios that exist. Behavioural coverage (§5.2) makes the uncovered remainder visible rather than implied.
+- **Not a proof.** Parity covers the scenarios that exist. Behavioural coverage (§6.2) makes the uncovered remainder visible rather than implied.

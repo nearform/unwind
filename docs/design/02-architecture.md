@@ -1,10 +1,28 @@
 # 02 · Destination architecture
 
-> **In short:** One shared model package, two plugins and one contract between them. **Rewind** understands a legacy system and compiles it into a stack-neutral **Spec**. **Play** rebuilds the Spec from a client's **Target Kit**. A single engine sits behind a **CLI-first** surface. From day 0 a self-hosted **Unwind Server** is the team's shared system of record and UI. It is git- and SQLite-backed, receives artifacts only, and treats slices as first-class ([08](08-server-and-slices.md)). MCP is a thin adapter. Deterministic code owns the facts and the structure; the LLM owns semantics and holes; completeness is always computed.
+> **In short:** A self-hosted **Unwind Server** is the shared backbone from day 0: the team's system of record and UI, git- and SQLite-backed, receiving artifacts only, with **slices** as the first-class unit of work ([03](03-server-and-slices.md)). Around it sit one shared model package, two plugins and one contract between them. **Rewind** understands a legacy system, slice by slice, and compiles it into a stack-neutral **Spec**. **Play** rebuilds the Spec from a client's **Target Kit**. A single engine sits behind a **CLI-first** surface that does the work next to the code and pushes results to the server. MCP is a thin adapter. Deterministic code owns the facts and the structure; the LLM owns semantics and holes; completeness is always computed.
 
-![The big picture](diagrams/01-big-picture.svg)
+![The big picture: Unwind Server as the shared backbone · Rewind → Spec → Play per slice](diagrams/01-big-picture.svg)
 
 ## 2.1 The shape
+
+**The flow.** Developers and agents run the `unwind` CLI locally, next to the code → they **push artifacts per slice** to the **Unwind Server** (the shared record and UI) → the server **converges** slice fragments into one project **Spec** → **Play** rebuilds per slice from the Spec plus a Target Kit → **verification results are pushed back**, so progress, completeness and parity are visible per slice. Code never leaves the developer's machine; everything works offline and syncs when logged in.
+
+**Components, in flow order:**
+1. **Unwind Server** ([03](03-server-and-slices.md)): projects, slices and owners, artifacts in git, state and index in SQLite, basic UI, token auth. Present from day 0.
+2. **`@unwind/model`** (§2.3): the shared ids and schemas every other part speaks.
+3. **Rewind** (§2.4): understands the source, per slice, and produces Spec fragments.
+4. **The Spec** (§2.5): converged on the server into one project Spec; the only Rewind → Play contract.
+5. **Play** (§2.6) with **Target Kits** (§2.7): rebuilds per slice and verifies.
+6. **Surfaces** (§2.8): CLI first, server UI, MCP later.
+
+```
+   ┌──────────────── UNWIND SERVER (shared backbone, day 0) ────────────────┐
+   │ projects · slices + owners · artifacts (git) · state/index (SQLite) ·   │
+   │ convergence → project Spec · metrics · UI · token auth                  │
+   └───────▲───────────────────────▲─────────────────────────▲───────────────┘
+      push │ per slice        push │ fragments          push │ verify results
+```
 
 ```
             ┌──────────── @unwind/model (shared contract) ────────────┐
@@ -30,16 +48,16 @@
 
 | Today (`uw-*`) | Destination | Change |
 |---|---|---|
-| `uw-scan` → `scan-manifest.json` | `rw-scan` → **Semantic Model** (typed, bound) | Additive manifest fields; extra tiers ([04](04-semantic-model.md)) |
+| `uw-scan` → `scan-manifest.json` | `rw-scan` → **Semantic Model** (typed, bound) | Additive manifest fields; extra tiers ([05](05-semantic-model.md)) |
 | `uw-analyze-*`, `uw-verify`, `uw-complete` | Same, under `rw-*` | Rename plus aliases |
-| `uw-grill` → `questions/` | `rw-grill`, folded into **context gaps** | One questionnaire mechanism ([05b](05b-context-gaps.md)) |
+| `uw-grill` → `questions/` | `rw-grill`, folded into **context gaps** | One questionnaire mechanism ([07](07-context-gaps.md)) |
 | (none) | `rw-spec` → **Spec** | New: the Rewind→Play contract |
-| (none) | `rw-observe` / `pl-parity` | New: behaviour parity ([05](05-behaviour-parity.md)) |
+| (none) | `rw-observe` / `pl-parity` | New: behaviour parity ([06](06-behaviour-parity.md)) |
 | `uw-plan`, free-text stack decisions | `pl-plan`: **choose or tailor a Kit** | Typed profile replaces free text |
-| `uw-build-layer` writes every line | `pl-build`: **generate from Kit**, LLM fills holes | Deterministic first ([03](03-target-kits-and-recipes.md)) |
+| `uw-build-layer` writes every line | `pl-build`: **generate from Kit**, LLM fills holes | Deterministic first ([04](04-target-kits-and-recipes.md)) |
 | `verify-rebuild`: names, method+path, field-name Jaccard | Plus field **types**, holes, behavioural parity | Stronger verdicts |
 | `skills/scripts/*.mjs` | `unwind` CLI (scripts become shims) | Consolidation (§2.8) |
-| Single user, local `docs/unwind/` | **Unwind Server**: shared, git + SQLite, slices, UI | New from day 0 ([08](08-server-and-slices.md)) |
+| Single user, local `docs/unwind/` | **Unwind Server**: shared, git + SQLite, slices, UI | New from day 0 ([03](03-server-and-slices.md)) |
 
 ## 2.3 `@unwind/model`: the shared contract
 
@@ -53,11 +71,13 @@ The only package both plugins import. It holds:
 
 Today's pipeline (scan → seed → analyze → verify-coverage → complete → grill), extended with:
 
-1. **Semantic Model**: a typed, bound fact model in tiers T0/T1/T2 ([04](04-semantic-model.md)).
+1. **Semantic Model**: a typed, bound fact model in tiers T0/T1/T2 ([05](05-semantic-model.md)).
 2. **Detector recipes**: `layers/contract-detectors.ts` split into a fixture-tested registry.
 3. **`rw-spec`**: compiles manifest, graph and tagged docs into the **Spec**.
-4. **`rw-observe`**: runs Spec scenarios against the legacy app and enriches the Spec ([05](05-behaviour-parity.md)).
-5. **`rw-context-gaps`**: finds what the code can't answer and produces interview briefs ([05b](05b-context-gaps.md)).
+4. **`rw-observe`**: runs Spec scenarios against the legacy app and enriches the Spec ([06](06-behaviour-parity.md)).
+5. **`rw-context-gaps`**: finds what the code can't answer and produces interview briefs ([07](07-context-gaps.md)).
+
+Every step runs locally through the CLI, scoped to a **slice** when one is claimed (`--slice`), and `unwind push` sends the resulting artifacts to the server, which converges the fragments into the project Spec ([03 §3.8](03-server-and-slices.md)).
 
 Rewind is **useful on its own** for documentation, onboarding, audits and due diligence, without ever running Play.
 
@@ -73,7 +93,7 @@ A stack-neutral, typed IR of everything the target must preserve. Where a standa
 | `config` | Env/config keys, defaults, secrets flag |
 | `integration` | External system, protocol, calls made |
 | `operation` | A named business rule: description, doc ref, behavioural assertions, linked scenarios |
-| `scenario` | Given/when/then at a boundary ([05](05-behaviour-parity.md)) |
+| `scenario` | Given/when/then at a boundary ([06](06-behaviour-parity.md)) |
 
 Every node carries `id`, `priority` (`MUST`/`SHOULD`/`DONT` plus rationale), `docRef`, `sourceRef` and **provenance**: `scanned`, `inferred`, `observed`, `interview:<role>:<date>` or `expert`.
 
@@ -119,16 +139,17 @@ A Spec can also be **hand-written**, which makes Play usable for greenfield work
 
 1. **`pl-plan`.** The interview narrows to *choosing or tailoring a Kit*: phasing, re-use and risk. It writes a typed profile in place of today's free-text `rebuild-decisions.json` (which stays as a record).
 2. **Resolve the Kit.** Pin `kit@version` in `rebuild-state.json`.
-3. **Generate.** Recipes and blueprints run over the Spec and write target files, map entries (the existing `rebuild-map/*.json` format) and **holes** ([03](03-target-kits-and-recipes.md)). The scaffold recipe finally sets the dormant `config.scaffolded` flag in `rebuild-state-schema.ts`.
+3. **Generate.** Recipes and blueprints run over the Spec and write target files, map entries (the existing `rebuild-map/*.json` format) and **holes** ([04](04-target-kits-and-recipes.md)). The scaffold recipe finally sets the dormant `config.scaffolded` flag in `rebuild-state-schema.ts`.
 4. **Fill.** `pl-build-layer` subagents fill *only* holes plus any unmapped `[MUST]` items.
 5. **Verify.** Structural and typed diff (an extended `graph/rebuild-verification.ts`), hole accounting, and behavioural parity (`pl-parity`).
 6. **Loop.** The existing loop-until-verified mechanics, with completeness % and parity % as termination signals.
+7. **Push.** Rebuild maps and verification results are pushed per slice; the server tracks each slice through its Play states (planned → generating → filling → verified → cut-over) and orders slices by their seams ([03 §3.7–3.8](03-server-and-slices.md)).
 
 **Fallback.** If there is no Kit match, or no Node/core, today's pure-LLM `uw-build` flow runs unchanged, and the skill says so.
 
 ## 2.7 Target Kits
 
-Per-client, versioned git repos that encode the client's **golden path**: stack profile, conventions, type map, recipes, blueprints and golden fixtures. They are mined primarily from the client's reference app. Starter kits (first: `hono-drizzle-zod`) ship with Play. See [03](03-target-kits-and-recipes.md).
+Per-client, versioned git repos that encode the client's **golden path**: stack profile, conventions, type map, recipes, blueprints and golden fixtures. They are mined primarily from the client's reference app. Starter kits (first: `hono-drizzle-zod`) ship with Play. See [04](04-target-kits-and-recipes.md).
 
 ## 2.8 Surfaces: one engine, CLI first, a shared server from day 0
 
@@ -145,7 +166,7 @@ Per-client, versioned git repos that encode the client's **golden path**: stack 
 **Division of labour:**
 - The **CLI does the work** (scan, analyze, generate, verify) next to the code.
 - The **server stores, merges, indexes and shows** it: projects, **slices**, history, convergence and metrics.
-- Source code never goes to the server; only artifacts do. See [08](08-server-and-slices.md) for storage, auth (simple bearer tokens via `unwind login`), push/pull, slices, convergence, UI and the API.
+- Source code never goes to the server; only artifacts do. See [03](03-server-and-slices.md) for storage, auth (simple bearer tokens via `unwind login`), push/pull, slices, convergence, UI and the API.
 
 **Why the CLI rather than MCP for the skills:**
 - The skills already shell out to `node skills/scripts/*.mjs` via `_resolve-plugin-root.sh`/`ensure_unwind_core`. That is a CLI in all but name, so this is a consolidation.
@@ -165,7 +186,7 @@ common flags   --project <src> --target <dir> --kit <repo@ver> --slice <id> --js
 
 **Distribution** is an npm package (`npx @unwind/cli`) plus the server Docker image. `ensure_unwind_core` becomes `ensure_unwind_cli`. The current `.mjs` scripts become one-line shims for one release.
 
-**Server tech stack** (detail in [08 §8.3](08-server-and-slices.md)):
+**Server tech stack** (detail in [03 §3.3](03-server-and-slices.md)):
 - **Hono** on Node (`@hono/node-server`), with zod validation (`@hono/zod-validator`) and `hono/client` RPC types shared with the CLI and UI;
 - **React + Vite** UI with **TanStack Query** (TanStack Router recommended) and **Tailwind + daisyUI**, dark by default and mapped onto the dashboard tokens, reusing the React Flow/ELK graph and `DocsViewer` from `packages/dashboard`;
 - **`node:sqlite`** (Drizzle recommended for schema and migrations) plus **system git**;
@@ -187,5 +208,5 @@ common flags   --project <src> --target <dir> --kit <repo@ver> --slice <id> --js
 - **AST and real parsers over regex**, on both sides: detectors read ASTs, and recipes edit target files with ts-morph or tree-sitter.
 - **Graceful fallback at every step**, announced to the user.
 - **Files are the source of truth.** Locally, that is `docs/unwind/`. On the server, it is the project's git repo. SQLite holds auth and operational state plus a **rebuildable** index.
-- **Code stays local.** Only artifacts are pushed to the server ([08 §8.11](08-server-and-slices.md)).
-- **Slices are first-class.** Candidate ids define slice membership, and convergence is set arithmetic over them ([08 §8.7–8.8](08-server-and-slices.md)).
+- **Code stays local.** Only artifacts are pushed to the server ([03 §3.11](03-server-and-slices.md)).
+- **Slices are first-class.** Candidate ids define slice membership, and convergence is set arithmetic over them ([03 §3.7–3.8](03-server-and-slices.md)).

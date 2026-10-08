@@ -66,10 +66,10 @@ In practice, non-JVM languages only run through the JVM host plus the Moderne CL
 
 ## 1.5 Known limits we must not reproduce
 
-- **Missing types fail silently.** Type-gated logic silently matches nothing when resolution fails. Unwind must instead *report* the tier it reached (§4.2).
-- **The whole LST in memory** causes out-of-memory failures on large repos. Unwind keeps facts, not trees, and writes them to disk (§4.5).
+- **Missing types fail silently.** Type-gated logic silently matches nothing when resolution fails. Unwind must instead *report* the tier it reached (§5.2).
+- **The whole LST in memory** causes out-of-memory failures on large repos. Unwind keeps facts, not trees, and writes them to disk (§5.5).
 - **Noisy whole-file rewrites and huge pull requests** were found too unwieldy to review ([Adyen case study](https://www.adyen.com/knowledge-hub/how-we-automated-code-modernization-with-openrewrite)). Play generates into a *new* target repo slice by slice, with holes clearly marked.
-- **Stateful recipes are bug-prone** ([cronn](https://www.cronn.de/en/blog/openrewrite-for-refactoring)). Unwind recipes are pure functions with golden fixtures (§3.3).
+- **Stateful recipes are bug-prone** ([cronn](https://www.cronn.de/en/blog/openrewrite-for-refactoring)). Unwind recipes are pure functions with golden fixtures (§4.3).
 
 ## 1.6 Concept transfer
 
@@ -77,19 +77,19 @@ In practice, non-JVM languages only run through the JVM host plus the Moderne CL
 
 | OpenRewrite / Moderne | Unwind destination concept | Lives in | Doc |
 |---|---|---|---|
-| LST (typed, lossless) | **Semantic Model**: typed and *bound*, but not lossless. Unwind never edits the source, so format preservation is not needed | Rewind | [04](04-semantic-model.md) |
-| LST artifacts, mass ingest | **Model Store**: per-commit, versioned, multi-repo queries | Store | [04](04-semantic-model.md) |
-| Search recipe + data tables | **Detector recipes** emitting typed fact tables | Rewind | [04](04-semantic-model.md) |
+| LST (typed, lossless) | **Semantic Model**: typed and *bound*, but not lossless. Unwind never edits the source, so format preservation is not needed | Rewind | [05](05-semantic-model.md) |
+| LST artifacts, mass ingest | **Model Store**: per-commit, versioned, multi-repo queries | Store | [05](05-semantic-model.md) |
+| Search recipe + data tables | **Detector recipes** emitting typed fact tables | Rewind | [05](05-semantic-model.md) |
 | Prethink context | **Spec** plus tagged layer docs | Rewind → Spec | [02](02-architecture.md) |
-| Visitor / `ScanningRecipe` | **Target recipe**: scan Spec → generate → edit | Play | [03](03-target-kits-and-recipes.md) |
-| Declarative YAML recipe | **Blueprint**: a whole service or module | Kit | [03](03-target-kits-and-recipes.md) |
-| Recipe marketplace / BOM | **Target Kit / Recipe Book**: versioned per client | Kit repo | [03](03-target-kits-and-recipes.md) |
-| Preconditions | `appliesTo(specNode, profile)` | Play | [03](03-target-kits-and-recipes.md) |
-| `RewriteTest` before/after | **Golden fixtures** (Spec fragment → expected files) plus an idempotence run | Kit | [03](03-target-kits-and-recipes.md) |
-| `JavaTemplate` / Refaster | Parameterised templates **mined from exemplar code** | Kit | [03](03-target-kits-and-recipes.md) |
-| Moddy / `learn_recipe` | **Exemplar → recipe promotion** | Play | [03](03-target-kits-and-recipes.md) |
+| Visitor / `ScanningRecipe` | **Target recipe**: scan Spec → generate → edit | Play | [04](04-target-kits-and-recipes.md) |
+| Declarative YAML recipe | **Blueprint**: a whole service or module | Kit | [04](04-target-kits-and-recipes.md) |
+| Recipe marketplace / BOM | **Target Kit / Recipe Book**: versioned per client | Kit repo | [04](04-target-kits-and-recipes.md) |
+| Preconditions | `appliesTo(specNode, profile)` | Play | [04](04-target-kits-and-recipes.md) |
+| `RewriteTest` before/after | **Golden fixtures** (Spec fragment → expected files) plus an idempotence run | Kit | [04](04-target-kits-and-recipes.md) |
+| `JavaTemplate` / Refaster | Parameterised templates **mined from exemplar code** | Kit | [04](04-target-kits-and-recipes.md) |
+| Moddy / `learn_recipe` | **Exemplar → recipe promotion** | Play | [04](04-target-kits-and-recipes.md) |
 | Moderne MCP | `unwind mcp`: a thin adapter over the CLI | Surfaces | [02](02-architecture.md) |
-| `SearchResult` markers | **Holes** (`@unwind-hole`) and provenance markers | Play | [03](03-target-kits-and-recipes.md) |
+| `SearchResult` markers | **Holes** (`@unwind-hole`) and provenance markers | Play | [04](04-target-kits-and-recipes.md) |
 
 ## 1.7 What stays uniquely Unwind
 
@@ -97,4 +97,4 @@ In practice, non-JVM languages only run through the JVM host plus the Moderne CL
 - **Completeness proven by set arithmetic** (`scan − docs`, `Spec − target`), never asserted.
 - **Grilling plus domain-expert verdicts**, which decide whether a behaviour *deserves* to be reproduced.
 - **Cross-stack rebuild with verification**, which OpenRewrite does not attempt.
-- New in this design: **behaviour parity against the legacy app** ([05](05-behaviour-parity.md)) and **context-gap interviews** ([05b](05b-context-gaps.md)).
+- New in this design: **behaviour parity against the legacy app** ([06](06-behaviour-parity.md)) and **context-gap interviews** ([07](07-context-gaps.md)).

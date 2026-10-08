@@ -1,10 +1,10 @@
-# 03 · Target Kits, recipes, blueprints and holes
+# 04 · Target Kits, recipes, blueprints and holes
 
 > **In short:** A **Target Kit** is a client's golden path packaged as a versioned git repo: a typed stack profile, conventions, a type map, **recipes** (pure Spec→code generators) and **blueprints** (recipes composed into whole services). Play runs the Kit over the Spec to generate code that is correct by construction. Anything it can't derive becomes an explicit **hole** for the LLM. Kits are mined mainly from the client's own reference app.
 
 ![Anatomy of a Target Kit](diagrams/05-kit-anatomy.svg)
 
-## 3.1 Why kits
+## 4.1 Why kits
 
 Today `uw-build-layer` writes every line with an LLM. The trouble with that:
 - Forty tables come out forty slightly different ways.
@@ -15,7 +15,7 @@ Most of a rebuilt service is **structural**: schema, routes, validators, wiring,
 
 Kits are **per client** because "the target" is never just "Hono + Drizzle". It is *this client's* Hono + Drizzle: their error envelope, logging, id strategy, folder layout and internal SDKs.
 
-## 3.2 Kit repo layout
+## 4.2 Kit repo layout
 
 ```
 acme-kit/
@@ -73,7 +73,7 @@ datetime: { drizzle: "integer({ mode: 'timestamp' })", zod: "z.coerce.date()" }
 uuid:     { drizzle: "text", zod: "z.string().uuid()" }
 ```
 
-## 3.3 The recipe contract
+## 4.3 The recipe contract
 
 Modelled on OpenRewrite's `ScanningRecipe`: **scan → generate → edit**.
 
@@ -105,7 +105,7 @@ export interface TargetRecipe<Acc = unknown> {
 
 Recipes are TS modules plus template files. Recipes for non-TS targets still emit text and are finished by a target-language formatter. Simple recipes can be declarative (`recipe.yaml`: template plus `appliesTo` selector).
 
-## 3.4 Blueprints
+## 4.4 Blueprints
 
 A blueprint is a declarative composition of recipes, the analogue of a declarative recipe list. Each one covers a whole service, module or application skeleton.
 
@@ -120,12 +120,12 @@ recipes:
   - entity-repository:      { for: entity, options: { softDelete: true } }
   - endpoint-hono-route:    { for: endpoint }
   - route-registry                 # edit phase: mount routes in src/app.ts
-  - endpoint-parity-test:   { for: scenario }   # native tests from Spec scenarios (§5.6)
+  - endpoint-parity-test:   { for: scenario }   # native tests from Spec scenarios (§6.6)
 ```
 
 During `pl-plan`, each Spec slice is assigned a blueprint: `crud-service` for the orders module, `event-consumer` for webhooks, and so on.
 
-## 3.5 Holes: the deterministic/LLM boundary
+## 4.5 Holes: the deterministic/LLM boundary
 
 A recipe emits a **hole** wherever the Spec does not determine the code. Typical cases are business-rule bodies, non-trivial mappings and bespoke validation.
 
@@ -153,7 +153,7 @@ orders.post("/api/orders", zValidator("json", CreateOrder), async (c) => {
 - **Verification.** A Spec node whose target still contains an unfilled hole is `claimed`, not `present`, so it does not count toward completeness.
 - **Regeneration is safe.** The generator rewrites everything *outside* `@unwind-hole … @unwind-hole-end`, and preserves the hole's contents once filled.
 
-## 3.6 The Play build loop
+## 4.6 The Play build loop
 
 ![Play build loop: generate → holes → fill → verify](diagrams/07-play-loop.svg)
 
@@ -165,7 +165,7 @@ orders.post("/api/orders", zValidator("json", CreateOrder), async (c) => {
 3. `pl-build-layer` is dispatched with **holes plus the unmapped `[MUST]` nodes from `rebuild-graph.json`**. This also fixes today's mismatch, where the untagged seed file is pasted in.
 4. `unwind play merge`, then `verify`, then `parity`. The loop continues until completeness % and parity % reach their targets, or until two dry rounds pass (the existing `LoopState`).
 
-## 3.7 Kit mining (primary authoring path)
+## 4.7 Kit mining (primary authoring path)
 
 ![Mining a kit from a reference app](diagrams/06-kit-mining.svg)
 
@@ -185,11 +185,11 @@ Clients rarely want "a generic Hono app". They want *their* service template. So
 - **Hand-authored recipes**, written by platform engineers like any other TS module.
 - **In-flight promotion.** During a rebuild, the LLM hand-builds the first instance of a pattern. Play offers to promote it into a recipe (through the same regenerate gate), and the recipe then generates the remaining N.
 
-## 3.8 Starter kits
+## 4.8 Starter kits
 
-Play ships a starter kit as the reference implementation of the format. The first is `hono-drizzle-zod` (TypeScript, Workers/Node; recipes: scaffold, entity → Drizzle table, entity → Zod schema, entity → repository, endpoint → Hono route, route registry, scenario → vitest test). Client kits usually `extends` a starter and override conventions and templates. Later starters are listed in [06](06-roadmap.md) (Spring/JPA, FastAPI/SQLAlchemy).
+Play ships a starter kit as the reference implementation of the format. The first is `hono-drizzle-zod` (TypeScript, Workers/Node; recipes: scaffold, entity → Drizzle table, entity → Zod schema, entity → repository, endpoint → Hono route, route registry, scenario → vitest test). Client kits usually `extends` a starter and override conventions and templates. Later starters are listed in [08](08-roadmap.md) (Spring/JPA, FastAPI/SQLAlchemy).
 
-## 3.9 What kits do not do
+## 4.9 What kits do not do
 
 - **They do not translate code.** Kits generate from the Spec, never from the source code. That is the whole point of the Spec boundary.
 - **They do not guess.** An unknown type or rule becomes a hole and is reported, never invented.

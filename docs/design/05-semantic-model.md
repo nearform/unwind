@@ -1,10 +1,10 @@
-# 04 · Semantic Model and store
+# 05 · Semantic Model and store
 
 > **In short:** Borrow the *semantics* of the LST (types and symbol binding), not its losslessness, because Unwind never edits the source. Build the model in tiers (compiler-accurate T2, index-based T1, tree-sitter T0), each falling back gracefully to the one below. Store it as additive manifest facts plus fact tables, and add a local index later for multi-repo queries.
 
 ![Semantic Model tiers with fallback](diagrams/04-semantic-tiers.svg)
 
-## 4.1 What we have today
+## 5.1 What we have today
 
 The analysis is in `packages/core/src` (see `structure/`, `imports/`, `layers/`, `graph/`). Its limits:
 
@@ -20,7 +20,7 @@ The analysis is in `packages/core/src` (see `structure/`, `imports/`, `layers/`,
 
 These are exactly the facts a rebuild needs to be typed and checkable, and exactly what the verifier lacks (`graph/rebuild-verification.ts` notes that field types are not in the manifest).
 
-## 4.2 Tiers
+## 5.2 Tiers
 
 | Tier | How | Languages (initially) | Gives |
 |---|---|---|---|
@@ -33,7 +33,7 @@ These are exactly the facts a rebuild needs to be typed and checkable, and exact
 - **No hand-rolled regex** for new facts. Tree-sitter, compiler APIs or real parsers only. SQL uses a real SQL parser, and ORM schemas use the ORM's own snapshot or schema (Drizzle `meta/*_snapshot.json`, `schema.prisma`).
 - **Facts, not trees.** We extract and persist facts. We never hold or serialise whole trees, which avoids the LST memory ceiling.
 
-## 4.3 New facts (all additive)
+## 5.3 New facts (all additive)
 
 Additions to `manifest/manifest-schema.ts` are optional fields only. `FileSymbols` is never reshaped.
 
@@ -56,7 +56,7 @@ Additions to `manifest/manifest-schema.ts` are optional fields only. `FileSymbol
 
 **Ids** gain class-qualified and arity-qualified forms (`method:path:Class.name(n)`). The old forms are kept as aliases, so existing anchor-id docs keep matching.
 
-## 4.4 Detector recipes and fact tables
+## 5.4 Detector recipes and fact tables
 
 `layers/contract-detectors.ts` (about 1,160 lines, mixed AST and regex) becomes a **registry of small detectors**, the analogue of OpenRewrite's search recipes and data tables:
 
@@ -74,7 +74,7 @@ export interface Detector<Row> {
 - Community-extensible: adding a framework means adding a detector and its fixtures, not editing a monolith.
 - The regex fallback stays only for files with no grammar or parser (graceful degradation), as today.
 
-## 4.5 Store
+## 5.5 Store
 
 - **Phase 1 (now to the App).** Files stay authoritative under `docs/unwind/.cache/`: `scan-manifest.json`, `facts/*.json`, `spec.json`. They are git-friendly and diffable, as today.
 - **Later.** A **local index** in `node:sqlite` over models, Specs, fact tables and verification results, keyed by `repo@commit`. It enables:
@@ -84,7 +84,7 @@ export interface Detector<Row> {
 - **Rebuildable.** The index can always be rebuilt from the files. It is never the only copy.
 - **Incremental.** Today's fingerprints (`fingerprint/fingerprint.ts`) drive re-extraction. Once call edges exist, a body change that alters calls, reads or writes is no longer "cosmetic".
 
-## 4.6 Spec compilation (`rw-spec`)
+## 5.6 Spec compilation (`rw-spec`)
 
 `unwind rewind spec` builds the Spec ([02 §2.5](02-architecture.md)) from three sources:
 - the Semantic Model's facts (types, shapes, bindings);
@@ -93,7 +93,7 @@ export interface Detector<Row> {
 
 **Precedence:** T2 facts first, then T1, then doc blocks, then T0. Disagreements are recorded as conflicts, not silently resolved. Each unresolved type becomes `unknown` and is flagged; Play will turn it into a hole.
 
-## 4.7 What we deliberately don't copy
+## 5.7 What we deliberately don't copy
 
 - **Losslessness and format preservation.** Unwind never prints the source back.
 - **A JVM host, RPC peers and proprietary artifacts.** Everything runs in Node with optional external indexers.

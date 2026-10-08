@@ -1,16 +1,16 @@
-# 06 · Roadmap
+# 08 · Roadmap
 
 > **In short:** Nine phases from today's `uw-*` plugin to the destination. Each phase is shippable on its own, keeps the graceful fallback to today's flow, and has a testable exit criterion, proven on the drizzle-cube example where possible. The order delivers value early: Spec first, then the CLI, the **shared server MVP** (team use on large codebases, slices as first-class) and the split, then deterministic generation, then richer semantics, mining, behaviour, context and slice convergence, then surfaces.
 
 ![Roadmap timeline](diagrams/11-roadmap.svg)
 
-## 6.1 Phases
+## 8.1 Phases
 
 | Phase | Steps | Exit criteria |
 |---|---|---|
 | **0. Design** | This document set and the HTML site. | Reviewed and agreed. |
 | **1. Shared model + Spec v1** | Extract `@unwind/model` from `packages/core` (ids, schemas). Define Spec v1 ([02 §2.5](02-architecture.md)). Add `rw-spec`, compiling the Spec from manifest + graph + tagged docs, with fenced DDL/JSON-Schema/OpenAPI parsed by real parsers. Add a typed stack profile written by the plan interview, replacing the API-style regex in `skills/scripts/verify-rebuild.mjs`. | drizzle-cube produces a valid Spec with typed entities and endpoints. |
-| **2. CLI + Server MVP + Rewind/Play split** | Consolidate `skills/scripts/*.mjs` into the `unwind` CLI (`@unwind/engine` + `@unwind/cli`, `--json` everywhere); turn the scripts into shims. **Server MVP** ([08](08-server-and-slices.md)): `unwind serve` (Hono + node:sqlite + system git, one Docker image); bearer-token auth (`login` / `whoami` / `logout`); projects; `push` / `pull` / `status` with optimistic concurrency and secret scrubbing; **slices** (propose from the import graph, claim, state machine, per-slice coverage); basic UI (projects, slice board, slice detail with `DocsViewer`, graph coloured by slice, activity, tokens). Two plugins in one repo; `rw-*` / `pl-*` skills; `uw-*` aliases; manifests and marketplace updated. Play reads the Spec, plus docs for semantics. | Both plugins install independently, and the pipeline passes on drizzle-cube offline. Two users push the drizzle-cube analysis as ≥ 3 slices to one Docker server and see it on the slice board; a concurrent push to a different slice does not conflict, and a push touching the same path returns 409 and succeeds after pull. |
+| **2. CLI + Server MVP + Rewind/Play split** | Consolidate `skills/scripts/*.mjs` into the `unwind` CLI (`@unwind/engine` + `@unwind/cli`, `--json` everywhere); turn the scripts into shims. **Server MVP** ([03](03-server-and-slices.md)): `unwind serve` (Hono + node:sqlite + system git, one Docker image); bearer-token auth (`login` / `whoami` / `logout`); projects; `push` / `pull` / `status` with optimistic concurrency and secret scrubbing; **slices** (propose from the import graph, claim, state machine, per-slice coverage); basic UI (projects, slice board, slice detail with `DocsViewer`, graph coloured by slice, activity, tokens). Two plugins in one repo; `rw-*` / `pl-*` skills; `uw-*` aliases; manifests and marketplace updated. Play reads the Spec, plus docs for semantics. | Both plugins install independently, and the pipeline passes on drizzle-cube offline. Two users push the drizzle-cube analysis as ≥ 3 slices to one Docker server and see it on the slice board; a concurrent push to a different slice does not conflict, and a push touching the same path returns 409 and succeeds after pull. |
 | **3. Kit format + recipe engine + starter kit** | Kit schema and loader with `extends`; recipe runtime (scan / generate / edit, idempotent apply, hole protection); blueprint composer; golden-fixture runner (`kit test`); `hono-drizzle-zod` starter kit; `pl-build` runs generate → holes → LLM → verify; the verifier counts holes and checks types; the scaffold recipe sets `config.scaffolded`. | drizzle-cube's database and API slices generate, compile and verify `equivalent`. Re-runs give no diff. |
 | **4. Semantic Model T0/T2** | TS compiler-API tier; tree-sitter type and route-prefix extraction; `calls`/`reads`/`writes`/`derives_from` edges; handler binding; per-file `semanticTier`; detector-recipe registry refactor of `contract-detectors.ts`. | Spec entities and endpoints are fully typed for TS sources. The verifier diffs field types. |
 | **5. Kit mining** | `play kit mine` (profile, conventions, type map); exemplar selection; LLM parameterisation behind the regenerate gate; kit versioning and pinning; in-flight promotion. | A kit mined from one reference repo rebuilds another repo's slice in that house style. |
@@ -21,7 +21,7 @@
 | **7. App depth + portfolio** | Server UI grows: metrics over time, convergence and conflict resolution UX, questions and interview briefs answered in place, FTS search, multi-project portfolio, Recipe Book and Kit browser, kit editor, optional mirror push of artifacts to GitHub/GitLab. | A portfolio view across N projects; kits browsable and editable in the App; questions answered in the UI land as commits. |
 | **8. Breadth** | SCIP tier for Java/C#/Python; starter kits for Spring/JPA and FastAPI/SQLAlchemy; blueprints for event consumers, scheduled jobs and BFFs; more parity drivers. | ≥ 3 source languages typed, and ≥ 3 starter kits. |
 
-## 6.2 Dependencies
+## 8.2 Dependencies
 
 ```
 0 ─► 1 ─► 2 ─► 3 ─► 5 (mining needs the recipe engine)
@@ -34,7 +34,7 @@
 
 Phases 4, 5b, 5c and 5d can run in parallel with 3 once the Spec exists. Phase 8 is open-ended.
 
-## 6.3 Cross-cutting rules for every phase
+## 8.3 Cross-cutting rules for every phase
 
 - **Graceful fallback.** If the new path is unavailable (no kit match, no TS compiler, no runnable legacy app, no server), the previous behaviour runs and the skill says so.
 - **Additive schemas.** Optional fields only. The `schemaVersion` bumps and migrations are documented in `@unwind/model`.
@@ -42,7 +42,7 @@ Phases 4, 5b, 5c and 5d can run in parallel with 3 once the Spec exists. Phase 8
 - **Tests next to the source** (`node --test`, as in `packages/core/src/**/*.test.ts`). Every recipe and detector ships with fixtures.
 - **Docs move with the code.** `CLAUDE.md`, the README and the principle files (`skills/analysis-principles.md`, `skills/rebuild-principles.md`) are updated in the same phase. In particular, `rebuild-principles.md` gains sections on holes, the Spec and kits.
 
-## 6.4 Files most affected (for orientation)
+## 8.4 Files most affected (for orientation)
 
 | Today | Becomes |
 |---|---|

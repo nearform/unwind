@@ -23,13 +23,13 @@ const DOCS = [
   'README.md',
   '01-review-openrewrite.md',
   '02-architecture.md',
-  '03-target-kits-and-recipes.md',
-  '04-semantic-model.md',
-  '05-behaviour-parity.md',
-  '05b-context-gaps.md',
-  '06-roadmap.md',
-  '07-open-questions.md',
-  '08-server-and-slices.md',
+  '03-server-and-slices.md',
+  '04-target-kits-and-recipes.md',
+  '05-semantic-model.md',
+  '06-behaviour-parity.md',
+  '07-context-gaps.md',
+  '08-roadmap.md',
+  '09-open-questions.md',
 ];
 
 // ── dependencies (borrowed from the dashboard workspace) ─────────────────────
