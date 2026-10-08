@@ -18,6 +18,8 @@
 
 Every line of target code is still written by an LLM. The extracted facts are names only: no types, no call graph.
 
+**Prior art.** OpenRewrite/Moderne ([01](01-review-openrewrite.md)) contributes the *semantic model and recipe* ideas. Anthropic's code-modernization plugin ([01b](01b-compare-code-modernization.md)) contributes the *proof discipline* (canary, comparator self-check, fresh inputs, PROVEN / PARTLY / NOT verdicts), rule cards with adversarial review, preflight, and pilot → playbook fan-out.
+
 **What we learned from OpenRewrite/Moderne** ([01](01-review-openrewrite.md)):
 - Their **Lossless Semantic Tree** (type-attributed, built by the real compiler) and their **recipe** model (scan → generate → edit, declarative composition, before/after golden tests, data tables) are excellent ideas.
 - But OpenRewrite performs **no cross-language translation**. Its non-JVM languages and most recipe packs are under a source-available licence (MSAL) or are proprietary, and they run through a JVM host and the Moderne CLI.
@@ -47,6 +49,7 @@ Every line of target code is still written by an LLM. The extracted facts are na
 | # | Doc | Read it if you want… |
 |---|---|---|
 | 01 | [Review: OpenRewrite / Moderne vs Unwind](01-review-openrewrite.md) | what we looked at, what we borrow, and why there is no dependency |
+| 01b | [Comparison: Anthropic's code-modernization plugin](01b-compare-code-modernization.md) | the closest prior art, side by side, and the 17 ideas we borrow (proof discipline, rule cards, preflight, pilot → playbook) |
 | 02 | [Destination architecture](02-architecture.md) | the whole picture: server, Rewind / Spec / Play / Kits / surfaces |
 | 03 | [Unwind Server and slices](03-server-and-slices.md) | the shared day-0 server, auth, push/pull, slices and convergence |
 | 04 | [Target Kits, recipes, blueprints, holes](04-target-kits-and-recipes.md) | how the target becomes deterministic |

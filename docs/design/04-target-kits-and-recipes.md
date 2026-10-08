@@ -165,6 +165,15 @@ orders.post("/api/orders", zValidator("json", CreateOrder), async (c) => {
 3. `pl-build-layer` is dispatched with **holes plus the unmapped `[MUST]` nodes from `rebuild-graph.json`**. This also fixes today's mismatch, where the untagged seed file is pasted in.
 4. `unwind play merge`, then `verify`, then `parity`. The loop continues until completeness % and parity % reach their targets, or until two dry rounds pass (the existing `LoopState`).
 
+**Scaling out: pilot → playbook → fan-out.** *Borrowed from code-modernization's uplift track ([01b §1b.3](01b-compare-code-modernization.md), borrow #10).*
+1. The first Play slice is always a **pilot**, run in-session with a person watching.
+2. Its lessons are written down as a **playbook**: a *kit delta* holding new or adjusted recipes, conventions and hole-filling guidance. It is versioned with the kit (§4.7).
+3. Remaining slices **fan out** in dependency-gated batches ordered by seams ([03 §3.8](03-server-and-slices.md)).
+4. A **circuit breaker** stops the fan-out when fewer than 2/3 of a batch build and verify.
+5. Playbook gaps reported by builders are **folded back in** before the next batch.
+
+The right response to a failing batch is a better playbook or kit, not more agents.
+
 ## 4.7 Kit mining (primary authoring path)
 
 ![Mining a kit from a reference app](diagrams/06-kit-mining.svg)

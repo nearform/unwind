@@ -22,7 +22,7 @@ A **scenario** is a new Spec node kind. It is stack-neutral and lives in the Spe
 id: scenario:orders:discount-threshold
 covers: [endpoint:src/routes/orders.ts:POST /api/orders, operation:src/services/orders.ts:applyDiscount]
 priority: MUST
-source: generated            # generated | legacy-test | grill | traffic | interview | expert
+source: generated            # generated | legacy-test | grill | traffic | interview | expert | fresh
 given:
   db:
     customers: [{ id: c1, tier: wholesale }]
@@ -46,6 +46,7 @@ record: false                # true = expected unknown; capture from legacy as g
   3. **Grill findings**: each suspected bug or edge case becomes a probe.
   4. **Captured traffic**: HAR files, proxy logs and recorded UI sessions, scrubbed (§6.4).
   5. **Interviews and experts**: "users rely on X" ([07](07-context-gaps.md)).
+  6. **Fresh inputs** (`source: fresh`): at least 10 inputs per slice that the builder never saw, whose outputs differ from every development case. They are held out until verification, so parity can't be met only on scenarios the builder had in view. *Borrowed from code-modernization, see [01b §1b.8](01b-compare-code-modernization.md) #2.*
 
 ## 6.3 Boundary drivers
 
@@ -69,6 +70,7 @@ Exploration by agents is non-deterministic, but **replay must be deterministic**
   - path-parameter normalisation (`normalizeEndpointPath`);
   - field-name normalisation (`norm`);
   - target conventions from the Kit (e.g. error envelope, status 422 vs 400).
+- **Every mask and tolerance carries a `why`.** Numeric tolerances have a ceiling (e.g. refuse anything looser than 1% relative). Any remaining difference becomes parity-green only through an `approvedDifference` with a reason and a named approver, recorded in the Spec. Nothing is normalised silently. *Borrowed from code-modernization ([01b §1b.8](01b-compare-code-modernization.md) #5).*
 - **Verdict-aware.** `[DON'T]` items are excluded. `fix-in-rebuild` grill verdicts *expect* the legacy result to differ; the scenario holds the corrected expectation, and legacy is recorded only as a reference.
 
 ## 6.5 Lifecycle
@@ -97,3 +99,28 @@ Kit recipes (e.g. `endpoint-parity-test` in [04 §4.4](04-target-kits-and-recipe
   - expected results come from domain experts via the questionnaire flow (`docs/unwind/questions/`, see [07](07-context-gaps.md));
   - they run against the target only.
 - **Not a proof.** Parity covers the scenarios that exist. Behavioural coverage (§6.2) makes the uncovered remainder visible rather than implied.
+
+## 6.8 Proof discipline: making parity hard to game
+
+*Borrowed from code-modernization's `compare.py` / `proof_pack.py` ([01b §1b.5](01b-compare-code-modernization.md), borrow list #1–#4). Unwind adapts these checks to anchor ids and slices.*
+
+- **The checker must be able to fail.**
+  - A **comparator self-check** flips bytes in a recorded golden and confirms that the scrubbers and the mapping layer still report a difference.
+  - A **canary** mutates one line of generated target code and confirms the parity suite goes red.
+  - If either check passes when it should fail, the run is invalid.
+- **Zero executed, or skipped, is a failure.** A scenario that cannot run is never counted as a pass. Counts come **only from parsed runner output** (JUnit XML or the runner's JSON report) newer than the code under test. Counts the agent reports itself are ignored.
+- **Rule → test trace states**, keyed by anchor ids. Generated and hand-written tests carry the Spec node id in their name, e.g. `[operation:src/services/orders.ts:applyDiscount] discount at threshold`. Every `[MUST]` node gets one of five states:
+  - `tested`: a test ran and passed;
+  - `named-not-run`;
+  - `code-only`;
+  - `claimed`;
+  - `none`.
+
+  Only `tested` counts toward behavioural coverage. This lands in `graph/rebuild-verification.ts`, next to the structural verdicts.
+- **A computed verdict per slice:**
+  - **PROVEN**: every `[MUST]` scenario passes against both legacy and target, fresh inputs included, and the canary and self-check behave.
+  - **PARTLY PROVEN**: the same, except the legacy system can't run here, so the evidence is target-only or expert-supplied. This is the ceiling without a runnable legacy.
+  - **NOT PROVEN**: anything else.
+
+  The verdict is written to `rebuild-verification-graph.json` and shown on the server's slice board ([03 §3.7](03-server-and-slices.md)). A person signs off on it; a model never does.
+

@@ -95,3 +95,19 @@
 
 - **Question:** When do we need SSO/OIDC and finer-grained roles?
 - **Recommendation:** Not on day 0. Use bearer tokens with read/write/admin scopes plus project allow-lists, and put a reverse proxy (or Cloudflare Access) in front for SSO. Add native OIDC only when a client requires it.
+
+## 9.18 Rule ids: `RULE-NNN` or anchor ids only
+
+- **Question:** code-modernization numbers business rules (`RULE-NNN`) for human readability and test naming. Should Unwind add a short human id next to its candidate/anchor ids?
+- **Recommendation:** **Anchor ids stay the join key.** Optionally derive a stable short alias (`R-<hash6>`) for test names and conversation, mapped one-to-one in the Spec. Never introduce a second identity that can drift ([01b §1b.8](01b-compare-code-modernization.md) #4).
+
+## 9.19 Same-stack uplift: integrate or defer
+
+- **Question:** Should Unwind grow an uplift track, or defer to code-modernization for same-stack upgrades and COBOL depth?
+- **Recommendation:** **Defer and interoperate.** Uplift stays out of scope. Document "uplift first, then Unwind" as a supported sequence. Consider importing code-modernization's `BUSINESS_RULES.md` / `topology.json` into the Spec as evidence with `provenance: code-modernization` ([01b §1b.9](01b-compare-code-modernization.md)).
+
+## 9.20 Cost budgets for adversarial review
+
+- **Question:** A referee plus a two-judge panel on every `[MUST]` multiplies agent calls; code-modernization reports up to about 8.8M tokens on a 30 kLOC estate. How do we bound it?
+- **Recommendation:** **Budgets per slice, applied by risk.** Referee every `[MUST]` (cheap: one citation check). Run the two-judge panel only on grill hotspots, low-confidence cards and money/permission/state rules. Expose token and agent budgets as CLI flags, and report anything skipped as an explicit coverage gap, never silently.
+

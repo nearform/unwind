@@ -79,6 +79,23 @@ Today's pipeline (scan → seed → analyze → verify-coverage → complete →
 
 Every step runs locally through the CLI, scoped to a **slice** when one is claimed (`--slice`), and `unwind push` sends the resulting artifacts to the server, which converges the fragments into the project Spec ([03 §3.8](03-server-and-slices.md)).
 
+**Front door (`rw-start`).** Before scanning, Rewind runs a **preflight** and captures **intent once**:
+- an `INTENT` record (the goal, and what must stay true, e.g. "quirks included") that every later step reads. It sets parity strictness and plan defaults;
+- the "only a human knows" questions (scope, can it build and test here, bespoke build infrastructure, prior attempts, off-limits areas);
+- a throwaway target-stack build that proves the toolchain;
+- a scope-boundary check that lists inbound consumers from the import graph.
+
+`unwind status` derives staleness from the artifact chain and always prints **the exact next command**. *Borrowed from code-modernization ([01b §1b.8](01b-compare-code-modernization.md) #8, #9, #15).*
+
+**Untrusted-content discipline.** Code and docs are data, never instructions:
+- untrusted text is fenced in prompts;
+- labels and paths are sanitized;
+- analysis agents are read-only and return data, and only the orchestrator writes;
+- instruction-shaped text is reported by `file:line`;
+- secrets are masked to short previews before any artifact is written. This matters because `uw-publish` pushes docs to public gh-pages and the server ingests artifacts.
+
+*Borrowed from code-modernization ([01b §1b.8](01b-compare-code-modernization.md) #12, #13).*
+
 Rewind is **useful on its own** for documentation, onboarding, audits and due diligence, without ever running Play.
 
 ## 2.5 The Spec: the only Rewind → Play contract
@@ -131,6 +148,24 @@ Every node carries `id`, `priority` (`MUST`/`SHOULD`/`DONT` plus rationale), `do
     "provenance": ["inferred", "interview:stakeholder:2026-11-02"]
   }]
 }
+```
+
+**Operations take the rule-card shape** (borrowed from code-modernization, see [01b §1b.8](01b-compare-code-modernization.md) #6, #7). Each `operation` carries:
+- Given/When/Then with **concrete values** (e.g. "12000 cents → 11400, rounded half-up");
+- `parameters`, so magic numbers become config candidates;
+- `suspectedDefect`, which feeds the grill;
+- `confidence` with an SME question when below high, which opens a context gap.
+
+Every `[MUST]` operation is checked by a **citation referee** against its anchor, then by a **two-judge panel** (a compliance lens and a fidelity lens). A split verdict demotes it to `[SHOULD]` and raises a context gap ([07](07-context-gaps.md)), never a silent drop. Rule cards also seed parity scenarios ([06 §6.2](06-behaviour-parity.md)).
+
+```json
+{ "id": "operation:src/services/orders.ts:applyDiscount", "priority": "MUST",
+  "given": "wholesale customer, 3 × 4000-cent items, no coupon",
+  "when": "the order is created",
+  "then": "totalCents = 11400 (12000 − 5%, rounded half-up)",
+  "parameters": [{ "name": "discountThresholdCents", "value": 10000 }, { "name": "discountRate", "value": 0.05 }],
+  "suspectedDefect": null, "confidence": "high",
+  "review": { "referee": "confirmed", "panel": ["compliance:keep", "fidelity:keep"] } }
 ```
 
 A Spec can also be **hand-written**, which makes Play usable for greenfield work.

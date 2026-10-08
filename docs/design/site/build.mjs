@@ -22,6 +22,7 @@ const OUT = join(SITE, 'public');
 const DOCS = [
   'README.md',
   '01-review-openrewrite.md',
+  '01b-compare-code-modernization.md',
   '02-architecture.md',
   '03-server-and-slices.md',
   '04-target-kits-and-recipes.md',

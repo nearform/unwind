@@ -236,6 +236,13 @@ All routes are JSON and bearer-authenticated, typed through `hono/client`. The f
   - findings and questions;
   - rebuild maps and verification.
 - Code appears on the server **only** where docs already quote it, such as grill evidence quotes. Clients can disable quotes per project (`policy.quotes: false`), in which case the CLI strips fenced code from docs on push.
+- **Treat pushed artifacts as untrusted.**
+  - The server renders docs with no raw HTML.
+  - It never executes or interprets instruction-shaped text in artifacts.
+  - It surfaces any `injectionFlags` the CLI recorded.
+  - Secrets found by the pre-push scrubber are masked to short previews and kept in a local, gitignored `SECRETS.local.md`.
+
+  *Borrowed from code-modernization ([01b §1b.8](01b-compare-code-modernization.md) #12, #13).*
 - **Allow-list on push.** Only known artifact paths are accepted, on both the server and the CLI.
 - **Secret scrubbing** before push (§3.6).
 - **Audit:** every write is a git commit plus a `runs` row, tied to a named user.

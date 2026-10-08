@@ -557,6 +557,67 @@ D['13-slices'] = () => {
   svgDoc('13-slices', 'Slices: parallel analysis, convergence, Play by slice', 1100, 556, b, ['det', 'llm', 'art', 'new']);
 };
 
+// ── 14 Comparison with code-modernization ────────────────────────────────────
+D['14-compare-code-modernization'] = () => {
+  current = '14';
+  const W = 1180, LX = 24, RX = 826, BW = 330, BH = 46, Y0 = 112, STEP = 58;
+  const yc = (i) => Y0 + i * STEP + BH / 2;
+  let b = '';
+  b += laneLabel(LX, 96, 'code-modernization (Anthropic · Apache-2.0)', '#14532D');
+  b += laneLabel(RX, 96, 'Unwind destination', '#1E3A8A');
+  const left = [
+    ['human', 'modernize', 'INTENT.md captured once'],
+    ['human', 'preflight', '5 human questions · toolchain proof'],
+    ['llm', 'assess', 'scc/cloc · 3 parallel agents'],
+    ['llm', 'map', 'topology.json · LLM-written parser'],
+    ['llm', 'extract-rules', 'RULE cards · referee · P0 panel'],
+    ['human', 'review', 'SME confirms / wrong / discuss'],
+    ['human', 'brief', 'phases · Behavior Contract · approval'],
+    ['llm', 'uplift / transform / reimagine', 'pilot → PLAYBOOK → fan-out'],
+    ['det', 'verify', 'proof pack · canary · fresh inputs'],
+    ['llm', 'harden', 'security findings · patch'],
+  ];
+  const right = [
+    ['new', 'rw-start', 'front door · status + next command'],
+    ['det', 'scan', 'tree-sitter manifest · candidate ids'],
+    ['llm', 'analyze', 'layer docs tagged [MUST]/[SHOULD]/[DON\'T]'],
+    ['det', 'coverage', 'manifest − docs → loop to 100%'],
+    ['llm', 'grill', 'hotspots · evidence-quoted verdicts'],
+    ['human', 'context gaps', 'routed stakeholder interviews'],
+    ['art', 'rw-spec → Spec', 'stack-neutral typed IR'],
+    ['new', 'Server + slices', 'push · converge · seams'],
+    ['det', 'Play · kits + holes', 'recipes generate · LLM fills holes'],
+    ['det', 'verify', 'structural diff + behaviour parity'],
+  ];
+  const col = (x, items) => items.forEach(([k, t, s], i) => {
+    const y = Y0 + i * STEP;
+    b += box({ x, y, w: BW, h: BH, k, t, s: [s], ts: 13, align: 'start', rx: 8 });
+    if (i < items.length - 1) b += arr([[x + 30, y + BH], [x + 30, y + STEP - 2]]);
+  });
+  col(LX, left);
+  col(RX, right);
+  // Borrow arrows: left box right edge → right box left edge, label on white background
+  const borrow = (li, ri, label) => {
+    const y1 = yc(li), y2 = yc(ri), x1 = LX + BW, x2 = RX;
+    b += arr([[x1, y1], [x1 + 50, y1], [x2 - 50, y2], [x2 - 2, y2]], { c: 'p', dash: true });
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const tw = textW(label, 11.5, { bold: true }) + 14;
+    b += `<rect x="${mx - tw / 2}" y="${my - 12}" width="${tw}" height="18" rx="4" fill="#ffffff" stroke="#DDD6FE" stroke-width="1"/>`;
+    b += txt(mx, my + 1.5, label, { size: 11.5, weight: 600, fill: '#4C1D95', anchor: 'middle' });
+  };
+  borrow(1, 0, 'preflight + INTENT → rw-start');
+  borrow(4, 6, 'rule cards + referee panel → Spec operations');
+  borrow(7, 8, 'pilot → playbook → circuit breaker → Play loop');
+  borrow(8, 9, 'proof pack · canary · fresh inputs → parity');
+  // Cross-cutting banner
+  const by = Y0 + 10 * STEP + 6;
+  b += box({ x: LX, y: by, w: W - 2 * LX, h: 46, k: 'new', t: 'untrusted-content discipline + secrets quarantine → every Unwind agent, uw-publish and Server ingest', ts: 13 });
+  b += arr([[LX + BW / 2, Y0 + 9 * STEP + BH], [LX + BW / 2, by - 2]], { c: 'p', dash: true });
+  b += arr([[RX + BW / 2, by], [RX + BW / 2, Y0 + 9 * STEP + BH + 2]], { c: 'p', dash: true });
+  b += txt(LX, by + 74, 'Dashed purple = an idea Unwind borrows (see 01b §1b.8). Unwind keeps its own deterministic spine: scan, candidate ids, coverage by set arithmetic.', { size: 12, fill: '#64748B' });
+  svgDoc('14-compare-code-modernization', 'code-modernization vs Unwind: what we borrow', W, by + 96, b, ['det', 'llm', 'art', 'human', 'new']);
+};
+
 mkdirSync(OUT, { recursive: true });
 const only = process.argv.slice(2);
 for (const [name, fn] of Object.entries(D)) if (!only.length || only.some((o) => name.startsWith(o))) fn();
