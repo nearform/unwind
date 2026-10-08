@@ -4,7 +4,6 @@
 {
   "name": "unwind-design",
   "compatibility_date": "2026-06-01",
-  "assets": { "directory": "./public", "not_found_handling": "404-page" }
-  // TODO: confirm the public custom domain before the first deploy, then add e.g.:
-  // , "routes": [{ "pattern": "unwind-design.cliftonc.nl", "custom_domain": true }]
+  "assets": { "directory": "./public", "not_found_handling": "404-page" },
+  "routes": [{ "pattern": "unwind-design.cliftonc.nl", "custom_domain": true }]
 }
