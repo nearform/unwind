@@ -41,3 +41,6 @@ venv/
 # Temporary files
 *.tmp
 *.temp
+
+# Generated design site (node docs/design/site/build.mjs)
+docs/design/site/public/
