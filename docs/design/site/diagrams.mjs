@@ -416,22 +416,27 @@ D['10-surfaces'] = () => {
   current = '10';
   let b = '';
   const cols = [
-    [40, 'skills (rw-*, pl-*) · CI · humans', 'any agent via Bash', 'unwind CLI · PRIMARY', ['--json · exit codes · no daemon'], true],
-    [390, 'MCP clients', 'non-CLI agents', 'unwind mcp', ['stdio adapter, 1:1 with the CLI'], false],
-    [740, 'Dashboard / App · Recipe Book', 'portfolio view', 'unwind serve', ['HTTP API + App (later)'], false],
+    [40, 'skills (rw-*, pl-*) · CI · humans', 'any agent via Bash', 'unwind CLI · PRIMARY', ['does the work · --json · offline-first'], true, 'det'],
+    [390, 'team · reviewers · leads', 'browser (basic UI)', 'unwind serve · DAY 0', ['system of record · slices · UI'], true, 'new'],
+    [740, 'MCP clients', 'non-CLI agents', 'unwind mcp · later', ['stdio adapter, 1:1 with CLI / API'], false, 'det'],
   ];
-  for (const [x, c1, c2, t, s, thick] of cols) {
+  for (const [x, c1, c2, t, s, thick, k] of cols) {
     b += box({ x, y: 84, w: 320, h: 56, k: 'src', s: [c1, c2] });
     b += arr([[x + 160, 140], [x + 160, 172]]);
-    b += box({ x, y: 174, w: 320, h: 60, k: 'det', t, s, thick });
+    b += box({ x, y: 174, w: 320, h: 60, k, t, s, thick });
     b += arr([[x + 160, 234], [x + 160, 276]]);
   }
-  b += box({ x: 40, y: 278, w: 1020, h: 82, k: 'det', thick: true, t: '@unwind/engine', ts: 17, s: ['model · rewind (scan, detectors, spec, observe, context-gaps) · play (kits, recipes, generate, verify, parity) · store'] });
-  b += arr([[370, 360], [370, 398]]) + arr([[750, 360], [750, 398]], { dash: true });
-  b += box({ x: 200, y: 400, w: 340, h: 56, k: 'art', t: 'docs/unwind/ files', s: ['source of truth · git-friendly'] });
-  b += box({ x: 580, y: 400, w: 340, h: 56, k: 'art', t: 'node:sqlite index', s: ['later · rebuildable · multi-repo queries'] });
-  b += txt(40, 492, 'Every MCP tool and HTTP route maps 1:1 to a CLI command, so behaviour is identical across surfaces.', { size: 12, fill: '#64748B' });
-  svgDoc('10-surfaces', 'Surfaces: one engine, CLI-first, thin adapters', 1100, 512, b, ['det', 'art']);
+  b += arr([[360, 196], [388, 196]], { c: 'p' });
+  b += txt(374, 190, 'push', { size: 10.5, fill: '#4C1D95', anchor: 'middle' });
+  b += arr([[388, 214], [362, 214]], { c: 'p' });
+  b += txt(374, 228, 'pull', { size: 10.5, fill: '#4C1D95', anchor: 'middle' });
+  b += box({ x: 40, y: 278, w: 1020, h: 82, k: 'det', thick: true, t: '@unwind/engine', ts: 17, s: ['model · rewind (scan, detectors, spec, observe, context-gaps) · play (kits, recipes, generate, verify, parity) · slices'] });
+  b += arr([[200, 360], [200, 398]]) + arr([[550, 360], [550, 398]], { c: 'p' }) + arr([[880, 360], [880, 398]], { c: 'p' });
+  b += box({ x: 40, y: 400, w: 320, h: 56, k: 'art', t: 'local docs/unwind/', s: ['working copy · works offline'] });
+  b += box({ x: 390, y: 400, w: 320, h: 56, k: 'art', t: 'project git repo', s: ['server · artifacts · full history'] });
+  b += box({ x: 740, y: 400, w: 320, h: 56, k: 'art', t: 'node:sqlite', s: ['auth · slices · metrics · index'] });
+  b += txt(40, 492, 'The CLI does the work next to the code; the server stores, merges, indexes and shows it. MCP and HTTP add no logic of their own.', { size: 12, fill: '#64748B' });
+  svgDoc('10-surfaces', 'Surfaces: one engine, CLI-first, shared server from day 0', 1100, 512, b, ['det', 'new', 'art']);
 };
 
 // ── 11 Roadmap ────────────────────────────────────────────────────────────────
@@ -440,14 +445,15 @@ D['11-roadmap'] = () => {
   const P = [
     ['0', 'Design', 'design doc set + HTML site', 'reviewed and agreed', 'art'],
     ['1', 'Shared model + Spec v1', '@unwind/model · rw-spec · typed stack profile', 'drizzle-cube → valid Spec, typed entities + endpoints', 'det'],
-    ['2', 'CLI + Rewind / Play split', 'unwind CLI (--json) · rw-* / pl-* plugins · uw-* aliases', 'both plugins install independently; pipeline green', 'det'],
+    ['2', 'CLI + Server MVP + split', 'unwind CLI · serve (Hono, git, sqlite) · tokens · push/pull · slices', 'team pushes ≥3 slices to one server; board shows them; 409 path works', 'new'],
     ['3', 'Kits + recipe engine + starter kit', 'kit schema · scan/generate/edit runtime · holes · hono-drizzle-zod', 'db + api slices generate, compile, verify equivalent; re-run = no diff', 'new'],
     ['4', 'Semantic Model T0 / T2', 'TS compiler tier · calls/handler/reads/writes · detector registry', 'TS sources fully typed; verifier diffs field types', 'det'],
     ['5', 'Kit mining', 'pl-kit mine · exemplar → recipe · regenerate gate · versioning', 'kit mined from repo A rebuilds repo B in house style', 'new'],
     ['5b', 'Behaviour parity', 'scenarios · HTTP + DB drivers · rw-observe · pl-parity', 'API scenarios recorded on legacy, replayed on rebuild → parity %', 'new'],
     ['5c', 'Context gaps', 'gap register · routed briefs · response adapter · context-ingest', 'briefs for ≥3 audiences; answers ingested with provenance', 'new'],
-    ['6', 'MCP adapter', 'unwind mcp, 1:1 with the CLI', 'non-Claude agents get identical results', 'det'],
-    ['7', 'Store + server + App', 'node:sqlite · unwind serve · Recipe Book · portfolio', 'portfolio across N repos; kits browsable / editable', 'det'],
+    ['5d', 'Slice convergence + Play by slice', 'merge fragments · uncovered/overlaps/conflicts/seams · strangler order', '100% convergence; one slice rebuilt + verified via seam adapters', 'new'],
+    ['6', 'MCP adapter', 'unwind mcp, 1:1 with the CLI / API', 'non-Claude agents get identical results', 'det'],
+    ['7', 'App depth + portfolio', 'metrics over time · conflict UX · answers in UI · Recipe Book', 'portfolio across N projects; kits browsable / editable', 'det'],
     ['8', 'Breadth', 'SCIP tier (Java / C# / Python) · Spring + FastAPI kits · blueprints', '≥3 typed source languages · ≥3 starter kits', 'det'],
   ];
   let b = `<line x1="62" y1="96" x2="62" y2="${96 + (P.length - 1) * 66}" stroke="#CBD5E1" stroke-width="3"/>`;
@@ -460,7 +466,82 @@ D['11-roadmap'] = () => {
     b += txt(96, y + 11, `builds: ${builds}`, { size: 11.5, fill: '#475569' });
     b += txt(96, y + 27, `exit: ${exit}`, { size: 11.5, fill: '#15803D' });
   });
-  svgDoc('11-roadmap', 'Roadmap: each phase shippable, graceful fallback kept', 700, 96 + (P.length - 1) * 66 + 52, b, ['det', 'new', 'art']);
+  svgDoc('11-roadmap', 'Roadmap: each phase shippable, graceful fallback kept', 720, 96 + (P.length - 1) * 66 + 52, b, ['det', 'new', 'art']);
+};
+
+// ── 12 Server ─────────────────────────────────────────────────────────────────
+D['12-server'] = () => {
+  current = '12';
+  let b = '';
+  // left: developer machines (code stays here)
+  b += `<rect x="16" y="76" width="400" height="404" rx="10" fill="#FBFCFE" stroke="#CBD5E1" stroke-width="1.6" stroke-dasharray="6 4"/>`;
+  b += laneLabel(32, 96, 'DEVELOPER MACHINES · CI', '#1E3A8A');
+  b += box({ x: 32, y: 112, w: 368, h: 56, k: 'src', t: 'Source repo', s: ['code never leaves this boundary'] });
+  b += arr([[216, 168], [216, 190]]);
+  b += box({ x: 32, y: 192, w: 368, h: 70, k: 'llm', t: 'Skills + agents (rw-* / pl-*)', s: ['analyze · grill · fill holes', 'call the CLI via Bash'] });
+  b += arr([[216, 262], [216, 284]]);
+  b += box({ x: 32, y: 286, w: 368, h: 70, k: 'det', thick: true, t: 'unwind CLI', s: ['scan · spec · generate · verify', 'login · push · pull · status'] });
+  b += arr([[216, 356], [216, 378]]);
+  b += box({ x: 32, y: 380, w: 368, h: 84, k: 'art', t: 'docs/unwind/ (working copy)', s: ['~/.config/unwind/credentials.json (0600)', 'secret scrub + allow-list before push'] });
+  // boundary
+  b += `<line x1="478" y1="130" x2="478" y2="476" stroke="#DC2626" stroke-width="2" stroke-dasharray="7 5"/>`;
+  b += txt(478, 98, 'artifacts only', { size: 12, weight: 700, fill: '#B91C1C', anchor: 'middle' });
+  b += txt(478, 114, 'no source code', { size: 11.5, fill: '#B91C1C', anchor: 'middle' });
+  b += arr([[400, 310], [538, 310]], { c: 'p', w: 2 });
+  b += `<rect x="460" y="290" width="36" height="16" fill="#ffffff"/><rect x="462" y="342" width="32" height="16" fill="#ffffff"/><rect x="434" y="378" width="88" height="17" fill="#ffffff"/>`;
+  b += txt(478, 302, 'push', { size: 11, fill: '#4C1D95', anchor: 'middle' });
+  b += arr([[538, 338], [402, 338]], { c: 'p', w: 2 });
+  b += txt(478, 354, 'pull', { size: 11, fill: '#4C1D95', anchor: 'middle' });
+  b += txt(478, 390, 'Bearer uwt_…', { size: 11, fill: '#475569', anchor: 'middle', mono: true });
+  // right: server
+  b += `<rect x="540" y="76" width="544" height="404" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.8"/>`;
+  b += laneLabel(556, 96, 'UNWIND SERVER · one Docker image · unwind serve', '#4C1D95');
+  b += box({ x: 556, y: 112, w: 246, h: 70, k: 'new', t: 'Hono API', s: ['zod-validated · token auth', 'hono/client types → CLI + UI'] });
+  b += box({ x: 822, y: 112, w: 246, h: 70, k: 'new', t: 'UI (React + Vite)', s: ['TanStack Query · daisyUI', 'slice board · docs · graph'] });
+  b += box({ x: 556, y: 206, w: 512, h: 64, k: 'det', t: 'Engine: convergence · metrics · indexing', s: ['merge slice Spec fragments · uncovered / overlaps / conflicts / seams'] });
+  b += arr([[679, 182], [679, 204]]) + arr([[945, 182], [945, 204]]);
+  b += arr([[679, 270], [679, 300]]) + arr([[945, 270], [945, 300]]);
+  b += box({ x: 556, y: 302, w: 246, h: 96, k: 'art', t: 'git: repos/<project>.git', s: ['docs · Spec · findings · briefs', 'commit per push, by owner', 'optional mirror to GitHub'] });
+  b += box({ x: 822, y: 302, w: 246, h: 96, k: 'art', t: 'node:sqlite (Drizzle)', s: ['users · hashed tokens · slices', 'runs · metrics · FTS5 search', 'index rebuildable from git'] });
+  b += box({ x: 556, y: 416, w: 512, h: 48, k: 'human', s: ['Team in the browser: leads, reviewers, experts (token login)'] });
+  b += txt(24, 510, 'TLS / SSO via a reverse proxy later. Backup = copy the /data volume. The server never needs repository access.', { size: 12, fill: '#64748B' });
+  svgDoc('12-server', 'Unwind Server: shared system of record, code stays local', 1100, 530, b, ['det', 'llm', 'art', 'human', 'new']);
+};
+
+// ── 13 Slices ─────────────────────────────────────────────────────────────────
+D['13-slices'] = () => {
+  current = '13';
+  let b = '';
+  b += box({ x: 24, y: 84, w: 210, h: 260, k: 'src', t: 'Codebase', s: [] , valign: 'top'});
+  const sl = [['orders', 'dana, sam'], ['billing', 'lee'], ['catalog', 'agent + kim'], ['auth', 'ravi']];
+  sl.forEach(([n, o], i) => {
+    const y = 128 + i * 52;
+    b += box({ x: 40, y, w: 178, h: 42, k: 'new', s: [`${n} · ${o}`], rx: 8 });
+  });
+  b += txt(129, 338, 'proposed from import graph', { size: 10.5, fill: '#64748B', anchor: 'middle' });
+  sl.forEach((_, i) => { const y = 149 + i * 52; b += arr([[218, y], [266, y]]); });
+  b += `<rect x="268" y="84" width="236" height="260" rx="10" fill="#FBFCFE" stroke="#CBD5E1" stroke-width="1.6" stroke-dasharray="6 4"/>`;
+  b += laneLabel(280, 104, 'PARALLEL REWIND', '#9A3412');
+  sl.forEach(([n], i) => {
+    const y = 128 + i * 52;
+    b += box({ x: 280, y, w: 212, h: 42, k: 'llm', s: [`${n}: analyze → grill → frag`], rx: 8 });
+  });
+  sl.forEach((_, i) => { const y = 149 + i * 52; b += arr([[492, y], [540, 214]], { c: 'o' }); });
+  b += box({ x: 542, y: 120, w: 250, h: 188, k: 'det', thick: true, t: 'Convergence', s: ['merge fragments by candidate id', '', 'uncovered: ids in no slice', 'overlaps: id in 2+ slices', 'conflicts: same id, differs', 'seams: cross-slice edges', '', 'convergence % → 100'] });
+  b += arr([[792, 214], [830, 214]]);
+  b += box({ x: 832, y: 166, w: 244, h: 96, k: 'art', thick: true, t: 'Project Spec', s: ['spec/project.spec.json', 'seams = interface contracts', 'converged at 100%'] });
+  // Play row
+  b += `<rect x="24" y="378" width="1052" height="128" rx="10" fill="#FBFCFE" stroke="#CBD5E1" stroke-width="1.6" stroke-dasharray="6 4"/>`;
+  b += laneLabel(40, 398, 'PLAY BY SLICE · strangler order from the seam graph', '#4C1D95');
+  b += arr([[954, 262], [954, 300], [954, 300], [954, 376]]);
+  const ps = [['auth', 'cut-over'], ['catalog', 'verified'], ['orders', 'filling'], ['billing', 'planned']];
+  ps.forEach(([n, st], i) => {
+    const x = 40 + i * 232;
+    b += box({ x, y: 414, w: 200, h: 72, k: i < 2 ? 'det' : 'new', t: n, s: [st, i ? 'seams: adapters → legacy' : 'no upstream seams'] });
+    if (i < ps.length - 1) b += arr([[x + 200, 450], [x + 230, 450]], { c: 'p' });
+  });
+  b += txt(24, 536, 'Rewind states: proposed → claimed → analyzing → covered → grilled → spec-ready → accepted. Play: planned → generating → filling → verified → cut-over.', { size: 12, fill: '#64748B' });
+  svgDoc('13-slices', 'Slices: parallel analysis, convergence, Play by slice', 1100, 556, b, ['det', 'llm', 'art', 'new']);
 };
 
 mkdirSync(OUT, { recursive: true });

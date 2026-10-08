@@ -1,6 +1,6 @@
 # 02 · Destination architecture
 
-> **In short:** One shared model package, two plugins and one contract between them. **Rewind** understands a legacy system and compiles it into a stack-neutral **Spec**. **Play** rebuilds the Spec from a client's **Target Kit**. A single engine sits behind a **CLI-first** surface, with MCP and an App as thin adapters. Deterministic code owns the facts and the structure; the LLM owns semantics and holes; completeness is always computed.
+> **In short:** One shared model package, two plugins and one contract between them. **Rewind** understands a legacy system and compiles it into a stack-neutral **Spec**. **Play** rebuilds the Spec from a client's **Target Kit**. A single engine sits behind a **CLI-first** surface. From day 0 a self-hosted **Unwind Server** is the team's shared system of record and UI. It is git- and SQLite-backed, receives artifacts only, and treats slices as first-class ([08](08-server-and-slices.md)). MCP is a thin adapter. Deterministic code owns the facts and the structure; the LLM owns semantics and holes; completeness is always computed.
 
 ![The big picture](diagrams/01-big-picture.svg)
 
@@ -39,6 +39,7 @@
 | `uw-build-layer` writes every line | `pl-build`: **generate from Kit**, LLM fills holes | Deterministic first ([03](03-target-kits-and-recipes.md)) |
 | `verify-rebuild`: names, method+path, field-name Jaccard | Plus field **types**, holes, behavioural parity | Stronger verdicts |
 | `skills/scripts/*.mjs` | `unwind` CLI (scripts become shims) | Consolidation (§2.8) |
+| Single user, local `docs/unwind/` | **Unwind Server**: shared, git + SQLite, slices, UI | New from day 0 ([08](08-server-and-slices.md)) |
 
 ## 2.3 `@unwind/model`: the shared contract
 
@@ -129,18 +130,24 @@ A Spec can also be **hand-written**, which makes Play usable for greenfield work
 
 Per-client, versioned git repos that encode the client's **golden path**: stack profile, conventions, type map, recipes, blueprints and golden fixtures. They are mined primarily from the client's reference app. Starter kits (first: `hono-drizzle-zod`) ship with Play. See [03](03-target-kits-and-recipes.md).
 
-## 2.8 Surfaces: one engine, CLI first, thin adapters
+## 2.8 Surfaces: one engine, CLI first, a shared server from day 0
 
-![One engine; CLI primary; MCP and serve as adapters](diagrams/10-surfaces.svg)
+![One engine; CLI primary; server as the shared system of record; MCP as adapter](diagrams/10-surfaces.svg)
 
 ```
-@unwind/engine (library: model, rewind, play, kits, parity, gaps, store)
-     ├── unwind CLI      ← PRIMARY. Skills shell out to it. CI / humans / any agent.
-     ├── unwind mcp      ← thin stdio MCP adapter: tools map 1:1 to CLI commands
-     └── unwind serve    ← later: HTTP API (mirrors CLI) + App + store
+@unwind/engine (library: model, rewind, play, kits, parity, gaps, slices)
+     ├── unwind CLI      ← PRIMARY execution surface. Skills shell out to it. CI / humans / any agent.
+     │                     works fully offline; when logged in, pushes artifacts to the server
+     ├── unwind serve    ← DAY 0: shared system of record + basic UI (Hono API, git + SQLite, slices)
+     └── unwind mcp      ← later: thin stdio MCP adapter; tools map 1:1 to CLI commands / API routes
 ```
 
-**Why CLI rather than MCP for the skills:**
+**Division of labour:**
+- The **CLI does the work** (scan, analyze, generate, verify) next to the code.
+- The **server stores, merges, indexes and shows** it: projects, **slices**, history, convergence and metrics.
+- Source code never goes to the server; only artifacts do. See [08](08-server-and-slices.md) for storage, auth (simple bearer tokens via `unwind login`), push/pull, slices, convergence, UI and the API.
+
+**Why the CLI rather than MCP for the skills:**
 - The skills already shell out to `node skills/scripts/*.mjs` via `_resolve-plugin-root.sh`/`ensure_unwind_core`. That is a CLI in all but name, so this is a consolidation.
 - A CLI works in CI, for humans and from any agent, with no daemon or connection state. MCP availability varies by client and would weaken the graceful fallback.
 - `--json` output and exit codes make it testable. Long-running steps (generate, parity) fit processes better than tool calls.
@@ -150,20 +157,27 @@ Per-client, versioned git repos that encode the client's **golden path**: stack 
 ```
 unwind rewind  scan | seed | coverage | grill-brief | spec | observe | context-gaps | context-ingest
 unwind play    plan-brief | kit mine | kit test | generate | merge | verify | parity
+unwind slices  propose | list | claim | release | status
+unwind         login | logout | whoami | project link|create | push | pull | status
 unwind         graph | publish | serve | mcp
-common flags   --project <src> --target <dir> --kit <repo@ver> --json --plan (dry run)
+common flags   --project <src> --target <dir> --kit <repo@ver> --slice <id> --json --plan (dry run)
 ```
 
-**Distribution** is an npm package (`npx @unwind/cli`). `ensure_unwind_core` becomes `ensure_unwind_cli`. The current `.mjs` scripts become one-line shims for one release.
+**Distribution** is an npm package (`npx @unwind/cli`) plus the server Docker image. `ensure_unwind_core` becomes `ensure_unwind_cli`. The current `.mjs` scripts become one-line shims for one release.
 
-**MCP and HTTP are adapters with no logic of their own**, so behaviour is identical across surfaces.
+**Server tech stack** (detail in [08 §8.3](08-server-and-slices.md)):
+- **Hono** on Node (`@hono/node-server`), with zod validation (`@hono/zod-validator`) and `hono/client` RPC types shared with the CLI and UI;
+- **React + Vite** UI with **TanStack Query** (TanStack Router recommended) and **Tailwind + daisyUI**, dark by default and mapped onto the dashboard tokens, reusing the React Flow/ELK graph and `DocsViewer` from `packages/dashboard`;
+- **`node:sqlite`** (Drizzle recommended for schema and migrations) plus **system git**;
+- one Docker image serving API and UI from the same Hono app.
+- This is the stack of the pilot starter kit, so **Unwind dogfoods its own target kit**.
 
-The **App** is today's dashboard (`packages/dashboard`) extended with a Recipe Book browser, Kit editor and portfolio view. It is served by `unwind serve` once the store exists.
+**The MCP adapter and the HTTP API add no logic of their own**, so behaviour is identical across surfaces.
 
 ## 2.9 Packaging and naming
 
 - One repo and two plugins: **Rewind** (`rw-*` skills) and **Play** (`pl-*` skills). **Unwind** stays the umbrella brand.
-- Packages: `@unwind/model`, `@unwind/engine` (initially today's `@unwind/core`, renamed and grown), `@unwind/cli`, `@unwind/dashboard`.
+- Packages: `@unwind/model`, `@unwind/engine` (initially today's `@unwind/core`, renamed and grown), `@unwind/cli`, `@unwind/server` (Hono API + storage) and `@unwind/app` (today's `@unwind/dashboard`, grown into the server UI).
 - The `uw-*` skills stay as deprecated aliases for one release.
 
 ## 2.10 Invariants
@@ -172,4 +186,6 @@ The **App** is today's dashboard (`packages/dashboard`) extended with a Recipe B
 - **Additive schemas only.** No reshaping `FileSymbols`; add optional fields.
 - **AST and real parsers over regex**, on both sides: detectors read ASTs, and recipes edit target files with ts-morph or tree-sitter.
 - **Graceful fallback at every step**, announced to the user.
-- **Files are the source of truth.** The store is a rebuildable index.
+- **Files are the source of truth.** Locally, that is `docs/unwind/`. On the server, it is the project's git repo. SQLite holds auth and operational state plus a **rebuildable** index.
+- **Code stays local.** Only artifacts are pushed to the server ([08 §8.11](08-server-and-slices.md)).
+- **Slices are first-class.** Candidate ids define slice membership, and convergence is set arithmetic over them ([08 §8.7–8.8](08-server-and-slices.md)).

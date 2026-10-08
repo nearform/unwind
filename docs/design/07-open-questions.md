@@ -25,7 +25,7 @@
 ## 7.5 Store timing
 
 - **Question:** When does the `node:sqlite` index arrive?
-- **Recommendation:** Only when the App (phase 7) needs multi-repo queries. Until then, files are authoritative.
+- **Recommendation:** **Day 0, inside the server** (phase 2, [08 §8.4](08-server-and-slices.md)). Locally, the CLI stays file-only. On the server, git holds the artifacts and SQLite holds auth/ops state plus a rebuildable index.
 
 ## 7.6 Interview tool integration
 
@@ -61,3 +61,37 @@
 
 - **Question:** After hand-off, who owns the generated files, and can a team "eject" from regeneration?
 - **Recommendation:** Yes. `unwind play eject <slice>` strips the generator markers and keeps the `@unwind-id` provenance comments, so verification still works. From then on the slice is hand-maintained.
+
+## 7.13 Slice auto-proposal algorithm
+
+- **Question:** How should `unwind slices propose` cut a large codebase into slices?
+- **Recommendation:** Deterministic and explainable first:
+  - community detection (e.g. Louvain/Leiden) over the import graph, later the call graph;
+  - seeded by top-level directories and layers;
+  - balanced by candidate count (target ~200–800 candidates per slice);
+  - each proposal shows its cohesion and seam count.
+
+  An LLM pass may then suggest business-capability names. Humans always confirm.
+
+## 7.14 Conflict resolution UX
+
+- **Question:** When two slice fragments disagree on the same id (priority or content), how is it resolved?
+- **Recommendation:**
+  - The server never auto-picks. The convergence view shows both versions side by side with their provenance, and one owner resolves.
+  - The resolution is a normal commit with a rationale, like grill verdicts.
+  - Push still succeeds, but the slice can't reach `accepted` while it has open conflicts.
+
+## 7.15 Git layout: per project, or a branch per slice
+
+- **Question:** Should each slice work on its own git branch in the project repo, or should everything live on `main` with per-slice folders?
+- **Recommendation:** **One repo per project and one `main` branch, with per-slice folders** ([08 §8.4](08-server-and-slices.md)). Path-level optimistic concurrency makes slice conflicts rare, convergence always reads one tree, and history stays linear. Revisit "review branches" (push to a branch, approve into `main`) if teams want PR-style review of analysis.
+
+## 7.16 Cloudflare / hosted variant
+
+- **Question:** Should the server also run Cloudflare-native (Workers + Durable Objects SQLite + R2) or as hosted SaaS?
+- **Recommendation:** **Later, behind a storage interface.** Day 0 is self-hosted Node + Docker only, because clients want artifacts inside their network and real git is simplest there. Keep the git and SQLite access behind a small `ArtifactStore` / `StateStore` interface so a Cloudflare adapter is possible without touching the API.
+
+## 7.17 Server auth beyond tokens
+
+- **Question:** When do we need SSO/OIDC and finer-grained roles?
+- **Recommendation:** Not on day 0. Use bearer tokens with read/write/admin scopes plus project allow-lists, and put a reverse proxy (or Cloudflare Access) in front for SSO. Add native OIDC only when a client requires it.

@@ -2,7 +2,7 @@
 
 > **In short:** This folder describes where Unwind is heading and how we get there. Unwind splits into **Rewind**, which understands a legacy system and compiles it into a stack-neutral **Spec**, and **Play**, which rebuilds the Spec deterministically from a client's **Target Kit** of recipes, with an LLM filling the explicit holes. Both halves are verified by computation, not by assertion. The ideas borrow heavily from OpenRewrite/Moderne, but Unwind takes **no dependency** on their stack.
 
-**Status:** design, for review. Nothing here is built yet. Live HTML version: _TBD (to be published to a Cloudflare Worker, see the deploy note in `CLAUDE.md`)_.
+**Status:** design, for review. Nothing here is built yet. Live HTML version: https://unwind-design.cliftonc.nl
 
 ![The big picture: Rewind → Spec → Play → Target, verified](diagrams/01-big-picture.svg)
 
@@ -30,9 +30,13 @@ Every line of target code is still written by an LLM. The extracted facts are na
 - **Target Kits** are versioned per-client git repos encoding their golden path. They are mined primarily from the client's own reference app ([03](03-target-kits-and-recipes.md)).
 - **Behaviour parity** ([05](05-behaviour-parity.md)): scenarios generated from the Spec run against the legacy app (to observe it and enrich the Spec) and against the rebuild (to give a parity verdict).
 - **Context gaps** ([05b](05b-context-gaps.md)): an agent round finds what the code can't tell us and produces interview briefs for stakeholders, end users, developers and ops. The answers flow back into the Spec with provenance.
-- **Surfaces:** one engine with a **CLI first** (the skills shell out to it), then a thin MCP adapter, then `unwind serve` (App + store + Recipe Book).
+- **Surfaces:** one engine with a **CLI first** (the skills shell out to it), plus, **from day 0**, a self-hosted **Unwind Server** ([08](08-server-and-slices.md)).
+  - The server is the team's shared system of record, with a basic UI: Hono + React, git + SQLite, one Docker image.
+  - Developers `unwind login` with a simple token and **push artifacts only**; code stays local.
+  - **Slices** are first-class units of work. They are analyzed in parallel, **converged** into one project Spec, and later rebuilt strangler-style by Play.
+  - An MCP adapter follows later.
 
-**How we get there** ([06](06-roadmap.md)): nine phases, each shippable on its own, each keeping the graceful fallback to today's pure-LLM flow.
+**How we get there** ([06](06-roadmap.md)): phases 0–8 (with 5b–5d in parallel), each shippable on its own, each keeping the graceful fallback to today's pure-LLM flow.
 
 ## Reading order
 
@@ -46,6 +50,7 @@ Every line of target code is still written by an LLM. The extracted facts are na
 | 05b | [Context gaps and interviews](05b-context-gaps.md) | finding and closing gaps the code can't answer |
 | 06 | [Roadmap](06-roadmap.md) | the phased plan with exit criteria |
 | 07 | [Open questions](07-open-questions.md) | decisions still to make, each with a recommendation |
+| 08 | [Unwind Server and slices](08-server-and-slices.md) | the shared day-0 server, auth, push/pull, slices and convergence |
 
 ## How to review
 

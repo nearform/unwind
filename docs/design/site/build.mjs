@@ -29,6 +29,7 @@ const DOCS = [
   '05b-context-gaps.md',
   '06-roadmap.md',
   '07-open-questions.md',
+  '08-server-and-slices.md',
 ];
 
 // ── dependencies (borrowed from the dashboard workspace) ─────────────────────

@@ -44,3 +44,6 @@ venv/
 
 # Generated design site (node docs/design/site/build.mjs)
 docs/design/site/public/
+
+# Wrangler local state
+.wrangler/
